@@ -1,2 +1,4 @@
 # myopcua
-awesome OPC-UA  protocol to http api
+Flexible OPC-UA to HTTP API server. Portable and powerful.
+
+
