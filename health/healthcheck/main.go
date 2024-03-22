@@ -1,5 +1,6 @@
 package main
 
+// go build -ldflags=-w -o healthcheck main.go
 import (
 	"net/http"
 	"os"

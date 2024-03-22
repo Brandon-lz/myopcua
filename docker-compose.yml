@@ -15,7 +15,7 @@ services:
         # Ensure that the variables in .env match the same variables in devcontainer.json
         - .devcontainer/.env
     ports:
-      - "5001:5001"
+      - "8080:8080"
     networks:
       - opcnetwork
     healthcheck:
@@ -23,4 +23,4 @@ services:
       interval: 5s
       timeout: 3s
       retries: 3
-      start_period: 10s
+      start_period: 8s
