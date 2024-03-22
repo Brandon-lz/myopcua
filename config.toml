@@ -1,0 +1,5 @@
+[opcua]
+endpoint = "opc.tcp://opcserver:4840"
+
+[openapi]
+port = 8080

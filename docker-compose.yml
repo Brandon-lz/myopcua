@@ -1,0 +1,26 @@
+version: '3.8'
+
+networks:
+  opcnetwork:
+    name: mynetwork     # 已经存在的network
+    external: true
+
+
+services:
+  opc-plugin-server:
+    build: 
+      context: .
+      dockerfile: Dockerfile
+    env_file:
+        # Ensure that the variables in .env match the same variables in devcontainer.json
+        - .devcontainer/.env
+    ports:
+      - "5001:5001"
+    networks:
+      - opcnetwork
+    healthcheck:
+      test: ["CMD","/healthcheck" ]
+      interval: 5s
+      timeout: 3s
+      retries: 3
+      start_period: 10s

@@ -1,0 +1,56 @@
+basePath: /
+definitions:
+  routers.ApiResponse:
+    properties:
+      message:
+        example: 欢迎使用OPC-UA OpenAPI
+        type: string
+    type: object
+host: localhost:8080
+info:
+  contact:
+    email: advanced_to@163.com
+  description: OPC-UA转http协议
+  title: OPC UA Open API
+  version: "1.0"
+paths:
+  /api/v1/:
+    get:
+      consumes:
+      - application/json
+      description: 根路由
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 欢迎使用OPC-UA OpenAPI
+          schema:
+            $ref: '#/definitions/routers.ApiResponse'
+      summary: 根路由
+      tags:
+      - default
+  /api/v1/ping:
+    get:
+      consumes:
+      - application/json
+      description: Ping 路由
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: pong
+          schema:
+            $ref: '#/definitions/routers.ApiResponse'
+      security:
+      - BearerAuth: []
+      summary: Ping 路由
+      tags:
+      - default
+schemes:
+- http
+securityDefinitions:
+  BearerAuth:
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"

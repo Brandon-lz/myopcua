@@ -1,0 +1,87 @@
+{
+    "schemes": [
+        "http"
+    ],
+    "swagger": "2.0",
+    "info": {
+        "description": "OPC-UA转http协议",
+        "title": "OPC UA Open API",
+        "contact": {
+            "email": "advanced_to@163.com"
+        },
+        "version": "1.0"
+    },
+    "host": "localhost:8080",
+    "basePath": "/",
+    "paths": {
+        "/api/v1/": {
+            "get": {
+                "description": "根路由",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "default"
+                ],
+                "summary": "根路由",
+                "responses": {
+                    "200": {
+                        "description": "欢迎使用OPC-UA OpenAPI",
+                        "schema": {
+                            "$ref": "#/definitions/routers.ApiResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/ping": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Ping 路由",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "default"
+                ],
+                "summary": "Ping 路由",
+                "responses": {
+                    "200": {
+                        "description": "pong",
+                        "schema": {
+                            "$ref": "#/definitions/routers.ApiResponse"
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "routers.ApiResponse": {
+            "type": "object",
+            "properties": {
+                "message": {
+                    "type": "string",
+                    "example": "欢迎使用OPC-UA OpenAPI"
+                }
+            }
+        }
+    },
+    "securityDefinitions": {
+        "BearerAuth": {
+            "type": "apiKey",
+            "name": "Authorization",
+            "in": "header"
+        }
+    }
+}

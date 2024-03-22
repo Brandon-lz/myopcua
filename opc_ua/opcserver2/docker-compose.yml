@@ -1,0 +1,18 @@
+version: '3.8'
+
+
+networks:
+  opcnetwork:
+    name: mynetwork     # 已经存在的network
+    external: true
+
+
+services:
+  opcserver2:
+    container_name: opcserver2
+    image: opcserver-img
+    build: 
+      context: .
+      dockerfile: Dockerfile
+    networks:
+      - opcnetwork
