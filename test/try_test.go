@@ -1,10 +1,13 @@
-package main
+package test
 
 import (
 	"fmt"
+	"testing"
+	"github.com/stretchr/testify/assert"
 )
 
-func main() {
+func TestTry(t *testing.T) {
+	assert := assert.New(t)
 	res := tryTest()
 	fmt.Println(res)
 	var datain interface{} = 12

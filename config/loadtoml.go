@@ -23,5 +23,10 @@ func loadConfig(tomlFilePath string) (error) {
         log.Fatalln("Failed to load config file: ", err)
         return err
     }
+
+    if os.Getenv("run_env") != "" {
+        Config.RunEnv = os.Getenv("run_env")
+    }
+
     return nil
 }

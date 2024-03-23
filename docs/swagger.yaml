@@ -6,6 +6,33 @@ definitions:
         example: pong
         type: string
     type: object
+  routers.AddNodeToReadRequest:
+    properties:
+      data-type:
+        example: Int32
+        type: string
+      name:
+        example: MyVariable
+        type: string
+      node-id:
+        example: ns=2;s=MyVariable
+        type: string
+    required:
+    - name
+    - node-id
+    type: object
+  routers.AddNodeToReadResponse:
+    properties:
+      code:
+        example: 200
+        type: integer
+      data:
+        example: ""
+        type: string
+      message:
+        example: 节点添加成功
+        type: string
+    type: object
   routers.ApiResponse:
     properties:
       message:
@@ -39,6 +66,30 @@ paths:
           schema:
             $ref: '#/definitions/routers.ApiResponse'
       summary: 根路由
+      tags:
+      - default
+  /api/v1/add-node-to-read:
+    post:
+      consumes:
+      - application/json
+      description: AddNodeToRead 路由
+      parameters:
+      - description: 见下方JSON
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/routers.AddNodeToReadRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 节点添加成功
+          schema:
+            $ref: '#/definitions/routers.AddNodeToReadResponse'
+      security:
+      - BearerAuth: []
+      summary: AddNodeToRead 路由
       tags:
       - default
   /api/v1/alice/ping:

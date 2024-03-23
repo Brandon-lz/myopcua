@@ -6,7 +6,7 @@ import (
 	"earth/health"
 	httpservice "earth/http_service"
 
-	// opcservices "earth/opc_service"
+	opcservices "earth/opc_service"
 	"log"
 )
 
@@ -25,8 +25,10 @@ func main() {
 	config.Init()
 	log.Println("Starting the opc application...")
 	globaldata.SystemVars.CurrentValues = map[int64]*globaldata.OpcNode{}
-	// go opcservices.Start()
+	go opcservices.Start()
 	go httpservice.Start()
 	go health.Runhealthcheck()
 	select {}
+
+	
 }

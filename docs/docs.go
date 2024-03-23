@@ -40,6 +40,45 @@ const docTemplate = `{
                 }
             }
         },
+        "/api/v1/add-node-to-read": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "AddNodeToRead 路由",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "default"
+                ],
+                "summary": "AddNodeToRead 路由",
+                "parameters": [
+                    {
+                        "description": "见下方JSON",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/routers.AddNodeToReadRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "节点添加成功",
+                        "schema": {
+                            "$ref": "#/definitions/routers.AddNodeToReadResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/api/v1/alice/ping": {
             "get": {
                 "description": "Ping 路由",
@@ -122,6 +161,44 @@ const docTemplate = `{
                 "message": {
                     "type": "string",
                     "example": "pong"
+                }
+            }
+        },
+        "routers.AddNodeToReadRequest": {
+            "type": "object",
+            "required": [
+                "name",
+                "node-id"
+            ],
+            "properties": {
+                "data-type": {
+                    "type": "string",
+                    "example": "Int32"
+                },
+                "name": {
+                    "type": "string",
+                    "example": "MyVariable"
+                },
+                "node-id": {
+                    "type": "string",
+                    "example": "ns=2;s=MyVariable"
+                }
+            }
+        },
+        "routers.AddNodeToReadResponse": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "integer",
+                    "example": 200
+                },
+                "data": {
+                    "type": "string",
+                    "example": ""
+                },
+                "message": {
+                    "type": "string",
+                    "example": "节点添加成功"
                 }
             }
         },

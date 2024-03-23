@@ -1,6 +1,7 @@
 package config
 
 type GlobalConfig struct {
+	RunEnv  string  `json:"run_env"`
 	Opcua   Opcua   `json:"opcua"`
 	Openapi Openapi `json:"openapi"`
 }
