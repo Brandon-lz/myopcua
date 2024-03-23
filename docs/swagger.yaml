@@ -1,9 +1,21 @@
 basePath: /
 definitions:
+  alicerouters.ApiResponse:
+    properties:
+      message:
+        example: pong
+        type: string
+    type: object
   routers.ApiResponse:
     properties:
       message:
         example: 欢迎使用OPC-UA OpenAPI
+        type: string
+    type: object
+  smithrouters.ApiResponse:
+    properties:
+      message:
+        example: pong
         type: string
     type: object
 host: localhost:8080
@@ -11,7 +23,7 @@ info:
   contact:
     email: advanced_to@163.com
   description: OPC-UA转http协议
-  title: OPC UA Open API
+  title: OPC-UA Open API
   version: "1.0"
 paths:
   /api/v1/:
@@ -29,6 +41,21 @@ paths:
       summary: 根路由
       tags:
       - default
+  /api/v1/alice/ping:
+    get:
+      consumes:
+      - application/json
+      description: Ping 路由
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: pong
+          schema:
+            $ref: '#/definitions/alicerouters.ApiResponse'
+      summary: Ping 路由
+      tags:
+      - alice的接口
   /api/v1/ping:
     get:
       consumes:
@@ -46,6 +73,21 @@ paths:
       summary: Ping 路由
       tags:
       - default
+  /api/v1/smith/ping:
+    get:
+      consumes:
+      - application/json
+      description: Ping 路由
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: pong
+          schema:
+            $ref: '#/definitions/smithrouters.ApiResponse'
+      summary: Ping 路由
+      tags:
+      - smith的接口
 schemes:
 - http
 securityDefinitions:

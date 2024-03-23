@@ -1,6 +1,7 @@
 package routers
 
 import (
+	alicerouters "earth/http_service/routers/alice_routers"
 	smithrouters "earth/http_service/routers/smith_routers"
 
 	"github.com/gin-gonic/gin"
@@ -12,6 +13,7 @@ func RegisterRoutes(router *gin.RouterGroup) {
 	router.GET("/", Root)
 	router.GET("/ping", Ping)
 	smithrouters.RegisterRoutes(router)
+	alicerouters.RegisterRoutes(router)
 }
 
 

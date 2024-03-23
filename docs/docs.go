@@ -40,6 +40,29 @@ const docTemplate = `{
                 }
             }
         },
+        "/api/v1/alice/ping": {
+            "get": {
+                "description": "Ping 路由",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "alice的接口"
+                ],
+                "summary": "Ping 路由",
+                "responses": {
+                    "200": {
+                        "description": "pong",
+                        "schema": {
+                            "$ref": "#/definitions/alicerouters.ApiResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/api/v1/ping": {
             "get": {
                 "security": [
@@ -67,15 +90,56 @@ const docTemplate = `{
                     }
                 }
             }
+        },
+        "/api/v1/smith/ping": {
+            "get": {
+                "description": "Ping 路由",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "smith的接口"
+                ],
+                "summary": "Ping 路由",
+                "responses": {
+                    "200": {
+                        "description": "pong",
+                        "schema": {
+                            "$ref": "#/definitions/smithrouters.ApiResponse"
+                        }
+                    }
+                }
+            }
         }
     },
     "definitions": {
+        "alicerouters.ApiResponse": {
+            "type": "object",
+            "properties": {
+                "message": {
+                    "type": "string",
+                    "example": "pong"
+                }
+            }
+        },
         "routers.ApiResponse": {
             "type": "object",
             "properties": {
                 "message": {
                     "type": "string",
                     "example": "欢迎使用OPC-UA OpenAPI"
+                }
+            }
+        },
+        "smithrouters.ApiResponse": {
+            "type": "object",
+            "properties": {
+                "message": {
+                    "type": "string",
+                    "example": "pong"
                 }
             }
         }
@@ -95,7 +159,7 @@ var SwaggerInfo = &swag.Spec{
 	Host:             "localhost:8080",
 	BasePath:         "/",
 	Schemes:          []string{"http"},
-	Title:            "OPC UA Open API",
+	Title:            "OPC-UA Open API",
 	Description:      "OPC-UA转http协议",
 	InfoInstanceName: "swagger",
 	SwaggerTemplate:  docTemplate,

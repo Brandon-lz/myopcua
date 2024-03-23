@@ -6,13 +6,12 @@ import (
 	"github.com/gin-gonic/gin"
 
 	_ "earth/docs" // 引入文档目录
+
 	swaggerFiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
 )
 
-
-
-func StartServer() {
+func Start() {
 	router := gin.Default()
 	// CORS for https://foo.com and https://github.com origins, allowing:
 	// - PUT and PATCH methods
@@ -28,7 +27,6 @@ func StartServer() {
 	})
 	url := ginSwagger.URL("http://localhost:8080/docs/doc.json") // The URL pointing to API definition
 
-	
 	router.GET("/docs/*any", ginSwagger.WrapHandler(swaggerFiles.Handler, url))
 	v1 := router.Group("/api/v1")
 	routers.RegisterRoutes(v1)

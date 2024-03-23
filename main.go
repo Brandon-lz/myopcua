@@ -5,9 +5,11 @@ import (
 	globaldata "earth/global_data"
 	"earth/health"
 	httpservice "earth/http_service"
-	opcservices "earth/opc_service"
+
+	// opcservices "earth/opc_service"
 	"log"
 )
+
 
 // @title OPC-UA Open API
 // @version 1.0
@@ -23,8 +25,8 @@ func main() {
 	config.Init()
 	log.Println("Starting the opc application...")
 	globaldata.SystemVars.CurrentValues = map[int64]*globaldata.OpcNode{}
-	go opcservices.Start()
-	go httpservice.StartServer()
+	// go opcservices.Start()
+	go httpservice.Start()
 	go health.Runhealthcheck()
 	select {}
 }
