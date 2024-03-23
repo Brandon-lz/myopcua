@@ -82,7 +82,10 @@ func AddNodeToRead(c *gin.Context) {
 	if req.DataType!= nil {
 		node.DataType = *req.DataType
 	}
-	globaldata.SystemVars.AddNode(&node)
+	if err:=globaldata.SystemVars.AddNode(&node);err!=nil{
+		panic(core.NewKnownError(core.FailedToAddNode,req.NodeID, fmt.Sprintf("add node failed: %s", err.Error())))
+	}
+	globaldata.SystemVars.Save()
 
 	// 响应
 	core.SuccessHandler(c, AddNodeToReadResponse{
@@ -183,6 +186,7 @@ func DeleteNode(c *gin.Context) {
 	if err=globaldata.SystemVars.DeleteNode(nodeID);err!=nil{
 		panic(core.NewKnownError(core.FailedToDeleteNode,id, "delete node failed"))
 	}
+	globaldata.SystemVars.Save()
 	core.SuccessHandler(c, ApiResponse{
 		Message: "节点删除成功",
 	})

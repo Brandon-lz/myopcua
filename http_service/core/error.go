@@ -10,6 +10,7 @@ const (
 
 	FailedToDeleteNode = 1006
 	FailedToGetNode    = 1007
+	FailedToAddNode    = 1008
 )
 
 type KnownError struct {

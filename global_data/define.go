@@ -1,6 +1,9 @@
 package globaldata
 
-import "fmt"
+import (
+	"earth/utils"
+	"fmt"
+)
 
 type OpcNode struct {
 	NodeID   string
@@ -25,6 +28,10 @@ func NewSystemVarsDFT() *SystemVarsDFT {
 		NodeIdList:    make([]string, 0),
 		NodeNameIndex: make(map[string]int64),
 	}
+}
+
+func (s *SystemVarsDFT) Save() error {
+	return utils.Dump(s,"systemvars.obj")
 }
 
 

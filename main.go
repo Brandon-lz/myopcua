@@ -24,11 +24,9 @@ import (
 func main() {
 	config.Init()
 	log.Println("Starting the opc application...")
-	globaldata.SystemVars.CurrentValues = map[int64]*globaldata.OpcNode{}
+	globaldata.InitSystemVars()
 	go opcservices.Start()
 	go httpservice.Start()
 	go health.Runhealthcheck()
 	select {}
-
-	
 }
