@@ -17,6 +17,17 @@ type SystemVarsDFT struct {
 	NodeNameIndex map[string]int64    // node name to index in CurrentValues   node name 索引
 }
 
+func NewSystemVarsDFT() *SystemVarsDFT {
+	return &SystemVarsDFT{
+		CurrentValues: make(map[int64]*OpcNode),
+		NodeNameSets:  make(map[string]struct{}),
+		NodeIdSets:    make(map[string]struct{}),
+		NodeIdList:    make([]string, 0),
+		NodeNameIndex: make(map[string]int64),
+	}
+}
+
+
 func (s *SystemVarsDFT) len() int {
 	return len(s.NodeIdList)
 }

@@ -2,4 +2,4 @@ package globaldata
 
 
 
-var SystemVars SystemVarsDFT
+var SystemVars = NewSystemVarsDFT()

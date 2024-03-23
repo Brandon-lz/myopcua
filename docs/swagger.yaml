@@ -15,7 +15,7 @@ definitions:
         example: MyVariable
         type: string
       node-id:
-        example: ns=2;s=MyVariable
+        example: ns=2;i=2
         type: string
     required:
     - name
@@ -27,8 +27,7 @@ definitions:
         example: 200
         type: integer
       data:
-        example: ""
-        type: string
+        $ref: '#/definitions/routers.OpcNodeOutput'
       message:
         example: 节点添加成功
         type: string
@@ -37,6 +36,44 @@ definitions:
     properties:
       message:
         example: 欢迎使用OPC-UA OpenAPI
+        type: string
+    type: object
+  routers.GetNodeResponse:
+    properties:
+      code:
+        example: 200
+        type: integer
+      data:
+        $ref: '#/definitions/routers.OpcNodeWithDataOutput'
+      message:
+        example: 节点信息
+        type: string
+    type: object
+  routers.OpcNodeOutput:
+    properties:
+      data-type:
+        example: Int32
+        type: string
+      name:
+        example: MyVariable
+        type: string
+      node-id:
+        example: ns=2;s=MyVariable
+        type: string
+    type: object
+  routers.OpcNodeWithDataOutput:
+    properties:
+      data-type:
+        example: Int32
+        type: string
+      name:
+        example: MyVariable
+        type: string
+      node-id:
+        example: ns=2;s=MyVariable
+        type: string
+      value:
+        example: "123"
         type: string
     type: object
   smithrouters.ApiResponse:
@@ -107,6 +144,52 @@ paths:
       summary: Ping 路由
       tags:
       - alice的接口
+  /api/v1/delete-node/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: DeleteNode 路由
+      parameters:
+      - description: 节点ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 节点删除成功
+          schema:
+            $ref: '#/definitions/routers.ApiResponse'
+      security:
+      - BearerAuth: []
+      summary: DeleteNode 路由
+      tags:
+      - default
+  /api/v1/get-node/{id}:
+    get:
+      consumes:
+      - application/json
+      description: GetNode 路由
+      parameters:
+      - description: 节点ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 节点信息
+          schema:
+            $ref: '#/definitions/routers.GetNodeResponse'
+      security:
+      - BearerAuth: []
+      summary: GetNode 路由
+      tags:
+      - default
   /api/v1/ping:
     get:
       consumes:
