@@ -40,45 +40,6 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/v1/add-node-to-read": {
-            "post": {
-                "security": [
-                    {
-                        "BearerAuth": []
-                    }
-                ],
-                "description": "AddNodeToRead 路由",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "default"
-                ],
-                "summary": "AddNodeToRead 路由",
-                "parameters": [
-                    {
-                        "description": "见下方JSON",
-                        "name": "data",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/routers.AddNodeToReadRequest"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "节点添加成功",
-                        "schema": {
-                            "$ref": "#/definitions/routers.AddNodeToReadResponse"
-                        }
-                    }
-                }
-            }
-        },
         "/api/v1/alice/ping": {
             "get": {
                 "description": "Ping 路由",
@@ -102,7 +63,46 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/v1/delete-node/{id}": {
+        "/api/v1/opc-node/add-node-to-read": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "AddNodeToRead 路由",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "nodes"
+                ],
+                "summary": "AddNodeToRead 路由",
+                "parameters": [
+                    {
+                        "description": "见下方JSON",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/noderouters.AddNodeToReadRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "节点添加成功",
+                        "schema": {
+                            "$ref": "#/definitions/noderouters.AddNodeToReadResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/opc-node/delete-node/{id}": {
             "delete": {
                 "security": [
                     {
@@ -117,7 +117,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "default"
+                    "nodes"
                 ],
                 "summary": "DeleteNode 路由",
                 "parameters": [
@@ -133,13 +133,13 @@ const docTemplate = `{
                     "200": {
                         "description": "节点删除成功",
                         "schema": {
-                            "$ref": "#/definitions/routers.ApiResponse"
+                            "$ref": "#/definitions/noderouters.DeleteNodeResponse"
                         }
                     }
                 }
             }
         },
-        "/api/v1/get-node/{id}": {
+        "/api/v1/opc-node/get-node/{id}": {
             "get": {
                 "security": [
                     {
@@ -154,7 +154,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "default"
+                    "nodes"
                 ],
                 "summary": "GetNode 路由",
                 "parameters": [
@@ -170,7 +170,7 @@ const docTemplate = `{
                     "200": {
                         "description": "节点信息",
                         "schema": {
-                            "$ref": "#/definitions/routers.GetNodeResponse"
+                            "$ref": "#/definitions/noderouters.GetNodeResponse"
                         }
                     }
                 }
@@ -226,6 +226,40 @@ const docTemplate = `{
                     }
                 }
             }
+        },
+        "/api/v1/webhook/config": {
+            "post": {
+                "description": "Add a new webhook configuration",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Webhook"
+                ],
+                "summary": "Add a new webhook configuration",
+                "parameters": [
+                    {
+                        "description": "Webhook configuration",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/webhookrouters.AddWebhookConfigRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/webhookrouters.AddWebhookConfigResponse"
+                        }
+                    }
+                }
+            }
         }
     },
     "definitions": {
@@ -238,7 +272,7 @@ const docTemplate = `{
                 }
             }
         },
-        "routers.AddNodeToReadRequest": {
+        "noderouters.AddNodeToReadRequest": {
             "type": "object",
             "required": [
                 "name",
@@ -259,7 +293,7 @@ const docTemplate = `{
                 }
             }
         },
-        "routers.AddNodeToReadResponse": {
+        "noderouters.AddNodeToReadResponse": {
             "type": "object",
             "properties": {
                 "code": {
@@ -267,7 +301,7 @@ const docTemplate = `{
                     "example": 200
                 },
                 "data": {
-                    "$ref": "#/definitions/routers.OpcNodeOutput"
+                    "$ref": "#/definitions/noderouters.OpcNodeOutput"
                 },
                 "message": {
                     "type": "string",
@@ -275,16 +309,7 @@ const docTemplate = `{
                 }
             }
         },
-        "routers.ApiResponse": {
-            "type": "object",
-            "properties": {
-                "message": {
-                    "type": "string",
-                    "example": "欢迎使用OPC-UA OpenAPI"
-                }
-            }
-        },
-        "routers.GetNodeResponse": {
+        "noderouters.DeleteNodeResponse": {
             "type": "object",
             "properties": {
                 "code": {
@@ -292,7 +317,23 @@ const docTemplate = `{
                     "example": 200
                 },
                 "data": {
-                    "$ref": "#/definitions/routers.OpcNodeWithDataOutput"
+                    "type": "string"
+                },
+                "message": {
+                    "type": "string",
+                    "example": "节点删除成功"
+                }
+            }
+        },
+        "noderouters.GetNodeResponse": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "integer",
+                    "example": 200
+                },
+                "data": {
+                    "$ref": "#/definitions/noderouters.OpcNodeWithDataOutput"
                 },
                 "message": {
                     "type": "string",
@@ -300,7 +341,7 @@ const docTemplate = `{
                 }
             }
         },
-        "routers.OpcNodeOutput": {
+        "noderouters.OpcNodeOutput": {
             "type": "object",
             "properties": {
                 "data-type": {
@@ -317,7 +358,7 @@ const docTemplate = `{
                 }
             }
         },
-        "routers.OpcNodeWithDataOutput": {
+        "noderouters.OpcNodeWithDataOutput": {
             "type": "object",
             "properties": {
                 "data-type": {
@@ -338,12 +379,83 @@ const docTemplate = `{
                 }
             }
         },
+        "routers.ApiResponse": {
+            "type": "object",
+            "properties": {
+                "message": {
+                    "type": "string",
+                    "example": "欢迎使用OPC-UA OpenAPI"
+                }
+            }
+        },
         "smithrouters.ApiResponse": {
             "type": "object",
             "properties": {
                 "message": {
                     "type": "string",
                     "example": "pong"
+                }
+            }
+        },
+        "webhookrouters.AddWebhookConfigRequest": {
+            "type": "object",
+            "required": [
+                "active",
+                "id",
+                "url"
+            ],
+            "properties": {
+                "active": {
+                    "type": "boolean"
+                },
+                "id": {
+                    "type": "integer",
+                    "example": 1
+                },
+                "name": {
+                    "type": "string"
+                },
+                "url": {
+                    "type": "string"
+                }
+            }
+        },
+        "webhookrouters.AddWebhookConfigResponse": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "integer",
+                    "example": 200
+                },
+                "data": {
+                    "$ref": "#/definitions/webhookrouters.WebHookConfigRead"
+                },
+                "message": {
+                    "type": "string",
+                    "example": "节点添加成功"
+                }
+            }
+        },
+        "webhookrouters.WebHookConfigRead": {
+            "type": "object",
+            "required": [
+                "active",
+                "id",
+                "name",
+                "url"
+            ],
+            "properties": {
+                "active": {
+                    "type": "boolean"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "url": {
+                    "type": "string"
                 }
             }
         }

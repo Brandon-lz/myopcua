@@ -6,7 +6,7 @@ definitions:
         example: pong
         type: string
     type: object
-  routers.AddNodeToReadRequest:
+  noderouters.AddNodeToReadRequest:
     properties:
       data-type:
         example: Int32
@@ -21,35 +21,40 @@ definitions:
     - name
     - node-id
     type: object
-  routers.AddNodeToReadResponse:
+  noderouters.AddNodeToReadResponse:
     properties:
       code:
         example: 200
         type: integer
       data:
-        $ref: '#/definitions/routers.OpcNodeOutput'
+        $ref: '#/definitions/noderouters.OpcNodeOutput'
       message:
         example: 节点添加成功
         type: string
     type: object
-  routers.ApiResponse:
-    properties:
-      message:
-        example: 欢迎使用OPC-UA OpenAPI
-        type: string
-    type: object
-  routers.GetNodeResponse:
+  noderouters.DeleteNodeResponse:
     properties:
       code:
         example: 200
         type: integer
       data:
-        $ref: '#/definitions/routers.OpcNodeWithDataOutput'
+        type: string
+      message:
+        example: 节点删除成功
+        type: string
+    type: object
+  noderouters.GetNodeResponse:
+    properties:
+      code:
+        example: 200
+        type: integer
+      data:
+        $ref: '#/definitions/noderouters.OpcNodeWithDataOutput'
       message:
         example: 节点信息
         type: string
     type: object
-  routers.OpcNodeOutput:
+  noderouters.OpcNodeOutput:
     properties:
       data-type:
         example: Int32
@@ -61,7 +66,7 @@ definitions:
         example: ns=2;s=MyVariable
         type: string
     type: object
-  routers.OpcNodeWithDataOutput:
+  noderouters.OpcNodeWithDataOutput:
     properties:
       data-type:
         example: Int32
@@ -76,11 +81,60 @@ definitions:
         example: "123"
         type: string
     type: object
+  routers.ApiResponse:
+    properties:
+      message:
+        example: 欢迎使用OPC-UA OpenAPI
+        type: string
+    type: object
   smithrouters.ApiResponse:
     properties:
       message:
         example: pong
         type: string
+    type: object
+  webhookrouters.AddWebhookConfigRequest:
+    properties:
+      active:
+        type: boolean
+      id:
+        example: 1
+        type: integer
+      name:
+        type: string
+      url:
+        type: string
+    required:
+    - active
+    - id
+    - url
+    type: object
+  webhookrouters.AddWebhookConfigResponse:
+    properties:
+      code:
+        example: 200
+        type: integer
+      data:
+        $ref: '#/definitions/webhookrouters.WebHookConfigRead'
+      message:
+        example: 节点添加成功
+        type: string
+    type: object
+  webhookrouters.WebHookConfigRead:
+    properties:
+      active:
+        type: boolean
+      id:
+        type: integer
+      name:
+        type: string
+      url:
+        type: string
+    required:
+    - active
+    - id
+    - name
+    - url
     type: object
 host: localhost:8080
 info:
@@ -105,30 +159,6 @@ paths:
       summary: 根路由
       tags:
       - default
-  /api/v1/add-node-to-read:
-    post:
-      consumes:
-      - application/json
-      description: AddNodeToRead 路由
-      parameters:
-      - description: 见下方JSON
-        in: body
-        name: data
-        required: true
-        schema:
-          $ref: '#/definitions/routers.AddNodeToReadRequest'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: 节点添加成功
-          schema:
-            $ref: '#/definitions/routers.AddNodeToReadResponse'
-      security:
-      - BearerAuth: []
-      summary: AddNodeToRead 路由
-      tags:
-      - default
   /api/v1/alice/ping:
     get:
       consumes:
@@ -144,7 +174,31 @@ paths:
       summary: Ping 路由
       tags:
       - alice的接口
-  /api/v1/delete-node/{id}:
+  /api/v1/opc-node/add-node-to-read:
+    post:
+      consumes:
+      - application/json
+      description: AddNodeToRead 路由
+      parameters:
+      - description: 见下方JSON
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/noderouters.AddNodeToReadRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 节点添加成功
+          schema:
+            $ref: '#/definitions/noderouters.AddNodeToReadResponse'
+      security:
+      - BearerAuth: []
+      summary: AddNodeToRead 路由
+      tags:
+      - nodes
+  /api/v1/opc-node/delete-node/{id}:
     delete:
       consumes:
       - application/json
@@ -161,13 +215,13 @@ paths:
         "200":
           description: 节点删除成功
           schema:
-            $ref: '#/definitions/routers.ApiResponse'
+            $ref: '#/definitions/noderouters.DeleteNodeResponse'
       security:
       - BearerAuth: []
       summary: DeleteNode 路由
       tags:
-      - default
-  /api/v1/get-node/{id}:
+      - nodes
+  /api/v1/opc-node/get-node/{id}:
     get:
       consumes:
       - application/json
@@ -184,12 +238,12 @@ paths:
         "200":
           description: 节点信息
           schema:
-            $ref: '#/definitions/routers.GetNodeResponse'
+            $ref: '#/definitions/noderouters.GetNodeResponse'
       security:
       - BearerAuth: []
       summary: GetNode 路由
       tags:
-      - default
+      - nodes
   /api/v1/ping:
     get:
       consumes:
@@ -222,6 +276,28 @@ paths:
       summary: Ping 路由
       tags:
       - smith的接口
+  /api/v1/webhook/config:
+    post:
+      consumes:
+      - application/json
+      description: Add a new webhook configuration
+      parameters:
+      - description: Webhook configuration
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/webhookrouters.AddWebhookConfigRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/webhookrouters.AddWebhookConfigResponse'
+      summary: Add a new webhook configuration
+      tags:
+      - Webhook
 schemes:
 - http
 securityDefinitions:

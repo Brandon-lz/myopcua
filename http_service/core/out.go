@@ -6,8 +6,8 @@ import (
 	"encoding/json"
 	"net/http"
 
-	"github.com/sirupsen/logrus"
 	"github.com/gin-gonic/gin"
+	"github.com/sirupsen/logrus"
 )
 
 
@@ -33,24 +33,24 @@ func SuccessHandler(c *gin.Context, responseData interface{}) {
 
 
 
-func SerializeData(source, target interface{}) (interface{})  {
+func SerializeDataAndValidate[T interface{}](source interface{}, target *T) (T)  {       // target必须为指针类型
 	jsonData, err := json.Marshal(source)
 	if err != nil {
 		logrus.Error("JSON序列化失败:", err)
-		panic(NewKnownError(http.StatusInternalServerError, nil,"数据异常"))
+		panic(NewKnownError(http.StatusInternalServerError, nil,"output数据异常"))
 	}
 
-	err = json.Unmarshal(jsonData, &target)
+	err = json.Unmarshal(jsonData, target)
 	if err != nil {
 		logrus.Error("JSON反序列化失败:", err)
-		panic(NewKnownError(http.StatusInternalServerError, nil,"数据异常"))
+		panic(NewKnownError(http.StatusInternalServerError, nil,"output数据异常"))
 	}
 
 	if err := ValidateStruct(target); err != nil {
 		logrus.Error("数据校验失败:", err)
-		panic(NewKnownError(http.StatusInternalServerError, nil,"数据异常"))
+		panic(NewKnownError(http.StatusInternalServerError, nil,"output数据异常"))
     }
 
-	return target
+	return *target
 }
 

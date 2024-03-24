@@ -10,7 +10,7 @@ import (
 
 type HttpResponse struct {
     Message string      `json:"msg"`
-    Status  int         `json:"code"`
+    Code  int         `json:"code"`
     Data    interface{} `json:"data"`
 }
 
@@ -18,10 +18,10 @@ func ErrorHandler(c *gin.Context, err any) {
     var httpResponse HttpResponse
     switch v := err.(type) {
     case *core.KnownError: // 自定义异常
-        httpResponse = HttpResponse{Status: v.Code, Data: v.Data, Message: v.Msg}
+        httpResponse = HttpResponse{Code: v.Code, Data: v.Data, Message: v.Msg}
     default: // 系统异常
         goErr := errors.Wrap(err, 2)
-        httpResponse = HttpResponse{Message: "Internal server error", Status: 500, Data: goErr.Error()}
+        httpResponse = HttpResponse{Message: "Internal server error", Code: 500, Data: goErr.Error()}
     }
     c.AbortWithStatusJSON(500, httpResponse) // 有些公司用200
 }

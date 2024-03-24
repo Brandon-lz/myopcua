@@ -1,45 +1,31 @@
 package core
 
 import (
-	"earth/config"
 	"net/http"
-	"reflect"
-
 	"fmt"
-
 	"github.com/gin-gonic/gin"
 	"github.com/go-playground/validator/v10"
 )
 
 
-func BindParamAndValidate(c *gin.Context, obj interface{}) {
-	if config.Config.RunEnv!="prod"{
-		// 非生产环境，校验obj是否为指针且非空
-		if reflect.ValueOf(obj).Kind() != reflect.Ptr || reflect.ValueOf(obj).IsNil() {
-			panic("BindParamAndValidate the second parameter obj must be a non-nil pointer")
-		}
-	}
-	
+func BindParamAndValidate[T interface{}](c *gin.Context, obj *T) {
     if c.Request.Method == http.MethodGet {
         if err := c.ShouldBindQuery(obj); err != nil {
-            // ErrorHandler(c, NewKnownError(http.StatusBadRequest,nil,err.Error()))
-            // return false
 			panic(NewKnownError(http.StatusBadRequest,nil,err.Error()))
         }
     } else if c.Request.Method == http.MethodPost || c.Request.Method == http.MethodPut || c.Request.Method == http.MethodDelete {
         if err := c.ShouldBindJSON(obj); err != nil {
-            // ErrorHandler(c, NewKnownError(http.StatusBadRequest,nil,err.Error()))
-            // return false
 			panic(NewKnownError(http.StatusBadRequest,nil,err.Error()))
         }
     }
 
-    if err := ValidateStruct(obj); err != nil {
-        // 如果是验证错误，返回422 Unprocessable Entity
-        // ErrorHandler(c, NewKnownError(http.StatusUnprocessableEntity,nil,err.Error()))
-		panic(NewKnownError(http.StatusUnprocessableEntity,nil,err.Error()))
-        // return false
-    }
+	// 使用binding tag来验证就好，这里不再重复验证，validator验证出参
+    // if err := ValidateStruct(obj); err != nil {
+    //     // 如果是验证错误，返回422 Unprocessable Entity
+    //     // ErrorHandler(c, NewKnownError(http.StatusUnprocessableEntity,nil,err.Error()))
+	// 	panic(NewKnownError(http.StatusUnprocessableEntity,nil,err.Error()))
+    //     // return false
+    // }
 }
 
 var Validate = validator.New(validator.WithRequiredStructEnabled())
