@@ -16,7 +16,7 @@ func RegisterRoutes(router *gin.RouterGroup) {
 	// group.DELETE("/config/:id", DeleteWebhookConfig)
 }
 
-// AddWebhookConfig godoc
+// AddWebhookConfig router -------------------------------------
 // @Summary Add a new webhook configuration
 // @Description Add a new webhook configuration
 // @Tags Webhook
@@ -26,16 +26,19 @@ func RegisterRoutes(router *gin.RouterGroup) {
 // @Success 200 {object} AddWebhookConfigResponse
 // @Router /api/v1/webhook/config [post]
 func AddWebhookConfig(c *gin.Context) {
+	// 入参校验
 	var req AddWebhookConfigRequest
 	core.BindParamAndValidate(c, &req)
 	fmt.Printf("req: %+v\n", req)
 	
+	// 逻辑处理
 	webhook,err:=ServiceAddWebhookConfig(&req)
 	if err!=nil{
 		panic(err)
 	}
 
-	out:=core.SerializeDataAndValidate(*webhook, &WebHookConfigRead{})
+	// 出参序列化以及校验
+	out:=core.SerializeDataAndValidate(*webhook, &WebHookConfigRead{},false)   // false代表只校验字段但是不做序列化，因为这里的webhook变量已经是目标类型了
 
 	core.SuccessHandler(c, AddWebhookConfigResponse{
 		Code:    200,
@@ -82,3 +85,4 @@ func ServiceAddWebhookConfig(req *AddWebhookConfigRequest) (*WebHookConfigRead, 
 
 	return &resp, nil
 }
+

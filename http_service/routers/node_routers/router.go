@@ -33,7 +33,7 @@ func AddNodeToRead(c *gin.Context) {
 
 	node := serviceAddNodeToRead(&req)
 
-	out := core.SerializeDataAndValidate(OpcNodeOutput{node.NodeID, node.Name, node.DataType}, &OpcNodeOutput{})
+	out := core.SerializeDataAndValidate(OpcNodeOutput{node.NodeID, node.Name, node.DataType}, &OpcNodeOutput{},false)  // false不进行序列化，因为第一个参数类型就是目标类型
 
 	// 响应
 	core.SuccessHandler(c, AddNodeToReadResponse{
@@ -99,7 +99,7 @@ func GetNode(c *gin.Context) {
 
 	node, value := serviceGetNode(nodeID)
 
-	out := core.SerializeDataAndValidate(OpcNodeWithDataOutput{OpcNodeOutput{node.Name, node.NodeID, node.DataType}, value}, &OpcNodeWithDataOutput{})
+	out := core.SerializeDataAndValidate(OpcNodeWithDataOutput{OpcNodeOutput{node.Name, node.NodeID, node.DataType}, value}, &OpcNodeWithDataOutput{},false)
 	core.SuccessHandler(c, GetNodeResponse{
 		Code:    200,
 		Data:    out,

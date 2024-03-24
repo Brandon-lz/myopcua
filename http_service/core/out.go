@@ -10,10 +10,9 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-
 type apiResponse struct {
-	Code    int         `json:"code"`
-	Message string      `json:"message"`
+	Code    int    `json:"code"`
+	Message string `json:"message"`
 	Data    string `json:"data"`
 }
 
@@ -25,32 +24,36 @@ func SuccessHandler(c *gin.Context, responseData interface{}) {
 			Message: "",
 			Data:    "",
 		})
-	} else{
+	} else {
 		c.JSON(http.StatusOK, responseData)
 	}
-	
+
 }
 
+func SerializeDataAndValidate[T interface{}](source T, target *T, doSerialize ...bool) T { // target必须为指针类型
+	if len(doSerialize) > 0 && doSerialize[0] {
+		jsonData, err := json.Marshal(source)
+		if err != nil {
+			logrus.Error("JSON序列化失败:", err)
+			panic(NewKnownError(http.StatusInternalServerError, nil, "output数据异常"))
+		}
 
+		err = json.Unmarshal(jsonData, target)
+		if err != nil {
+			logrus.Error("JSON反序列化失败:", err)
+			panic(NewKnownError(http.StatusInternalServerError, nil, "output数据异常"))
+		}
+		if err := ValidateStruct(target); err != nil {
+			logrus.Error("数据校验失败:", err)
+			panic(NewKnownError(http.StatusInternalServerError, nil, "output数据异常"))
+		}
+		return *target
 
-func SerializeDataAndValidate[T interface{}](source interface{}, target *T) (T)  {       // target必须为指针类型
-	jsonData, err := json.Marshal(source)
-	if err != nil {
-		logrus.Error("JSON序列化失败:", err)
-		panic(NewKnownError(http.StatusInternalServerError, nil,"output数据异常"))
+	} else {
+		if err := ValidateStruct(source); err != nil {
+			logrus.Error("数据校验失败:", err)
+			panic(NewKnownError(http.StatusInternalServerError, nil, "output数据异常"))
+		}
+		return source
 	}
-
-	err = json.Unmarshal(jsonData, target)
-	if err != nil {
-		logrus.Error("JSON反序列化失败:", err)
-		panic(NewKnownError(http.StatusInternalServerError, nil,"output数据异常"))
-	}
-
-	if err := ValidateStruct(target); err != nil {
-		logrus.Error("数据校验失败:", err)
-		panic(NewKnownError(http.StatusInternalServerError, nil,"output数据异常"))
-    }
-
-	return *target
 }
-
