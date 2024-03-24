@@ -7,10 +7,6 @@ import (
 	"reflect"
 )
 
-type Person struct {
-    Name string
-    Age  int
-}
 
 func Dump(obj interface{},filepath string) error {
 
@@ -55,5 +51,3 @@ func Load(filepath string, obj interface{}) error {
     }
 	return nil
 }
-
-

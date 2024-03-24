@@ -13,38 +13,10 @@ type Person struct {
 }
 
 
-type SystemVarsDFT struct {
-	CurrentValues map[int64]*OpcNode  // 0 node1, 1 node2, 2 node3...
-	NodeNameSets  map[string]struct{} // set of node names
-	NodeIdSets    map[string]struct{} // set of node ids  golang中没有集合  nodeid unique
-	NodeIdList    []string            // list of node ids
-	NodeNameIndex map[string]int64    // node name to index in CurrentValues   node name 索引
-}
-
-func NewSystemVarsDFT() *SystemVarsDFT {
-	return &SystemVarsDFT{
-		CurrentValues: make(map[int64]*OpcNode),
-		NodeNameSets:  make(map[string]struct{}),
-		NodeIdSets:    make(map[string]struct{}),
-		NodeIdList:    make([]string, 0),
-		NodeNameIndex: make(map[string]int64),
-	}
-}
-
-type OpcNode struct {
-	NodeID   string
-	Name     string
-	DataType string
-	Value    interface{}
-}
-
-
-
 func TestDump(t *testing.T) {
 	require := require.New(t)
 	// 创建一个Person对象
-    // p := &Person{Name: "张三", Age: 30}
-	p := NewSystemVarsDFT()
+    p := &Person{Name: "张三", Age: 30}
     // 打开一个文件用于写入序列化后的数据
     file, err := os.Create("person.obj")
 	require.NoError(err)
@@ -59,6 +31,7 @@ func TestDump(t *testing.T) {
     t.Log("序列化成功！")
 }
 
+
 func TestLoad(t *testing.T) {
 	require := require.New(t)
 	// 打开一个文件用于读取序列化后的数据
@@ -69,7 +42,7 @@ func TestLoad(t *testing.T) {
     dec := gob.NewDecoder(file)
 
     // 创建一个Person对象
-    var p SystemVarsDFT
+    var p Person
     // 从文件中反序列化Person对象
     err = dec.Decode(&p)
     require.NoError(err)
