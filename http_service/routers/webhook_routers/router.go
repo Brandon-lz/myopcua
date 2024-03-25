@@ -1,7 +1,11 @@
 package webhookrouters
 
 import (
+	"context"
+	"earth/db/gen/model"
+	"earth/db/gen/query"
 	"earth/http_service/core"
+	"earth/utils"
 	"fmt"
 
 	"github.com/gin-gonic/gin"
@@ -17,8 +21,8 @@ func RegisterRoutes(router *gin.RouterGroup) {
 }
 
 // AddWebhookConfig router -------------------------------------
-// @Summary Add a new webhook configuration
-// @Description Add a new webhook configuration
+// @Summary 配置一条新的webhook
+// @Description 配置一条新的webhook
 // @Tags Webhook
 // @Accept  json
 // @Produce  json
@@ -30,15 +34,38 @@ func AddWebhookConfig(c *gin.Context) {
 	var req AddWebhookConfigRequest
 	core.BindParamAndValidate(c, &req)
 	fmt.Printf("req: %+v\n", req)
-	
+
 	// 逻辑处理
-	webhook,err:=ServiceAddWebhookConfig(&req)
+	// webhook,err:=ServiceAddWebhookConfig(&req)
+	// if err!=nil{
+	// 	panic(err)
+	// }
+
+	if req.Name == nil {
+		// name := 
+		req.Name = utils.Adr(uuid.New().String()[:6])
+	}
+	if req.Active == nil{
+		req.Active = utils.Adr(true)
+	}
+
+	webhook := core.SerializeData(&req, &model.WebHook{})
+	fmt.Println(11111111,webhook)
+
+	q := query.WebHook
+	ctx := context.Background()
+	err:= q.WithContext(ctx).Create(&webhook)
 	if err!=nil{
 		panic(err)
 	}
+	fmt.Printf("%+v",webhook)
 
 	// 出参序列化以及校验
-	out:=core.SerializeDataAndValidate(*webhook, &WebHookConfigRead{},false)   // false代表只校验字段但是不做序列化，因为这里的webhook变量已经是目标类型了
+	out:=core.SerializeData(webhook,&WebHookConfigRead{})
+	// out:=core.SerializeDataAndValidate(webhook, &WebHookConfigRead{},true)   // false代表只校验字段但是不做序列化，因为这里的webhook变量已经是目标类型了
+	core.ValidateSchema(out)
+
+	fmt.Printf("%+v",out)
 
 	core.SuccessHandler(c, AddWebhookConfigResponse{
 		Code:    200,
@@ -48,7 +75,6 @@ func AddWebhookConfig(c *gin.Context) {
 }
 
 type AddWebhookConfigRequest struct {
-	Id     int     `json:"id" form:"id" binding:"required,gt=10" example:"1"`
 	Name   *string `json:"name" form:"name" example:"webhook1"` // 可以为空 要用*string
 	Url    string  `json:"url" form:"url" binding:"required"`
 	Active *bool   `json:"active" form:"active"`
@@ -67,10 +93,8 @@ type WebHookConfigRead struct {
 	Active bool   `json:"active" form:"active" validate:"required"`
 }
 
-
 func ServiceAddWebhookConfig(req *AddWebhookConfigRequest) (*WebHookConfigRead, error) {
 	var resp WebHookConfigRead
-	resp.Id = req.Id
 	if req.Name == nil {
 		resp.Name = "webhook"
 	} else {
@@ -85,4 +109,3 @@ func ServiceAddWebhookConfig(req *AddWebhookConfigRequest) (*WebHookConfigRead, 
 
 	return &resp, nil
 }
-

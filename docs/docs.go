@@ -229,7 +229,7 @@ const docTemplate = `{
         },
         "/api/v1/webhook/config": {
             "post": {
-                "description": "Add a new webhook configuration",
+                "description": "配置一条新的webhook",
                 "consumes": [
                     "application/json"
                 ],
@@ -239,7 +239,7 @@ const docTemplate = `{
                 "tags": [
                     "Webhook"
                 ],
-                "summary": "Add a new webhook configuration",
+                "summary": "配置一条新的webhook",
                 "parameters": [
                     {
                         "description": "Webhook configuration",
@@ -400,20 +400,16 @@ const docTemplate = `{
         "webhookrouters.AddWebhookConfigRequest": {
             "type": "object",
             "required": [
-                "active",
-                "id",
                 "url"
             ],
             "properties": {
                 "active": {
                     "type": "boolean"
                 },
-                "id": {
-                    "type": "integer",
-                    "example": 1
-                },
                 "name": {
-                    "type": "string"
+                    "description": "可以为空 要用*string",
+                    "type": "string",
+                    "example": "webhook1"
                 },
                 "url": {
                     "type": "string"

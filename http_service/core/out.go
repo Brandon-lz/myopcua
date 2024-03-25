@@ -27,33 +27,56 @@ func SuccessHandler(c *gin.Context, responseData interface{}) {
 	} else {
 		c.JSON(http.StatusOK, responseData)
 	}
-
 }
 
 func SerializeDataAndValidate[T interface{}](source T, target *T, doSerialize ...bool) T { // target必须为指针类型
 	if len(doSerialize) > 0 && doSerialize[0] {
-		jsonData, err := json.Marshal(source)
-		if err != nil {
-			logrus.Error("JSON序列化失败:", err)
-			panic(NewKnownError(http.StatusInternalServerError, nil, "output数据异常"))
-		}
+		// jsonData, err := json.Marshal(source)
+		// if err != nil {
+		// 	logrus.Error("JSON序列化失败:", err)
+		// 	panic(NewKnownError(http.StatusInternalServerError, nil, "output数据异常"))
+		// }
 
-		err = json.Unmarshal(jsonData, target)
-		if err != nil {
-			logrus.Error("JSON反序列化失败:", err)
-			panic(NewKnownError(http.StatusInternalServerError, nil, "output数据异常"))
-		}
-		if err := ValidateStruct(target); err != nil {
-			logrus.Error("数据校验失败:", err)
-			panic(NewKnownError(http.StatusInternalServerError, nil, "output数据异常"))
-		}
-		return *target
+		// err = json.Unmarshal(jsonData, target)
+		// if err != nil {
+		// 	logrus.Error("JSON反序列化失败:", err)
+		// 	panic(NewKnownError(http.StatusInternalServerError, nil, "output数据异常"))
+		// }
+		// if err := ValidateStruct(target); err != nil {
+		// 	logrus.Error("数据校验失败:", err)
+		// 	panic(NewKnownError(http.StatusInternalServerError, nil, "output数据异常"))
+		// }
+		// return *target
+		return SerializeData(source, target)
 
 	} else {
-		if err := ValidateStruct(source); err != nil {
-			logrus.Error("数据校验失败:", err)
-			panic(NewKnownError(http.StatusInternalServerError, nil, "output数据异常"))
-		}
-		return source
+		// if err := ValidateStruct(source); err != nil {
+		// 	logrus.Error("数据校验失败:", err)
+		// 	panic(NewKnownError(http.StatusInternalServerError, nil, "output数据异常"))
+		// }
+		return ValidateSchema(source)
 	}
+}
+
+func SerializeData[T interface{}](source any, target *T) T { // target必须为指针类型
+	jsonData, err := json.Marshal(source)
+	if err != nil {
+		logrus.Error("JSON序列化失败:", err)
+		panic(NewKnownError(http.StatusInternalServerError, nil, "output数据异常"))
+	}
+
+	err = json.Unmarshal(jsonData, target)
+	if err != nil {
+		logrus.Error("JSON反序列化失败:", err)
+		panic(NewKnownError(http.StatusInternalServerError, nil, "output数据异常"))
+	}
+	return *target
+}
+
+func ValidateSchema[T interface{}](source T)T{
+	if err := ValidateStruct(source); err != nil {
+		logrus.Error("数据校验失败:", err)
+		panic(NewKnownError(http.StatusInternalServerError, nil, "output数据异常"))
+	}
+	return source
 }

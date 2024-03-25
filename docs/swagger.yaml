@@ -97,16 +97,13 @@ definitions:
     properties:
       active:
         type: boolean
-      id:
-        example: 1
-        type: integer
       name:
+        description: 可以为空 要用*string
+        example: webhook1
         type: string
       url:
         type: string
     required:
-    - active
-    - id
     - url
     type: object
   webhookrouters.AddWebhookConfigResponse:
@@ -280,7 +277,7 @@ paths:
     post:
       consumes:
       - application/json
-      description: Add a new webhook configuration
+      description: 配置一条新的webhook
       parameters:
       - description: Webhook configuration
         in: body
@@ -295,7 +292,7 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/webhookrouters.AddWebhookConfigResponse'
-      summary: Add a new webhook configuration
+      summary: 配置一条新的webhook
       tags:
       - Webhook
 schemes:

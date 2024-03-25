@@ -9,7 +9,7 @@ import (
 var DB *gorm.DB
 
 func InitDB() {
-	DB,err:=getPGDB()
+	DB,err:=GetPGDB()
 	if err != nil {
 		panic("failed to connect database")
 	}
@@ -17,13 +17,13 @@ func InitDB() {
 }
 
 
-func getSqliteDB() (*gorm.DB ,error) {
+func GetSqliteDB() (*gorm.DB ,error) {
 	return gorm.Open(sqlite.Open("sqlite.db"), &gorm.Config{
 		DisableForeignKeyConstraintWhenMigrating: true,
 	})
 }
 
-func getPGDB()(*gorm.DB, error) {
-	dsn := "host=db user=postgres password=postgres dbname=postgres port=5432 sslmode=disable TimeZone=Asia/Shanghai"
+func GetPGDB()(*gorm.DB, error) {
+	dsn := "host=vector-pg user=postgres password=postgres dbname=postgres port=5432 sslmode=disable TimeZone=Asia/Shanghai"
 	return gorm.Open(postgres.Open(dsn), &gorm.Config{})
 }
