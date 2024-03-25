@@ -2,13 +2,13 @@ package main
 
 import (
 	"earth/config"
+	"earth/db"
 	globaldata "earth/global_data"
 	"earth/health"
 	httpservice "earth/http_service"
 	opcservices "earth/opc_service"
 	"log"
 )
-
 
 // @title OPC-UA Open API
 // @version 1.0
@@ -25,6 +25,7 @@ func main() {
 	log.Println("Starting the opc application...")
 	globaldata.InitSystemVars()
 	go opcservices.Start()
+	db.InitDB()
 	go httpservice.Start()
 	go health.Runhealthcheck()
 	select {}
