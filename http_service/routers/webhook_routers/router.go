@@ -1,12 +1,14 @@
 package webhookrouters
 
 import (
-	"context"
-	"earth/db/gen/model"
-	"earth/db/gen/query"
-	"earth/http_service/core"
-	"earth/utils"
 	"fmt"
+	"time"
+
+	"github.com/Brandon-lz/myopcua/db/gen/model"
+	"github.com/Brandon-lz/myopcua/db/gen/query"
+	"github.com/Brandon-lz/myopcua/http_service/core"
+	"github.com/Brandon-lz/myopcua/utils"
+	"github.com/jackc/pgx/v5/pgconn"
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
@@ -36,36 +38,11 @@ func AddWebhookConfig(c *gin.Context) {
 	fmt.Printf("req: %+v\n", req)
 
 	// 逻辑处理
-	// webhook,err:=ServiceAddWebhookConfig(&req)
-	// if err!=nil{
-	// 	panic(err)
-	// }
-
-	if req.Name == nil {
-		// name := 
-		req.Name = utils.Adr(uuid.New().String()[:6])
-	}
-	if req.Active == nil{
-		req.Active = utils.Adr(true)
-	}
-
-	webhook := core.SerializeData(&req, &model.WebHook{})
-	fmt.Println(11111111,webhook)
-
-	q := query.WebHook
-	ctx := context.Background()
-	err:= q.WithContext(ctx).Create(&webhook)
-	if err!=nil{
-		panic(err)
-	}
-	fmt.Printf("%+v",webhook)
+	webhook := ServiceAddWebhookConfig(&req)
 
 	// 出参序列化以及校验
-	out:=core.SerializeData(webhook,&WebHookConfigRead{})
-	// out:=core.SerializeDataAndValidate(webhook, &WebHookConfigRead{},true)   // false代表只校验字段但是不做序列化，因为这里的webhook变量已经是目标类型了
+	out := core.SerializeData(webhook, &WebHookConfigRead{})
 	core.ValidateSchema(out)
-
-	fmt.Printf("%+v",out)
 
 	core.SuccessHandler(c, AddWebhookConfigResponse{
 		Code:    200,
@@ -86,26 +63,47 @@ type AddWebhookConfigResponse struct {
 	Message string            `json:"message" example:"节点添加成功"`
 }
 
+// type WebHook struct {
+// 	ID        int64          `gorm:"column:id;primaryKey;autoIncrement:true" json:"id"`
+// 	CreatedAt time.Time      `gorm:"column:created_at" json:"created_at"`
+// 	UpdatedAt time.Time      `gorm:"column:updated_at" json:"updated_at"`
+// 	DeletedAt gorm.DeletedAt `gorm:"column:deleted_at" json:"deleted_at"`
+// 	Name      string         `gorm:"column:name;not null;comment:webhook名称" json:"name"`    // webhook名称
+// 	URL       string         `gorm:"column:url;not null;comment:url地址" json:"url"`          // url地址
+// 	Active    bool           `gorm:"column:active;default:true;comment:是否激活" json:"active"` // 是否激活
+// }
+
 type WebHookConfigRead struct {
-	Id     int    `json:"id" form:"id" validate:"required"`
-	Name   string `json:"name" form:"name" validate:"required"`
-	Url    string `json:"url" form:"url" validate:"required"`
-	Active bool   `json:"active" form:"active" validate:"required"`
+	Id        int       `json:"id" form:"id" validate:"required"`
+	Name      string    `json:"name" form:"name" validate:"required"`
+	Url       string    `json:"url" form:"url" validate:"required"`
+	Active    bool      `json:"active" form:"active" validate:"required"`
+	CreatedAt time.Time `json:"created_at" form:"created_at" validate:"required"`
+	UpdatedAt time.Time `json:"updated_at" form:"updated_at" validate:"required"`
 }
 
-func ServiceAddWebhookConfig(req *AddWebhookConfigRequest) (*WebHookConfigRead, error) {
-	var resp WebHookConfigRead
+func ServiceAddWebhookConfig(req *AddWebhookConfigRequest) WebHookConfigRead {
 	if req.Name == nil {
-		resp.Name = "webhook"
-	} else {
-		resp.Name = uuid.New().String()[:6]
+		req.Name = utils.Adr(uuid.New().String()[:6])
 	}
-	resp.Url = req.Url
 	if req.Active == nil {
-		resp.Active = true
-	} else {
-		resp.Active = *req.Active
+		req.Active = utils.Adr(true)
 	}
+	webhook := DalAddWebhookConfig(req)
+	out := core.SerializeData(webhook, &WebHookConfigRead{}) // orm model -> out
+	return out
+}
 
-	return &resp, nil
+func DalAddWebhookConfig(req *AddWebhookConfigRequest) *model.WebHook {
+
+	webhook := core.SerializeData(req, &model.WebHook{}) // req -> orm model
+
+	fmt.Printf("webhook: %+v\n", webhook)
+
+	err := query.Q.WebHook.Create(&webhook) // auto print error, no need to log by hand
+	if err != nil {
+		sqlErr := err.(*pgconn.PgError)
+		panic(core.NewKnownError(core.FieldNotUnique, err, sqlErr.Message))
+	}
+	return &webhook
 }

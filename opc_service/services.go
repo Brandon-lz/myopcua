@@ -9,9 +9,9 @@ import (
 	"log"
 	"os"
 
-	"earth/config"
-	globaldata "earth/global_data"
-	opcUa "earth/opc_ua"
+	"github.com/Brandon-lz/myopcua/config"
+	globaldata "github.com/Brandon-lz/myopcua/global_data"
+	opcUa "github.com/Brandon-lz/myopcua/opc_ua"
 
 	"github.com/gopcua/opcua"
 )

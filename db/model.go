@@ -13,7 +13,7 @@ import (
 
 type WebHook struct {
 	gorm.Model
-	Name   string `json:"name" gorm:"not null;comment:webhook名称"` // not null in db
+	Name   string `json:"name" gorm:"unique;not null;comment:webhook名称"` // not null in db
 	Url    string `json:"url" gorm:"unique;not null;comment:url地址"`
 	Active bool   `json:"active" gorm:"default:true;comment:是否激活"`
 }

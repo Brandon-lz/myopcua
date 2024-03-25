@@ -16,7 +16,7 @@ import (
 
 	"gorm.io/plugin/dbresolver"
 
-	"earth/db/gen/model"
+	"github.com/Brandon-lz/myopcua/db/gen/model"
 )
 
 func newWebHook(db *gorm.DB, opts ...gen.DOOption) webHook {

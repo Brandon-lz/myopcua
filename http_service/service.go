@@ -1,11 +1,11 @@
 package httpservice
 
 import (
-	"earth/http_service/routers"
+	"github.com/Brandon-lz/myopcua/http_service/routers"
 
 	"github.com/gin-gonic/gin"
 
-	_ "earth/docs" // 引入文档目录
+	_ "github.com/Brandon-lz/myopcua/docs" // 引入文档目录
 
 	swaggerFiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"

@@ -1,17 +1,15 @@
 package routers
 
 import (
-	alicerouters "earth/http_service/routers/alice_routers"
-	noderouters "earth/http_service/routers/node_routers"
-	smithrouters "earth/http_service/routers/smith_routers"
-	webhookrouters "earth/http_service/routers/webhook_routers"
+	alicerouters "github.com/Brandon-lz/myopcua/http_service/routers/alice_routers"
+	noderouters "github.com/Brandon-lz/myopcua/http_service/routers/node_routers"
+	smithrouters "github.com/Brandon-lz/myopcua/http_service/routers/smith_routers"
+	webhookrouters "github.com/Brandon-lz/myopcua/http_service/routers/webhook_routers"
 
 	// "log"
 
 	"github.com/gin-gonic/gin"
 )
-
-
 
 func RegisterRoutes(router *gin.RouterGroup) {
 	router.GET("/", Root)
@@ -21,7 +19,6 @@ func RegisterRoutes(router *gin.RouterGroup) {
 	smithrouters.RegisterRoutes(router)
 	alicerouters.RegisterRoutes(router)
 }
-
 
 // 根路由
 // @Summary  根路由
@@ -55,4 +52,3 @@ func Ping(c *gin.Context) {
 		"message": "pong",
 	})
 }
-

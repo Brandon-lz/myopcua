@@ -1,8 +1,9 @@
 package globaldata
 
 import (
-	"earth/utils"
 	"fmt"
+
+	"github.com/Brandon-lz/myopcua/utils"
 )
 
 type OpcNode struct {
@@ -31,9 +32,8 @@ func NewSystemVarsDFT() *SystemVarsDFT {
 }
 
 func (s *SystemVarsDFT) Save() error {
-	return utils.Dump(s,"systemvars.obj")
+	return utils.Dump(s, "systemvars.obj")
 }
-
 
 func (s *SystemVarsDFT) len() int {
 	return len(s.NodeIdList)

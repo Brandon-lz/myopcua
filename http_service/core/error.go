@@ -11,6 +11,15 @@ const (
 	FailedToDeleteNode = 1006
 	FailedToGetNode    = 1007
 	FailedToAddNode    = 1008
+
+	FieldError = 2000
+	FieldInvalid = 2001
+	FieldTooLong = 2002
+	FieldTooShort = 2003
+	FieldTooSmall = 2004
+	FieldTooBig = 2005
+	FieldNotMatch = 2006
+	FieldNotUnique = 2007
 )
 
 type KnownError struct {

@@ -1,13 +1,14 @@
 package main
 
 import (
-	"earth/config"
-	"earth/db"
-	globaldata "earth/global_data"
-	"earth/health"
-	httpservice "earth/http_service"
-	opcservices "earth/opc_service"
 	"log"
+
+	"github.com/Brandon-lz/myopcua/config"
+	"github.com/Brandon-lz/myopcua/db"
+	globaldata "github.com/Brandon-lz/myopcua/global_data"
+	"github.com/Brandon-lz/myopcua/health"
+	httpservice "github.com/Brandon-lz/myopcua/http_service"
+	opcservices "github.com/Brandon-lz/myopcua/opc_service"
 )
 
 // @title OPC-UA Open API

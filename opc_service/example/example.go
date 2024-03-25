@@ -5,8 +5,9 @@ import (
 	"fmt"
 	"log"
 
-	opcUa "earth/opc_ua"
 	"time"
+
+	opcUa "github.com/Brandon-lz/myopcua/opc_ua"
 
 	"github.com/gopcua/opcua/ua"
 )
