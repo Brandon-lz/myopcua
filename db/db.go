@@ -14,21 +14,19 @@ func InitDB() {
 	if err != nil {
 		panic("failed to connect database")
 	}
-	DB.AutoMigrate(&WebHook{})
+
+	initModels()
+	DB.AutoMigrate(modelsToMigrate.modelListToAutoMigrate()...)
 
 	query.SetDefault(DB)
-
 	sqlDB, err := DB.DB()
 	if err != nil {
 		panic(err)
 	}
-
 	// SetMaxIdleConns sets the maximum number of connections in the idle connection pool.
 	sqlDB.SetMaxIdleConns(10)
-
 	// SetMaxOpenConns sets the maximum number of open connections to the database.
 	sqlDB.SetMaxOpenConns(100)
-
 }
 
 func GetSqliteDB() (*gorm.DB, error) {

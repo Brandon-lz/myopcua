@@ -51,10 +51,11 @@ func AddWebhookConfig(c *gin.Context) {
 	})
 }
 
+// GetWebhookConfig router 参数定义，字段描述放在字段后面
 type AddWebhookConfigRequest struct {
-	Name   *string `json:"name" form:"name" example:"webhook1"` // 可以为空 要用*string
-	Url    string  `json:"url" form:"url" binding:"required"`
-	Active *bool   `json:"active" form:"active"`
+	Name   *string `json:"name" form:"name" example:"webhook1"` // webhook名称，可以为空
+	Url    string  `json:"url" form:"url" binding:"url" example:"http://192.168.1.1:8800/notify"`   // webhook地址
+	Active *bool   `json:"active" form:"active" example:"true"`                // 是否激活，不传的话默认true
 }
 
 type AddWebhookConfigResponse struct {

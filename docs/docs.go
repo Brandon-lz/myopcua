@@ -399,20 +399,21 @@ const docTemplate = `{
         },
         "webhookrouters.AddWebhookConfigRequest": {
             "type": "object",
-            "required": [
-                "url"
-            ],
             "properties": {
                 "active": {
-                    "type": "boolean"
+                    "description": "是否激活，不传的话默认true",
+                    "type": "boolean",
+                    "example": true
                 },
                 "name": {
-                    "description": "可以为空 要用*string",
+                    "description": "webhook名称，可以为空",
                     "type": "string",
                     "example": "webhook1"
                 },
                 "url": {
-                    "type": "string"
+                    "description": "webhook地址",
+                    "type": "string",
+                    "example": "http://192.168.1.1:8800/notify"
                 }
             }
         },
@@ -436,18 +437,26 @@ const docTemplate = `{
             "type": "object",
             "required": [
                 "active",
+                "created_at",
                 "id",
                 "name",
+                "updated_at",
                 "url"
             ],
             "properties": {
                 "active": {
                     "type": "boolean"
                 },
+                "created_at": {
+                    "type": "string"
+                },
                 "id": {
                     "type": "integer"
                 },
                 "name": {
+                    "type": "string"
+                },
+                "updated_at": {
                     "type": "string"
                 },
                 "url": {

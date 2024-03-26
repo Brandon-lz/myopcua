@@ -96,15 +96,17 @@ definitions:
   webhookrouters.AddWebhookConfigRequest:
     properties:
       active:
+        description: 是否激活，不传的话默认true
+        example: true
         type: boolean
       name:
-        description: 可以为空 要用*string
+        description: webhook名称，可以为空
         example: webhook1
         type: string
       url:
+        description: webhook地址
+        example: http://192.168.1.1:8800/notify
         type: string
-    required:
-    - url
     type: object
   webhookrouters.AddWebhookConfigResponse:
     properties:
@@ -121,16 +123,22 @@ definitions:
     properties:
       active:
         type: boolean
+      created_at:
+        type: string
       id:
         type: integer
       name:
+        type: string
+      updated_at:
         type: string
       url:
         type: string
     required:
     - active
+    - created_at
     - id
     - name
+    - updated_at
     - url
     type: object
 host: localhost:8080

@@ -4,6 +4,10 @@ import (
 	"gorm.io/gorm"
 )
 
+func initModels() {
+	modelsToMigrate.Add(&WebHook{})
+}
+
 // 表名	webhook
 // 字段	是否必填	唯一字段	类型	默认值	描述
 // id	Y	Y	uint		主键
