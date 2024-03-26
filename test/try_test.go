@@ -1,7 +1,6 @@
 package test
 
 import (
-	"fmt"
 	"testing"
 	"github.com/stretchr/testify/assert"
 )
@@ -9,11 +8,7 @@ import (
 func TestTry(t *testing.T) {
 	assert := assert.New(t)
 	res := tryTest()
-	fmt.Println(res)
-	var datain interface{} = 12
-	dataout,e := datain.(string)
-	fmt.Println(dataout,e)
-
+	assert.Equal(5, res)
 }
 
 func tryTest() (res int) {
