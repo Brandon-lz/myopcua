@@ -75,7 +75,7 @@ func readOpcData(c *opcua.Client) {
 		panic(err)
 	}
 
-	fmt.Printf("OPC数据：%v\n", datas)
+	fmt.Printf("opc data:%v\n", datas)
 
 	// 写入数据到全局变量
 	for i, data := range datas {
