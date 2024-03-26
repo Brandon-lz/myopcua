@@ -68,7 +68,8 @@ func readOpcData(c *opcua.Client) {
 	globaldata.OpcWriteLock.Lock() // 加锁 这期间不允许修改SystemVars
 	defer globaldata.OpcWriteLock.Unlock()
 	ctx := context.Background()
-	ctx, _ = context.WithTimeout(ctx, time.Second*3)
+	ctx, cancel := context.WithTimeout(ctx, time.Second*3)
+	defer cancel()
 	datas, err := opcUa.ReadMultiValueByNodeIds(globaldata.SystemVars.NodeIdList, nil, ctx, c)
 	if err != nil {
 		panic(err)
