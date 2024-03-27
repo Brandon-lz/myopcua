@@ -15,8 +15,8 @@ const TableNameWebHookCondition = "web_hook_conditions"
 // WebHookCondition mapped from table <web_hook_conditions>
 type WebHookCondition struct {
 	ID        int64          `gorm:"column:id;primaryKey;autoIncrement:true" json:"id"`
-	CreatedAt time.Time      `gorm:"column:created_at" json:"created_at"`
-	UpdatedAt time.Time      `gorm:"column:updated_at" json:"updated_at"`
+	CreatedAt *time.Time     `gorm:"column:created_at" json:"created_at"`
+	UpdatedAt *time.Time     `gorm:"column:updated_at" json:"updated_at"`
 	DeletedAt gorm.DeletedAt `gorm:"column:deleted_at" json:"deleted_at"`
 	Condition string         `gorm:"column:condition;not null;comment:条件表达式" json:"condition"` // 条件表达式
 	WebHooks  []WebHook      `gorm:"foreignKey:WebHookConditionRefer;references:ID" json:"web_hooks"`
