@@ -25,8 +25,8 @@ type WebHookConditions struct {
 
 type WebHooks struct {
 	gorm.Model
-	Name   string `json:"name" gorm:"unique;not null;comment:webhook名称"` // not null in db
-	Url    string `json:"url" gorm:"unique;not null;comment:url地址"`
+	Name   string `json:"name" gorm:"unique;not null;index;comment:webhook名称"` // not null in db
+	Url    string `json:"url" gorm:"unique;not null;index;comment:url地址"`
 	Active bool   `json:"active" gorm:"default:true;comment:是否激活"`
 	WebHookConditionRefer uint `json:"web_hook_condition_refer" gorm:"comment:WebHookCondition foreign key"`   // 外键，在数据库中最好不要not null，在逻辑上去判空
 }
