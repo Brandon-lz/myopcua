@@ -34,6 +34,7 @@ func newWebHook(db *gorm.DB, opts ...gen.DOOption) webHook {
 	_webHook.Name = field.NewString(tableName, "name")
 	_webHook.URL = field.NewString(tableName, "url")
 	_webHook.Active = field.NewBool(tableName, "active")
+	_webHook.WebHookConditionRefer = field.NewInt64(tableName, "web_hook_condition_refer")
 
 	_webHook.fillFieldMap()
 
@@ -43,14 +44,15 @@ func newWebHook(db *gorm.DB, opts ...gen.DOOption) webHook {
 type webHook struct {
 	webHookDo
 
-	ALL       field.Asterisk
-	ID        field.Int64
-	CreatedAt field.Time
-	UpdatedAt field.Time
-	DeletedAt field.Field
-	Name      field.String // webhook名称
-	URL       field.String // url地址
-	Active    field.Bool   // 是否激活
+	ALL                   field.Asterisk
+	ID                    field.Int64
+	CreatedAt             field.Time
+	UpdatedAt             field.Time
+	DeletedAt             field.Field
+	Name                  field.String // webhook名称
+	URL                   field.String // url地址
+	Active                field.Bool   // 是否激活
+	WebHookConditionRefer field.Int64  // WebHookCondition foreign key
 
 	fieldMap map[string]field.Expr
 }
@@ -74,6 +76,7 @@ func (w *webHook) updateTableName(table string) *webHook {
 	w.Name = field.NewString(table, "name")
 	w.URL = field.NewString(table, "url")
 	w.Active = field.NewBool(table, "active")
+	w.WebHookConditionRefer = field.NewInt64(table, "web_hook_condition_refer")
 
 	w.fillFieldMap()
 
@@ -90,7 +93,7 @@ func (w *webHook) GetFieldByName(fieldName string) (field.OrderExpr, bool) {
 }
 
 func (w *webHook) fillFieldMap() {
-	w.fieldMap = make(map[string]field.Expr, 7)
+	w.fieldMap = make(map[string]field.Expr, 8)
 	w.fieldMap["id"] = w.ID
 	w.fieldMap["created_at"] = w.CreatedAt
 	w.fieldMap["updated_at"] = w.UpdatedAt
@@ -98,6 +101,7 @@ func (w *webHook) fillFieldMap() {
 	w.fieldMap["name"] = w.Name
 	w.fieldMap["url"] = w.URL
 	w.fieldMap["active"] = w.Active
+	w.fieldMap["web_hook_condition_refer"] = w.WebHookConditionRefer
 }
 
 func (w webHook) clone(db *gorm.DB) webHook {

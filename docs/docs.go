@@ -40,29 +40,6 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/v1/alice/ping": {
-            "get": {
-                "description": "Ping 路由",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "alice的接口"
-                ],
-                "summary": "Ping 路由",
-                "responses": {
-                    "200": {
-                        "description": "pong",
-                        "schema": {
-                            "$ref": "#/definitions/alicerouters.ApiResponse"
-                        }
-                    }
-                }
-            }
-        },
         "/api/v1/opc-node/add-node-to-read": {
             "post": {
                 "security": [
@@ -183,7 +160,7 @@ const docTemplate = `{
                         "BearerAuth": []
                     }
                 ],
-                "description": "Ping 路由",
+                "description": "ping 路由",
                 "consumes": [
                     "application/json"
                 ],
@@ -193,35 +170,12 @@ const docTemplate = `{
                 "tags": [
                     "default"
                 ],
-                "summary": "Ping 路由",
+                "summary": "ping 路由",
                 "responses": {
                     "200": {
                         "description": "pong",
                         "schema": {
-                            "$ref": "#/definitions/routers.ApiResponse"
-                        }
-                    }
-                }
-            }
-        },
-        "/api/v1/smith/ping": {
-            "get": {
-                "description": "Ping 路由",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "smith的接口"
-                ],
-                "summary": "Ping 路由",
-                "responses": {
-                    "200": {
-                        "description": "pong",
-                        "schema": {
-                            "$ref": "#/definitions/smithrouters.ApiResponse"
+                            "type": "string"
                         }
                     }
                 }
@@ -260,18 +214,43 @@ const docTemplate = `{
                     }
                 }
             }
+        },
+        "/api/v1/webhook/example": {
+            "post": {
+                "description": "webhook示例",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Webhook"
+                ],
+                "summary": "webhook示例",
+                "parameters": [
+                    {
+                        "description": "Webhook example",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/webhookrouters.WebHookExampleRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/webhookrouters.WebHookExampleResponse"
+                        }
+                    }
+                }
+            }
         }
     },
     "definitions": {
-        "alicerouters.ApiResponse": {
-            "type": "object",
-            "properties": {
-                "message": {
-                    "type": "string",
-                    "example": "pong"
-                }
-            }
-        },
         "noderouters.AddNodeToReadRequest": {
             "type": "object",
             "required": [
@@ -388,15 +367,6 @@ const docTemplate = `{
                 }
             }
         },
-        "smithrouters.ApiResponse": {
-            "type": "object",
-            "properties": {
-                "message": {
-                    "type": "string",
-                    "example": "pong"
-                }
-            }
-        },
         "webhookrouters.AddWebhookConfigRequest": {
             "type": "object",
             "properties": {
@@ -414,6 +384,14 @@ const docTemplate = `{
                     "description": "webhook地址",
                     "type": "string",
                     "example": "http://192.168.1.1:8800/notify"
+                },
+                "when": {
+                    "description": "触发条件，为空时相当于通知所有数据变化",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/webhookrouters.Condition"
+                        }
+                    ]
                 }
             }
         },
@@ -430,6 +408,53 @@ const docTemplate = `{
                 "message": {
                     "type": "string",
                     "example": "节点添加成功"
+                }
+            }
+        },
+        "webhookrouters.Condition": {
+            "type": "object",
+            "properties": {
+                "and": {
+                    "description": "规则列表，逻辑与",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/webhookrouters.Condition"
+                    }
+                },
+                "or": {
+                    "description": "规则列表，逻辑或",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/webhookrouters.Condition"
+                    }
+                },
+                "rule": {
+                    "description": "规则",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/webhookrouters.Rule"
+                        }
+                    ]
+                }
+            }
+        },
+        "webhookrouters.Rule": {
+            "type": "object",
+            "properties": {
+                "node_name": {
+                    "description": "节点名称",
+                    "type": "string",
+                    "example": "MyVariable"
+                },
+                "type": {
+                    "description": "规则类型",
+                    "type": "string",
+                    "example": "eq"
+                },
+                "value": {
+                    "description": "规则value",
+                    "type": "string",
+                    "example": "123"
                 }
             }
         },
@@ -461,6 +486,43 @@ const docTemplate = `{
                 },
                 "url": {
                     "type": "string"
+                }
+            }
+        },
+        "webhookrouters.WebHookExampleRequest": {
+            "type": "object",
+            "properties": {
+                "node_id": {
+                    "description": "节点id",
+                    "type": "string",
+                    "example": "ns=1;s=MyVariable"
+                },
+                "node_name": {
+                    "description": "节点名称",
+                    "type": "string",
+                    "example": "MyVariable"
+                },
+                "value": {
+                    "description": "入参示例",
+                    "type": "string",
+                    "example": "123"
+                }
+            }
+        },
+        "webhookrouters.WebHookExampleResponse": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "integer",
+                    "example": 200
+                },
+                "data": {
+                    "type": "string",
+                    "example": "webhook example"
+                },
+                "message": {
+                    "type": "string",
+                    "example": "webhook example success"
                 }
             }
         }

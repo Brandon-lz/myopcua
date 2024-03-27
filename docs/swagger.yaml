@@ -1,11 +1,5 @@
 basePath: /
 definitions:
-  alicerouters.ApiResponse:
-    properties:
-      message:
-        example: pong
-        type: string
-    type: object
   noderouters.AddNodeToReadRequest:
     properties:
       data-type:
@@ -87,12 +81,6 @@ definitions:
         example: 欢迎使用OPC-UA OpenAPI
         type: string
     type: object
-  smithrouters.ApiResponse:
-    properties:
-      message:
-        example: pong
-        type: string
-    type: object
   webhookrouters.AddWebhookConfigRequest:
     properties:
       active:
@@ -107,6 +95,10 @@ definitions:
         description: webhook地址
         example: http://192.168.1.1:8800/notify
         type: string
+      when:
+        allOf:
+        - $ref: '#/definitions/webhookrouters.Condition'
+        description: 触发条件，为空时相当于通知所有数据变化
     type: object
   webhookrouters.AddWebhookConfigResponse:
     properties:
@@ -117,6 +109,38 @@ definitions:
         $ref: '#/definitions/webhookrouters.WebHookConfigRead'
       message:
         example: 节点添加成功
+        type: string
+    type: object
+  webhookrouters.Condition:
+    properties:
+      and:
+        description: 规则列表，逻辑与
+        items:
+          $ref: '#/definitions/webhookrouters.Condition'
+        type: array
+      or:
+        description: 规则列表，逻辑或
+        items:
+          $ref: '#/definitions/webhookrouters.Condition'
+        type: array
+      rule:
+        allOf:
+        - $ref: '#/definitions/webhookrouters.Rule'
+        description: 规则
+    type: object
+  webhookrouters.Rule:
+    properties:
+      node_name:
+        description: 节点名称
+        example: MyVariable
+        type: string
+      type:
+        description: 规则类型
+        example: eq
+        type: string
+      value:
+        description: 规则value
+        example: "123"
         type: string
     type: object
   webhookrouters.WebHookConfigRead:
@@ -141,6 +165,33 @@ definitions:
     - updated_at
     - url
     type: object
+  webhookrouters.WebHookExampleRequest:
+    properties:
+      node_id:
+        description: 节点id
+        example: ns=1;s=MyVariable
+        type: string
+      node_name:
+        description: 节点名称
+        example: MyVariable
+        type: string
+      value:
+        description: 入参示例
+        example: "123"
+        type: string
+    type: object
+  webhookrouters.WebHookExampleResponse:
+    properties:
+      code:
+        example: 200
+        type: integer
+      data:
+        example: webhook example
+        type: string
+      message:
+        example: webhook example success
+        type: string
+    type: object
 host: localhost:8080
 info:
   contact:
@@ -164,21 +215,6 @@ paths:
       summary: 根路由
       tags:
       - default
-  /api/v1/alice/ping:
-    get:
-      consumes:
-      - application/json
-      description: Ping 路由
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: pong
-          schema:
-            $ref: '#/definitions/alicerouters.ApiResponse'
-      summary: Ping 路由
-      tags:
-      - alice的接口
   /api/v1/opc-node/add-node-to-read:
     post:
       consumes:
@@ -253,34 +289,19 @@ paths:
     get:
       consumes:
       - application/json
-      description: Ping 路由
+      description: ping 路由
       produces:
       - application/json
       responses:
         "200":
           description: pong
           schema:
-            $ref: '#/definitions/routers.ApiResponse'
+            type: string
       security:
       - BearerAuth: []
-      summary: Ping 路由
+      summary: ping 路由
       tags:
       - default
-  /api/v1/smith/ping:
-    get:
-      consumes:
-      - application/json
-      description: Ping 路由
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: pong
-          schema:
-            $ref: '#/definitions/smithrouters.ApiResponse'
-      summary: Ping 路由
-      tags:
-      - smith的接口
   /api/v1/webhook/config:
     post:
       consumes:
@@ -301,6 +322,28 @@ paths:
           schema:
             $ref: '#/definitions/webhookrouters.AddWebhookConfigResponse'
       summary: 配置一条新的webhook
+      tags:
+      - Webhook
+  /api/v1/webhook/example:
+    post:
+      consumes:
+      - application/json
+      description: webhook示例
+      parameters:
+      - description: Webhook example
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/webhookrouters.WebHookExampleRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/webhookrouters.WebHookExampleResponse'
+      summary: webhook示例
       tags:
       - Webhook
 schemes:

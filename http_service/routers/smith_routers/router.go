@@ -14,15 +14,16 @@ type ApiResponse struct {
 }
 
 
-// Ping 路由
-// @Summary  Ping 路由
-// @Description  Ping 路由
-// @Tags     smith的接口
-// @Accept   json
-// @Produce  json
-// @Success  200  {object}  ApiResponse  "pong"
-// @Router   /api/v1/smith/ping [get]
+
 func MyPing (c *gin.Context) {
+	// Ping 路由
+	// @Summary  Ping 路由
+	// @Description  Ping 路由
+	// @Tags     smith的接口
+	// @Accept   json
+	// @Produce  json
+	// @Success  200  {object}  ApiResponse  "pong"
+	// @Router   /api/v1/smith/ping [get]
 	c.JSON(200, gin.H{
 		"message": "pong",
 	})

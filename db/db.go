@@ -1,7 +1,7 @@
 package db
 
 import (
-	"github.com/Brandon-lz/myopcua/db/gen/query"
+	// "github.com/Brandon-lz/myopcua/db/gen/query"
 	"gorm.io/driver/postgres"
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
@@ -10,7 +10,8 @@ import (
 var DB *gorm.DB
 
 func InitDB() {
-	DB, err := GetPGDB()
+	var err error
+	DB, err = GetPGDB()
 	if err != nil {
 		panic("failed to connect database")
 	}
@@ -18,7 +19,7 @@ func InitDB() {
 	initModels()
 	DB.AutoMigrate(modelsToMigrate.modelListToAutoMigrate()...)
 
-	query.SetDefault(DB)
+	// query.SetDefault(DB)
 	sqlDB, err := DB.DB()
 	if err != nil {
 		panic(err)

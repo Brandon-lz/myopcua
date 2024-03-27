@@ -14,13 +14,14 @@ const TableNameWebHook = "web_hooks"
 
 // WebHook mapped from table <web_hooks>
 type WebHook struct {
-	ID        int64          `gorm:"column:id;primaryKey;autoIncrement:true" json:"id"`
-	CreatedAt time.Time      `gorm:"column:created_at" json:"created_at"`
-	UpdatedAt time.Time      `gorm:"column:updated_at" json:"updated_at"`
-	DeletedAt gorm.DeletedAt `gorm:"column:deleted_at" json:"deleted_at"`
-	Name      string         `gorm:"column:name;not null;comment:webhook名称" json:"name"`    // webhook名称
-	URL       string         `gorm:"column:url;not null;comment:url地址" json:"url"`          // url地址
-	Active    bool           `gorm:"column:active;default:true;comment:是否激活" json:"active"` // 是否激活
+	ID                    int64          `gorm:"column:id;primaryKey;autoIncrement:true" json:"id"`
+	CreatedAt             time.Time      `gorm:"column:created_at" json:"created_at"`
+	UpdatedAt             time.Time      `gorm:"column:updated_at" json:"updated_at"`
+	DeletedAt             gorm.DeletedAt `gorm:"column:deleted_at" json:"deleted_at"`
+	Name                  string         `gorm:"column:name;not null;comment:webhook名称" json:"name"`                                                   // webhook名称
+	URL                   string         `gorm:"column:url;not null;comment:url地址" json:"url"`                                                         // url地址
+	Active                bool           `gorm:"column:active;default:true;comment:是否激活" json:"active"`                                                // 是否激活
+	WebHookConditionRefer int64          `gorm:"column:web_hook_condition_refer;comment:WebHookCondition foreign key" json:"web_hook_condition_refer"` // WebHookCondition foreign key
 }
 
 // TableName WebHook's table name

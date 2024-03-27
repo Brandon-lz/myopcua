@@ -39,16 +39,15 @@ type ApiResponse struct {
 }
 
 // Ping 路由
-// @Summary  Ping 路由
-// @Description  Ping 路由
+// @Summary  ping 路由
+// @Description  ping 路由
 // @Tags     default
 // @Security BearerAuth
 // @Accept   json
 // @Produce  json
-// @Success  200  {object}  ApiResponse  "pong"
+// @Success  200  {string}  pong  "pong"
 // @Router   /api/v1/ping [get]
 func Ping(c *gin.Context) {
-	c.JSON(200, gin.H{
-		"message": "pong",
-	})
+	// c.Header("Content-Type", "charset=utf-8")
+	c.String(200, "pong")
 }

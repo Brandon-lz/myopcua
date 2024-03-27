@@ -1,0 +1,30 @@
+{
+    "name": "webhook3",
+    "url": "http://localhost:8080/api/v1/webhook/example",
+    "active": true,
+    "when": {
+        "and": [
+            {
+                "and": null,
+                "or": null,
+                "rule": {
+                    "type": "eq",
+                    "node_name": "",
+                    "value": "123"
+                }
+            }
+        ],
+        "or": [
+            {
+                "and": null,
+                "or": null,
+                "rule": {
+                    "type": "eq",
+                    "node_name": "",
+                    "value": "123"
+                }
+            }
+        ],
+        "rule": null
+    }
+}

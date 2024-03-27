@@ -16,34 +16,39 @@ import (
 )
 
 var (
-	Q       = new(Query)
-	WebHook *webHook
+	Q                = new(Query)
+	WebHook          *webHook
+	WebHookCondition *webHookCondition
 )
 
 func SetDefault(db *gorm.DB, opts ...gen.DOOption) {
 	*Q = *Use(db, opts...)
 	WebHook = &Q.WebHook
+	WebHookCondition = &Q.WebHookCondition
 }
 
 func Use(db *gorm.DB, opts ...gen.DOOption) *Query {
 	return &Query{
-		db:      db,
-		WebHook: newWebHook(db, opts...),
+		db:               db,
+		WebHook:          newWebHook(db, opts...),
+		WebHookCondition: newWebHookCondition(db, opts...),
 	}
 }
 
 type Query struct {
 	db *gorm.DB
 
-	WebHook webHook
+	WebHook          webHook
+	WebHookCondition webHookCondition
 }
 
 func (q *Query) Available() bool { return q.db != nil }
 
 func (q *Query) clone(db *gorm.DB) *Query {
 	return &Query{
-		db:      db,
-		WebHook: q.WebHook.clone(db),
+		db:               db,
+		WebHook:          q.WebHook.clone(db),
+		WebHookCondition: q.WebHookCondition.clone(db),
 	}
 }
 
@@ -57,18 +62,21 @@ func (q *Query) WriteDB() *Query {
 
 func (q *Query) ReplaceDB(db *gorm.DB) *Query {
 	return &Query{
-		db:      db,
-		WebHook: q.WebHook.replaceDB(db),
+		db:               db,
+		WebHook:          q.WebHook.replaceDB(db),
+		WebHookCondition: q.WebHookCondition.replaceDB(db),
 	}
 }
 
 type queryCtx struct {
-	WebHook IWebHookDo
+	WebHook          IWebHookDo
+	WebHookCondition IWebHookConditionDo
 }
 
 func (q *Query) WithContext(ctx context.Context) *queryCtx {
 	return &queryCtx{
-		WebHook: q.WebHook.WithContext(ctx),
+		WebHook:          q.WebHook.WithContext(ctx),
+		WebHookCondition: q.WebHookCondition.WithContext(ctx),
 	}
 }
 
