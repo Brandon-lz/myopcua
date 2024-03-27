@@ -181,6 +181,40 @@ const docTemplate = `{
                 }
             }
         },
+        "/api/v1/webhook/condition": {
+            "post": {
+                "description": "创建条件",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Webhook"
+                ],
+                "summary": "创建触发条件",
+                "parameters": [
+                    {
+                        "description": "创建条件",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/webhookrouters.CreateConditionRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/webhookrouters.CreateConditionResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/api/v1/webhook/config": {
             "post": {
                 "description": "配置一条新的webhook",
@@ -438,6 +472,49 @@ const docTemplate = `{
                 }
             }
         },
+        "webhookrouters.CreateConditionRequest": {
+            "type": "object",
+            "properties": {
+                "and": {
+                    "description": "规则列表，逻辑与",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/webhookrouters.Condition"
+                    }
+                },
+                "or": {
+                    "description": "规则列表，逻辑或",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/webhookrouters.Condition"
+                    }
+                },
+                "rule": {
+                    "description": "规则",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/webhookrouters.Rule"
+                        }
+                    ]
+                }
+            }
+        },
+        "webhookrouters.CreateConditionResponse": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "integer",
+                    "example": 200
+                },
+                "data": {
+                    "$ref": "#/definitions/webhookrouters.WebHookConditionRead"
+                },
+                "message": {
+                    "type": "string",
+                    "example": "Condition created successfully"
+                }
+            }
+        },
         "webhookrouters.Rule": {
             "type": "object",
             "properties": {
@@ -455,6 +532,29 @@ const docTemplate = `{
                     "description": "规则value",
                     "type": "string",
                     "example": "123"
+                }
+            }
+        },
+        "webhookrouters.WebHookConditionRead": {
+            "type": "object",
+            "required": [
+                "condition",
+                "created_at",
+                "id",
+                "updated_at"
+            ],
+            "properties": {
+                "condition": {
+                    "type": "string"
+                },
+                "created_at": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "updated_at": {
+                    "type": "string"
                 }
             }
         },

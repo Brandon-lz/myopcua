@@ -16,6 +16,7 @@ import (
 
 func RegisterRoutes(router *gin.RouterGroup) {
 	group := router.Group("/webhook")
+	group.POST("/condition", CreateCondition)
 	group.POST("/config", AddWebhookConfig)
 	group.POST("/example", WebHookExample)
 	// group.PUT("/config/:id", UpdateWebhookConfig)
@@ -172,7 +173,7 @@ func DalAddWebhookConfig(req *AddWebhookConfigRequest) *model.WebHook {
 				return err
 			}
 			webhook = core.SerializeData(req, &model.WebHook{}) // req -> orm model
-			webhook.WebHookConditionRefer = condition.ID
+			webhook.WebHookConditionRefer = &condition.ID
 			err = tx.WebHook.Create(&webhook)
 			if err != nil {
 				return err
@@ -198,4 +199,80 @@ func DalAddWebhookConfig(req *AddWebhookConfigRequest) *model.WebHook {
 }
 
 
-// func Condition
+// CreateCondition router -------------------------------------
+// @Summary 创建触发条件
+// @Description 创建条件
+// @Tags Webhook
+// @Accept  json
+// @Produce  json
+// @Param body body CreateConditionRequest true "创建条件"
+// @Success 200 {object} CreateConditionResponse
+// @Router /api/v1/webhook/condition [post]
+func CreateCondition(c *gin.Context) {
+	// 入参校验
+	var req CreateConditionRequest
+	core.BindParamAndValidate(c, &req)
+
+	// 逻辑处理
+	condition := ServiceCreateCondition(&req)
+
+	// 出参序列化以及校验
+	out := core.SerializeData(condition, &WebHookConditionRead{})
+	core.ValidateSchema(out)
+
+	core.SuccessHandler(c, CreateConditionResponse{
+		Code:    200,
+		Data:    out,
+		Message: "Condition created successfully",
+	})
+}
+
+
+type CreateConditionRequest struct {
+	And []Condition `json:"and" form:"and"` // 规则列表，逻辑与
+	Or  []Condition `json:"or" form:"or"`  // 规则列表，逻辑或
+	Rule *Rule `json:"rule" form:"rule"` // 规则
+}
+
+type CreateConditionResponse struct {
+	Code    int                   `json:"code" example:"200"`
+	Data    WebHookConditionRead  `json:"data" `
+	Message string                `json:"message" example:"Condition created successfully"`
+}
+
+type WebHookConditionRead struct {
+	Id        int       `json:"id" form:"id" validate:"required"`
+	Condition string    `json:"condition" form:"condition" validate:"required"`
+	CreatedAt time.Time `json:"created_at" form:"created_at" validate:"required"`
+	UpdatedAt time.Time `json:"updated_at" form:"updated_at" validate:"required"`
+}
+
+func ServiceCreateCondition(req *CreateConditionRequest) WebHookConditionRead {
+	condition := DalCreateCondition(req)
+	out := core.SerializeData(condition, &WebHookConditionRead{}) // orm model -> out
+	return out
+}
+
+
+func DalCreateCondition(req *CreateConditionRequest) *model.WebHookCondition {
+	var condition model.WebHookCondition
+	conditionData := map[string]string{
+		"condition": utils.PrintMapAsJson(req),
+	}
+	err:= query.Q.Transaction(func(tx *query.Query) error {
+		condition = core.SerializeData(conditionData, &model.WebHookCondition{}) // req -> orm model
+		err := tx.WebHookCondition.Create(&condition)
+		if err != nil {
+			return err
+		}
+		return nil
+	})
+	if err != nil {
+		sqlErr := err.(*pgconn.PgError)
+		panic(core.NewKnownError(core.FieldNotUnique, err, sqlErr.Message))
+	}
+
+	fmt.Printf("condition: %+v\n", condition)
+
+	return &condition
+}

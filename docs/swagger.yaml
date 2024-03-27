@@ -128,6 +128,34 @@ definitions:
         - $ref: '#/definitions/webhookrouters.Rule'
         description: 规则
     type: object
+  webhookrouters.CreateConditionRequest:
+    properties:
+      and:
+        description: 规则列表，逻辑与
+        items:
+          $ref: '#/definitions/webhookrouters.Condition'
+        type: array
+      or:
+        description: 规则列表，逻辑或
+        items:
+          $ref: '#/definitions/webhookrouters.Condition'
+        type: array
+      rule:
+        allOf:
+        - $ref: '#/definitions/webhookrouters.Rule'
+        description: 规则
+    type: object
+  webhookrouters.CreateConditionResponse:
+    properties:
+      code:
+        example: 200
+        type: integer
+      data:
+        $ref: '#/definitions/webhookrouters.WebHookConditionRead'
+      message:
+        example: Condition created successfully
+        type: string
+    type: object
   webhookrouters.Rule:
     properties:
       node_name:
@@ -142,6 +170,22 @@ definitions:
         description: 规则value
         example: "123"
         type: string
+    type: object
+  webhookrouters.WebHookConditionRead:
+    properties:
+      condition:
+        type: string
+      created_at:
+        type: string
+      id:
+        type: integer
+      updated_at:
+        type: string
+    required:
+    - condition
+    - created_at
+    - id
+    - updated_at
     type: object
   webhookrouters.WebHookConfigRead:
     properties:
@@ -302,6 +346,28 @@ paths:
       summary: ping 路由
       tags:
       - default
+  /api/v1/webhook/condition:
+    post:
+      consumes:
+      - application/json
+      description: 创建条件
+      parameters:
+      - description: 创建条件
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/webhookrouters.CreateConditionRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/webhookrouters.CreateConditionResponse'
+      summary: 创建触发条件
+      tags:
+      - Webhook
   /api/v1/webhook/config:
     post:
       consumes:
