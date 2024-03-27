@@ -14,7 +14,6 @@ import (
 	"io"
 	"net/http"
 	"net/http/httptest"
-	"project/api"
 	"testing"
 
 	"github.com/gin-gonic/gin"
@@ -28,7 +27,6 @@ func SetUpRouter() *gin.Engine {
 
 func TestHomepageHandler(t *testing.T) {
 	assert := assert.New(t)
-	userApi := api.UserApi{}
 	// mockResponse := `{"message":"Welcome to the Tech Company listing API with Golang"}`
 	r := SetUpRouter()
 	r.GET("/api/v1/user", userApi.GetUserListByPage)

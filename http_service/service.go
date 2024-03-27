@@ -26,6 +26,9 @@ func Start() {
 			"message": "hello world",
 		})
 	})
+
+	router.GET("/health", healthCheck)
+
 	url := ginSwagger.URL("http://localhost:8080/docs/doc.json") // The URL pointing to API definition
 
 	// swagger:  http://localhost:8080/docs/index.html
@@ -36,4 +39,17 @@ func Start() {
 	webhookrouters.GetAllWebhookConfigFromDB()
 
 	router.Run("0.0.0.0:8080")
+}
+
+// healthCheck 路由
+// @Summary  healthCheck 路由
+// @Description  healthCheck 路由
+// @Tags     default
+// @Accept   json
+// @Produce  json
+// @Success  200  {string}  pong  "pong"
+// @Router   /health [get]
+func healthCheck(c *gin.Context) {
+	// c.Header("Content-Type", "charset=utf-8")
+	c.String(200, "I am healthy")
 }

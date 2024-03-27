@@ -5,7 +5,7 @@ import (
 	"github.com/Brandon-lz/myopcua/db"
 	"github.com/Brandon-lz/myopcua/db/gen/query"
 	globaldata "github.com/Brandon-lz/myopcua/global_data"
-	"github.com/Brandon-lz/myopcua/health"
+	// "github.com/Brandon-lz/myopcua/health"
 	"github.com/Brandon-lz/myopcua/log"
 
 	httpservice "github.com/Brandon-lz/myopcua/http_service"
@@ -31,6 +31,5 @@ func main() {
 	db.InitDB()
 	query.SetDefault(db.DB)    // init gen model, for decouple with db
 	go httpservice.Start()
-	go health.Runhealthcheck()
 	select {}
 }

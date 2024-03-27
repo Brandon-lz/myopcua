@@ -343,9 +343,90 @@
                     }
                 }
             }
+        },
+        "/health": {
+            "get": {
+                "description": "healthCheck 路由",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "default"
+                ],
+                "summary": "healthCheck 路由",
+                "responses": {
+                    "200": {
+                        "description": "pong",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
         }
     },
     "definitions": {
+        "globaldata.Condition": {
+            "type": "object",
+            "properties": {
+                "and": {
+                    "description": "规则列表，逻辑与",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/globaldata.Condition"
+                    }
+                },
+                "or": {
+                    "description": "规则列表，逻辑或",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/globaldata.Condition"
+                    }
+                },
+                "rule": {
+                    "description": "规则",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/globaldata.Rule"
+                        }
+                    ]
+                }
+            }
+        },
+        "globaldata.Rule": {
+            "type": "object",
+            "required": [
+                "node_name",
+                "type"
+            ],
+            "properties": {
+                "node_name": {
+                    "description": "节点名称",
+                    "type": "string",
+                    "example": "MyVariable"
+                },
+                "type": {
+                    "description": "规则类型 eq, ne, gt, lt, all-time : 相等, 不相等, 大于, 小于, 全时间",
+                    "type": "string",
+                    "enum": [
+                        "eq",
+                        "ne",
+                        "gt",
+                        "lt",
+                        "all-time"
+                    ],
+                    "example": "eq"
+                },
+                "value": {
+                    "description": "规则value",
+                    "type": "string",
+                    "example": "123"
+                }
+            }
+        },
         "noderouters.AddNodeToReadRequest": {
             "type": "object",
             "required": [
@@ -492,7 +573,7 @@
                     "description": "触发条件，为空时相当于通知所有数据变化",
                     "allOf": [
                         {
-                            "$ref": "#/definitions/webhookrouters.Condition"
+                            "$ref": "#/definitions/globaldata.Condition"
                         }
                     ]
                 }
@@ -514,33 +595,6 @@
                 }
             }
         },
-        "webhookrouters.Condition": {
-            "type": "object",
-            "properties": {
-                "and": {
-                    "description": "规则列表，逻辑与",
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/webhookrouters.Condition"
-                    }
-                },
-                "or": {
-                    "description": "规则列表，逻辑或",
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/webhookrouters.Condition"
-                    }
-                },
-                "rule": {
-                    "description": "规则",
-                    "allOf": [
-                        {
-                            "$ref": "#/definitions/webhookrouters.Rule"
-                        }
-                    ]
-                }
-            }
-        },
         "webhookrouters.CreateConditionRequest": {
             "type": "object",
             "properties": {
@@ -548,21 +602,21 @@
                     "description": "规则列表，逻辑与",
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/webhookrouters.Condition"
+                        "$ref": "#/definitions/globaldata.Condition"
                     }
                 },
                 "or": {
                     "description": "规则列表，逻辑或",
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/webhookrouters.Condition"
+                        "$ref": "#/definitions/globaldata.Condition"
                     }
                 },
                 "rule": {
                     "description": "规则",
                     "allOf": [
                         {
-                            "$ref": "#/definitions/webhookrouters.Rule"
+                            "$ref": "#/definitions/globaldata.Rule"
                         }
                     ]
                 }
@@ -613,37 +667,6 @@
                 "message": {
                     "type": "string",
                     "example": "Webhook configuration get successfully"
-                }
-            }
-        },
-        "webhookrouters.Rule": {
-            "type": "object",
-            "required": [
-                "node_name",
-                "type"
-            ],
-            "properties": {
-                "node_name": {
-                    "description": "节点名称",
-                    "type": "string",
-                    "example": "MyVariable"
-                },
-                "type": {
-                    "description": "规则类型 eq, ne, gt, lt, all-time : 相等, 不相等, 大于, 小于, 全时间",
-                    "type": "string",
-                    "enum": [
-                        "eq",
-                        "ne",
-                        "gt",
-                        "lt",
-                        "all-time"
-                    ],
-                    "example": "eq"
-                },
-                "value": {
-                    "description": "规则value",
-                    "type": "string",
-                    "example": "123"
                 }
             }
         },

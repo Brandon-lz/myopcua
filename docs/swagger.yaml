@@ -1,5 +1,46 @@
 basePath: /
 definitions:
+  globaldata.Condition:
+    properties:
+      and:
+        description: 规则列表，逻辑与
+        items:
+          $ref: '#/definitions/globaldata.Condition'
+        type: array
+      or:
+        description: 规则列表，逻辑或
+        items:
+          $ref: '#/definitions/globaldata.Condition'
+        type: array
+      rule:
+        allOf:
+        - $ref: '#/definitions/globaldata.Rule'
+        description: 规则
+    type: object
+  globaldata.Rule:
+    properties:
+      node_name:
+        description: 节点名称
+        example: MyVariable
+        type: string
+      type:
+        description: '规则类型 eq, ne, gt, lt, all-time : 相等, 不相等, 大于, 小于, 全时间'
+        enum:
+        - eq
+        - ne
+        - gt
+        - lt
+        - all-time
+        example: eq
+        type: string
+      value:
+        description: 规则value
+        example: "123"
+        type: string
+    required:
+    - node_name
+    - type
+    type: object
   noderouters.AddNodeToReadRequest:
     properties:
       data-type:
@@ -101,7 +142,7 @@ definitions:
         type: string
       when:
         allOf:
-        - $ref: '#/definitions/webhookrouters.Condition'
+        - $ref: '#/definitions/globaldata.Condition'
         description: 触发条件，为空时相当于通知所有数据变化
     required:
     - url
@@ -117,38 +158,21 @@ definitions:
         example: 节点添加成功
         type: string
     type: object
-  webhookrouters.Condition:
-    properties:
-      and:
-        description: 规则列表，逻辑与
-        items:
-          $ref: '#/definitions/webhookrouters.Condition'
-        type: array
-      or:
-        description: 规则列表，逻辑或
-        items:
-          $ref: '#/definitions/webhookrouters.Condition'
-        type: array
-      rule:
-        allOf:
-        - $ref: '#/definitions/webhookrouters.Rule'
-        description: 规则
-    type: object
   webhookrouters.CreateConditionRequest:
     properties:
       and:
         description: 规则列表，逻辑与
         items:
-          $ref: '#/definitions/webhookrouters.Condition'
+          $ref: '#/definitions/globaldata.Condition'
         type: array
       or:
         description: 规则列表，逻辑或
         items:
-          $ref: '#/definitions/webhookrouters.Condition'
+          $ref: '#/definitions/globaldata.Condition'
         type: array
       rule:
         allOf:
-        - $ref: '#/definitions/webhookrouters.Rule'
+        - $ref: '#/definitions/globaldata.Rule'
         description: 规则
     type: object
   webhookrouters.CreateConditionResponse:
@@ -183,30 +207,6 @@ definitions:
       message:
         example: Webhook configuration get successfully
         type: string
-    type: object
-  webhookrouters.Rule:
-    properties:
-      node_name:
-        description: 节点名称
-        example: MyVariable
-        type: string
-      type:
-        description: '规则类型 eq, ne, gt, lt, all-time : 相等, 不相等, 大于, 小于, 全时间'
-        enum:
-        - eq
-        - ne
-        - gt
-        - lt
-        - all-time
-        example: eq
-        type: string
-      value:
-        description: 规则value
-        example: "123"
-        type: string
-    required:
-    - node_name
-    - type
     type: object
   webhookrouters.WebHookConditionRead:
     properties:
@@ -532,6 +532,21 @@ paths:
       summary: webhook示例
       tags:
       - Webhook
+  /health:
+    get:
+      consumes:
+      - application/json
+      description: healthCheck 路由
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: pong
+          schema:
+            type: string
+      summary: healthCheck 路由
+      tags:
+      - default
 schemes:
 - http
 securityDefinitions:
