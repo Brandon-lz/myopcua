@@ -55,7 +55,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "nodes"
+                    "opc-nodes"
                 ],
                 "summary": "AddNodeToRead 路由",
                 "parameters": [
@@ -94,7 +94,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "nodes"
+                    "opc-nodes"
                 ],
                 "summary": "DeleteNode 路由",
                 "parameters": [
@@ -131,7 +131,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "nodes"
+                    "opc-nodes"
                 ],
                 "summary": "GetNode 路由",
                 "parameters": [
@@ -434,10 +434,10 @@ const docTemplate = `{
             "type": "object",
             "required": [
                 "name",
-                "node-id"
+                "node_id"
             ],
             "properties": {
-                "data-type": {
+                "data_type": {
                     "type": "string",
                     "example": "Int32"
                 },
@@ -445,7 +445,7 @@ const docTemplate = `{
                     "type": "string",
                     "example": "MyVariable"
                 },
-                "node-id": {
+                "node_id": {
                     "type": "string",
                     "example": "ns=2;i=2"
                 }
@@ -502,7 +502,7 @@ const docTemplate = `{
         "noderouters.OpcNodeOutput": {
             "type": "object",
             "properties": {
-                "data-type": {
+                "data_type": {
                     "type": "string",
                     "example": "Int32"
                 },
@@ -510,7 +510,7 @@ const docTemplate = `{
                     "type": "string",
                     "example": "MyVariable"
                 },
-                "node-id": {
+                "node_id": {
                     "type": "string",
                     "example": "ns=2;s=MyVariable"
                 }
@@ -519,7 +519,7 @@ const docTemplate = `{
         "noderouters.OpcNodeWithDataOutput": {
             "type": "object",
             "properties": {
-                "data-type": {
+                "data_type": {
                     "type": "string",
                     "example": "Int32"
                 },
@@ -527,7 +527,7 @@ const docTemplate = `{
                     "type": "string",
                     "example": "MyVariable"
                 },
-                "node-id": {
+                "node_id": {
                     "type": "string",
                     "example": "ns=2;s=MyVariable"
                 },

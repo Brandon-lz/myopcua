@@ -6,11 +6,11 @@ import (
 	"runtime/debug"
 	"time"
 
-	"log"
 	"os"
 
 	"github.com/Brandon-lz/myopcua/config"
 	globaldata "github.com/Brandon-lz/myopcua/global_data"
+	"github.com/Brandon-lz/myopcua/log"
 	opcUa "github.com/Brandon-lz/myopcua/opc_ua"
 
 	"github.com/gopcua/opcua"
@@ -20,12 +20,12 @@ import (
 
 func Start() {
 
-	log.Println("启动OPC服务...")
+	log.Logger.Info("启动OPC服务...")
 
 	for {
 		err := TestOpc()
 		if err != nil {
-			log.Println("OPCUA发生故障或目标设备失去连接，尝试重启服务，请勿关闭服务\n故障信息:", err)
+			log.Logger.Error("OPCUA发生故障或目标设备失去连接，尝试重启服务，请勿关闭服务\n故障信息:", err)
 			time.Sleep(time.Second * 3)
 			continue
 		}
@@ -40,7 +40,7 @@ func TestOpc() (err error) {
 		if perr != nil {
 			err = fmt.Errorf("panic error:[%+v]\n%s", perr, debug.Stack())
 		} else {
-			log.Println("设备正常退出")
+			log.Logger.Info("设备正常退出")
 		}
 	}()
 
@@ -89,7 +89,7 @@ func IsExpire() bool {
 	now := time.Now()
 	deadline := ft.Add(time.Hour * 24 * 30)
 	if now.After(deadline) {
-		log.Println("授权已过期，请联系平台续费！  wx:advance_to")
+		log.Logger.Error("授权已过期，请联系平台续费！  wx:advance_to")
 		return true
 	}
 	return false

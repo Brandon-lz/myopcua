@@ -7,9 +7,9 @@ import (
 	"github.com/BurntSushi/toml"
 )
 
-func Init() {
+func Init(configfile string) {
 	// Register the config loader
-	if err := loadConfig("./config.toml"); err != nil {
+	if err := loadConfig(configfile); err != nil {
 		log.Fatalln("Failed to load config file: ", err)
 		os.Exit(1)
 	}

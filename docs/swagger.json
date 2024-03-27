@@ -52,7 +52,7 @@
                     "application/json"
                 ],
                 "tags": [
-                    "nodes"
+                    "opc-nodes"
                 ],
                 "summary": "AddNodeToRead 路由",
                 "parameters": [
@@ -91,7 +91,7 @@
                     "application/json"
                 ],
                 "tags": [
-                    "nodes"
+                    "opc-nodes"
                 ],
                 "summary": "DeleteNode 路由",
                 "parameters": [
@@ -128,7 +128,7 @@
                     "application/json"
                 ],
                 "tags": [
-                    "nodes"
+                    "opc-nodes"
                 ],
                 "summary": "GetNode 路由",
                 "parameters": [
@@ -431,10 +431,10 @@
             "type": "object",
             "required": [
                 "name",
-                "node-id"
+                "node_id"
             ],
             "properties": {
-                "data-type": {
+                "data_type": {
                     "type": "string",
                     "example": "Int32"
                 },
@@ -442,7 +442,7 @@
                     "type": "string",
                     "example": "MyVariable"
                 },
-                "node-id": {
+                "node_id": {
                     "type": "string",
                     "example": "ns=2;i=2"
                 }
@@ -499,7 +499,7 @@
         "noderouters.OpcNodeOutput": {
             "type": "object",
             "properties": {
-                "data-type": {
+                "data_type": {
                     "type": "string",
                     "example": "Int32"
                 },
@@ -507,7 +507,7 @@
                     "type": "string",
                     "example": "MyVariable"
                 },
-                "node-id": {
+                "node_id": {
                     "type": "string",
                     "example": "ns=2;s=MyVariable"
                 }
@@ -516,7 +516,7 @@
         "noderouters.OpcNodeWithDataOutput": {
             "type": "object",
             "properties": {
-                "data-type": {
+                "data_type": {
                     "type": "string",
                     "example": "Int32"
                 },
@@ -524,7 +524,7 @@
                     "type": "string",
                     "example": "MyVariable"
                 },
-                "node-id": {
+                "node_id": {
                     "type": "string",
                     "example": "ns=2;s=MyVariable"
                 },

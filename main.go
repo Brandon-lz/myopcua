@@ -23,7 +23,7 @@ import (
 // @in header
 // @name Authorization
 func main() {
-	config.Init()
+	config.Init("./config.yaml")
 	log.Init()
 	log.Logger.Info("Starting the opc application...")
 	globaldata.InitSystemVars()

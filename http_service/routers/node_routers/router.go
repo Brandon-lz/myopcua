@@ -21,7 +21,7 @@ func RegisterRoutes(router *gin.RouterGroup) {
 // AddNodeToRead 路由 -------------------------------------------------------
 // @Summary  AddNodeToRead 路由
 // @Description  AddNodeToRead 路由
-// @Tags     nodes
+// @Tags     opc-nodes
 // @Security BearerAuth
 // @Accept   json
 // @Produce  json
@@ -49,8 +49,8 @@ func AddNodeToRead(c *gin.Context) {
 
 type AddNodeToReadRequest struct {
 	Name     string  `json:"name" form:"name" binding:"required" example:"MyVariable"`
-	NodeID   string  `json:"node-id" form:"node-id" binding:"required" example:"ns=2;i=2"`
-	DataType *string `json:"data-type" form:"data-type" example:"Int32"`
+	NodeID   string  `json:"node_id" form:"node_id" binding:"required" example:"ns=2;i=2"`
+	DataType *string `json:"data_type" form:"data_type" example:"Int32"`
 }
 
 type AddNodeToReadResponse struct {
@@ -61,8 +61,8 @@ type AddNodeToReadResponse struct {
 
 type OpcNodeOutput struct {
 	Name     string `json:"name" example:"MyVariable"`
-	NodeID   string `json:"node-id" example:"ns=2;s=MyVariable"`
-	DataType string `json:"data-type" example:"Int32"`
+	NodeID   string `json:"node_id" example:"ns=2;s=MyVariable"`
+	DataType string `json:"data_type" example:"Int32"`
 }
 
 func serviceAddNodeToRead(req *AddNodeToReadRequest) globaldata.OpcNode {
@@ -83,7 +83,7 @@ func serviceAddNodeToRead(req *AddNodeToReadRequest) globaldata.OpcNode {
 // GetNode 路由 -------------------------------------------------------
 // @Summary  GetNode 路由
 // @Description  GetNode 路由
-// @Tags     nodes
+// @Tags     opc-nodes
 // @Security BearerAuth
 // @Accept   json
 // @Produce  json
@@ -137,7 +137,7 @@ func serviceGetNode(nodeID int64) (*globaldata.OpcNode, string) {
 // DeleteNode 路由 -------------------------------------------------------
 // @Summary  DeleteNode 路由
 // @Description  DeleteNode 路由
-// @Tags     nodes
+// @Tags     opc-nodes
 // @Security BearerAuth
 // @Accept   json
 // @Produce  json

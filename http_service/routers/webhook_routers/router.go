@@ -113,6 +113,8 @@ func AddWebhookConfig(c *gin.Context) {
 		panic(core.NewKnownError(http.StatusBadRequest, nil, "when and condition_id cannot be both set"))
 	}
 
+	utils.PrintDataAsJson(req)
+
 	// 逻辑处理
 	webhook := ServiceAddWebhookConfig(&req)
 
@@ -172,6 +174,8 @@ func ServiceAddWebhookConfig(req *AddWebhookConfigRequest) WebHookConfigRead {
 	return out
 }
 
+// {"name":"webhook1","url":"http://localhost:8080/api/v1/webhook/example","active":true,"when":{"and":null,"or":null,"rule":{"type":"eq","node_name":"node1","value":"123"}},"condition_id":null}
+// {"name":"webhook1","url":"http://localhost:8080/api/v1/webhook/example","active":true,"when":{"and":null,"or":null,"rule":{"type":"eq","node_name":"node1","value":"123"}},"condition_id":null}
 func DalAddWebhookConfig(req *AddWebhookConfigRequest) (*model.WebHook, *model.WebHookCondition) {
 	var webhook model.WebHook
 	var condition model.WebHookCondition
@@ -180,12 +184,14 @@ func DalAddWebhookConfig(req *AddWebhookConfigRequest) (*model.WebHook, *model.W
 			condition = model.WebHookCondition{Condition: utils.PrintDataAsJson(req.When)}
 			err := tx.WebHookCondition.Create(&condition)
 			if err != nil {
+				log.Logger.Error("%s",utils.WrapError(err))
 				return err
 			}
 			webhook = core.SerializeData(req, &model.WebHook{}) // req -> orm model
 			webhook.WebHookConditionRefer = &condition.ID
 			err = tx.WebHook.Create(&webhook)
 			if err != nil {
+				log.Logger.Error("%s",utils.WrapError(err))
 				return err
 			}
 		} else {
@@ -195,12 +201,14 @@ func DalAddWebhookConfig(req *AddWebhookConfigRequest) (*model.WebHook, *model.W
 			}
 			err := tx.WebHook.Create(&webhook)
 			if err != nil {
+				log.Logger.Error("%s",utils.WrapError(err))
 				return err
 			}
 		}
 		return nil
 	})
 	if err != nil {
+		log.Logger.Error("%s",utils.WrapError(err))
 		sqlErr := err.(*pgconn.PgError)
 		panic(core.NewKnownError(core.FieldNotUnique, err, sqlErr.Message))
 	}

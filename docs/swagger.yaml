@@ -43,18 +43,18 @@ definitions:
     type: object
   noderouters.AddNodeToReadRequest:
     properties:
-      data-type:
+      data_type:
         example: Int32
         type: string
       name:
         example: MyVariable
         type: string
-      node-id:
+      node_id:
         example: ns=2;i=2
         type: string
     required:
     - name
-    - node-id
+    - node_id
     type: object
   noderouters.AddNodeToReadResponse:
     properties:
@@ -91,25 +91,25 @@ definitions:
     type: object
   noderouters.OpcNodeOutput:
     properties:
-      data-type:
+      data_type:
         example: Int32
         type: string
       name:
         example: MyVariable
         type: string
-      node-id:
+      node_id:
         example: ns=2;s=MyVariable
         type: string
     type: object
   noderouters.OpcNodeWithDataOutput:
     properties:
-      data-type:
+      data_type:
         example: Int32
         type: string
       name:
         example: MyVariable
         type: string
-      node-id:
+      node_id:
         example: ns=2;s=MyVariable
         type: string
       value:
@@ -323,7 +323,7 @@ paths:
       - BearerAuth: []
       summary: AddNodeToRead 路由
       tags:
-      - nodes
+      - opc-nodes
   /api/v1/opc-node/delete-node/{id}:
     delete:
       consumes:
@@ -346,7 +346,7 @@ paths:
       - BearerAuth: []
       summary: DeleteNode 路由
       tags:
-      - nodes
+      - opc-nodes
   /api/v1/opc-node/get-node/{id}:
     get:
       consumes:
@@ -369,7 +369,7 @@ paths:
       - BearerAuth: []
       summary: GetNode 路由
       tags:
-      - nodes
+      - opc-nodes
   /api/v1/ping:
     get:
       consumes:

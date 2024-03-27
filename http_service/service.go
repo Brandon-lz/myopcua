@@ -12,7 +12,7 @@ import (
 	ginSwagger "github.com/swaggo/gin-swagger"
 )
 
-func Start() {
+func InitRouter() *gin.Engine {
 	router := gin.Default()
 	// CORS for https://foo.com and https://github.com origins, allowing:
 	// - PUT and PATCH methods
@@ -21,6 +21,11 @@ func Start() {
 	// - Preflight requests cached for 12 hours
 	router.Use(ginCors())
 	router.Use(gin.CustomRecovery(ErrorHandler))
+	return router
+}
+
+func Start() {
+	router := InitRouter()
 	router.GET("/", func(c *gin.Context) {
 		c.JSON(200, gin.H{
 			"message": "hello world",
