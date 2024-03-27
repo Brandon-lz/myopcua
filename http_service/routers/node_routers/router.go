@@ -73,10 +73,10 @@ func serviceAddNodeToRead(req *AddNodeToReadRequest) globaldata.OpcNode {
 	if req.DataType != nil {
 		node.DataType = *req.DataType
 	}
-	if err := globaldata.SystemVars.AddNode(&node); err != nil {
+	if err := globaldata.OPCNodeVars.AddNode(&node); err != nil {
 		panic(core.NewKnownError(core.FailedToAddNode, req.NodeID, fmt.Sprintf("add node failed: %s", err.Error())))
 	}
-	globaldata.SystemVars.Save()
+	globaldata.OPCNodeVars.Save()
 	return node
 }
 
@@ -120,7 +120,7 @@ type OpcNodeWithDataOutput struct {
 }
 
 func serviceGetNode(nodeID int64) (*globaldata.OpcNode, string) {
-	node, err := globaldata.SystemVars.GetNode(nodeID)
+	node, err := globaldata.OPCNodeVars.GetNode(nodeID)
 	if err != nil {
 		panic(core.NewKnownError(core.FailedToGetNode, nodeID, fmt.Sprintf("get node failed: %s", err.Error())))
 	}
@@ -166,8 +166,8 @@ type DeleteNodeResponse struct {
 }
 
 func ServiceDeleteNode(nodeID int64) {
-	if err := globaldata.SystemVars.DeleteNode(nodeID); err != nil {
+	if err := globaldata.OPCNodeVars.DeleteNode(nodeID); err != nil {
 		panic(core.NewKnownError(core.FailedToDeleteNode, nodeID, "delete node failed"))
 	}
-	globaldata.SystemVars.Save()
+	globaldata.OPCNodeVars.Save()
 }

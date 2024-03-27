@@ -6,6 +6,8 @@ import (
     "gorm.io/gen/field"
 )
 
+// go test -v -run TestGenInit ./test/gen_test.go 
+
 func main() {
     g := gen.NewGenerator(gen.Config{
         OutPath: "./query",

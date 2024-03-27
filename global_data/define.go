@@ -13,7 +13,7 @@ type OpcNode struct {
 	Value    interface{}
 }
 
-type SystemVarsDFT struct {
+type OPCNodeVarsDFT struct {
 	CurrentValues map[int64]*OpcNode  // 0 node1, 1 node2, 2 node3...
 	NodeNameSets  map[string]struct{} // set of node names
 	NodeIdSets    map[string]struct{} // set of node ids  golang中没有集合  nodeid unique
@@ -21,8 +21,8 @@ type SystemVarsDFT struct {
 	NodeNameIndex map[string]int64    // node name to index in CurrentValues   node name 索引
 }
 
-func NewSystemVarsDFT() *SystemVarsDFT {
-	return &SystemVarsDFT{
+func NewGlobalOPCNodeVars() *OPCNodeVarsDFT {
+	return &OPCNodeVarsDFT{
 		CurrentValues: make(map[int64]*OpcNode),
 		NodeNameSets:  make(map[string]struct{}),
 		NodeIdSets:    make(map[string]struct{}),
@@ -31,15 +31,15 @@ func NewSystemVarsDFT() *SystemVarsDFT {
 	}
 }
 
-func (s *SystemVarsDFT) Save() error {
+func (s *OPCNodeVarsDFT) Save() error {
 	return utils.Dump(s, "systemvars.obj")
 }
 
-func (s *SystemVarsDFT) len() int {
+func (s *OPCNodeVarsDFT) len() int {
 	return len(s.NodeIdList)
 }
 
-func (s *SystemVarsDFT) AddNode(node *OpcNode) error {
+func (s *OPCNodeVarsDFT) AddNode(node *OpcNode) error {
 	OpcWriteLock.Lock()
 	defer OpcWriteLock.Unlock()
 	_, nameOk := s.NodeNameSets[node.Name]
@@ -56,14 +56,14 @@ func (s *SystemVarsDFT) AddNode(node *OpcNode) error {
 	return fmt.Errorf("node name or node id already exists")
 }
 
-func (s *SystemVarsDFT) GetNode(id int64) (*OpcNode, error) {
+func (s *OPCNodeVarsDFT) GetNode(id int64) (*OpcNode, error) {
 	if id < 0 || id >= int64(s.len()) {
 		return nil, fmt.Errorf("node id out of range")
 	}
 	return s.CurrentValues[id], nil
 }
 
-func (s *SystemVarsDFT) GetNodeByName(name string) (*OpcNode, error) {
+func (s *OPCNodeVarsDFT) GetNodeByName(name string) (*OpcNode, error) {
 	index, ok := s.NodeNameIndex[name]
 	if !ok {
 		return nil, fmt.Errorf("node name not found")
@@ -71,7 +71,7 @@ func (s *SystemVarsDFT) GetNodeByName(name string) (*OpcNode, error) {
 	return s.CurrentValues[index], nil
 }
 
-func (s *SystemVarsDFT) DeleteNode(id int64) error {
+func (s *OPCNodeVarsDFT) DeleteNode(id int64) error {
 	OpcWriteLock.Lock()
 	defer OpcWriteLock.Unlock()
 	if id < 0 || id >= int64(s.len()) {

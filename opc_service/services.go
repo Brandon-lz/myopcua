@@ -70,7 +70,7 @@ func readOpcData(c *opcua.Client) {
 	ctx := context.Background()
 	ctx, cancel := context.WithTimeout(ctx, time.Second*3)
 	defer cancel()
-	datas, err := opcUa.ReadMultiValueByNodeIds(globaldata.SystemVars.NodeIdList, nil, ctx, c)
+	datas, err := opcUa.ReadMultiValueByNodeIds(globaldata.OPCNodeVars.NodeIdList, nil, ctx, c)
 	if err != nil {
 		panic(err)
 	}
@@ -79,7 +79,7 @@ func readOpcData(c *opcua.Client) {
 
 	// 写入数据到全局变量
 	for i, data := range datas {
-		globaldata.SystemVars.CurrentValues[int64(i)].Value = data
+		globaldata.OPCNodeVars.CurrentValues[int64(i)].Value = data
 	}
 }
 
