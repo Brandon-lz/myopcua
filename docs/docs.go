@@ -662,7 +662,8 @@ const docTemplate = `{
                 "id",
                 "name",
                 "updated_at",
-                "url"
+                "url",
+                "when"
             ],
             "properties": {
                 "active": {
@@ -681,6 +682,9 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "url": {
+                    "type": "string"
+                },
+                "when": {
                     "type": "string"
                 }
             }

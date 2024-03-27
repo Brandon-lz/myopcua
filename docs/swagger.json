@@ -659,7 +659,8 @@
                 "id",
                 "name",
                 "updated_at",
-                "url"
+                "url",
+                "when"
             ],
             "properties": {
                 "active": {
@@ -678,6 +679,9 @@
                     "type": "string"
                 },
                 "url": {
+                    "type": "string"
+                },
+                "when": {
                     "type": "string"
                 }
             }

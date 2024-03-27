@@ -1,6 +1,5 @@
 {
     "active": true,
-    "name": "webhook1",
     "url": "http://localhost:8080/api/v1/webhook/example",
     "when": {
         "and": [

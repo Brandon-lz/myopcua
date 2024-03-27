@@ -223,6 +223,8 @@ definitions:
         type: string
       url:
         type: string
+      when:
+        type: string
     required:
     - active
     - created_at
@@ -230,6 +232,7 @@ definitions:
     - name
     - updated_at
     - url
+    - when
     type: object
   webhookrouters.WebHookExampleRequest:
     properties:

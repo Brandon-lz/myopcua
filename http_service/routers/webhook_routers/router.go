@@ -30,7 +30,6 @@ func RegisterRoutes(router *gin.RouterGroup) {
 	// group.DELETE("/config/:id", DeleteWebhookConfig)
 }
 
-
 // WebHookExample router ---------------------------------------
 // @Summary webhook示例
 // @Description webhook示例
@@ -56,9 +55,9 @@ func WebHookExample(c *gin.Context) {
 }
 
 type WebHookExampleRequest struct {
-	NodeName string `json:"node_name" form:"node_name" example:"MyVariable"` // 节点名称
-	NodeId string `json:"node_id" form:"node_id" example:"ns=1;s=MyVariable"` // 节点id
-	Value string `json:"value" form:"value" example:"123"` // 入参示例
+	NodeName string `json:"node_name" form:"node_name" example:"MyVariable"`    // 节点名称
+	NodeId   string `json:"node_id" form:"node_id" example:"ns=1;s=MyVariable"` // 节点id
+	Value    string `json:"value" form:"value" example:"123"`                   // 入参示例
 }
 
 type WebHookExampleResponse struct {
@@ -66,8 +65,6 @@ type WebHookExampleResponse struct {
 	Data    string `json:"data" example:"webhook example"`
 	Message string `json:"message" example:"webhook example success"`
 }
-
-
 
 // AddWebhookConfig router -------------------------------------
 // @Summary 配置一条新的webhook
@@ -82,6 +79,10 @@ func AddWebhookConfig(c *gin.Context) {
 	// 入参校验
 	var req AddWebhookConfigRequest
 	core.BindParamAndValidate(c, &req)
+	if req.When != nil && req.ConditionId!= nil {
+		panic(core.NewKnownError(http.StatusBadRequest,nil, "when and condition_id cannot be both set"))
+	}
+
 
 	// 逻辑处理
 	webhook := ServiceAddWebhookConfig(&req)
@@ -99,10 +100,11 @@ func AddWebhookConfig(c *gin.Context) {
 
 // GetWebhookConfig router 参数定义，字段描述放在字段后面
 type AddWebhookConfigRequest struct {
-	Name   *string `json:"name" form:"name" example:"webhook1"` // webhook名称，可以为空
-	Url    string  `json:"url" form:"url" binding:"url" example:"http://192.168.1.1:8800/notify"`   // webhook地址
-	Active *bool   `json:"active" form:"active" example:"true"`                // 是否激活，不传的话默认true
-	When  *Condition   `json:"when" form:"when"` // 触发条件，为空时相当于通知所有数据变化
+	Name   *string    `json:"name" form:"name" example:"webhook1"`                                   // webhook名称，可以为空
+	Url    string     `json:"url" form:"url" binding:"required,url" example:"http://192.168.1.1:8800/notify"` // webhook地址
+	Active *bool      `json:"active" form:"active" example:"true"`                                   // 是否激活，不传的话默认true
+	When   *Condition `json:"when" form:"when"`                                                      // 触发条件，为空时相当于通知所有数据变化
+	ConditionId *int64 `json:"condition_id" form:"condition_id" example:"1"` // 条件id，不传的话默认新增条件
 }
 
 // type When struct {
@@ -118,17 +120,16 @@ type AddWebhookConfigRequest struct {
 // }
 
 type Condition struct {
-	And []Condition `json:"and" form:"and"` // 规则列表，逻辑与
-	Or  []Condition `json:"or" form:"or"`  // 规则列表，逻辑或
-	Rule *Rule `json:"rule" form:"rule"` // 规则
+	And  []Condition `json:"and" form:"and"`   // 规则列表，逻辑与
+	Or   []Condition `json:"or" form:"or"`     // 规则列表，逻辑或
+	Rule *Rule       `json:"rule" form:"rule"` // 规则
 }
 
 type Rule struct {
-	Type  string `json:"type" form:"type" example:"eq"` // 规则类型
+	Type     string `json:"type" form:"type" example:"eq"`                   // 规则类型
 	NodeName string `json:"node_name" form:"node_name" example:"MyVariable"` // 节点名称
-	Value string `json:"value" form:"value" example:"123"` // 规则value
+	Value    string `json:"value" form:"value" example:"123"`                // 规则value
 }
-
 
 type AddWebhookConfigResponse struct {
 	Code    int               `json:"code" example:"200"`
@@ -151,6 +152,7 @@ type WebHookConfigRead struct {
 	Name      string    `json:"name" form:"name" validate:"required"`
 	Url       string    `json:"url" form:"url" validate:"required"`
 	Active    bool      `json:"active" form:"active" validate:"required"`
+	When      *string   `json:"when" form:"when" validate:"omitempty"`
 	CreatedAt time.Time `json:"created_at" form:"created_at" validate:"required"`
 	UpdatedAt time.Time `json:"updated_at" form:"updated_at" validate:"required"`
 }
@@ -162,15 +164,16 @@ func ServiceAddWebhookConfig(req *AddWebhookConfigRequest) WebHookConfigRead {
 	if req.Active == nil {
 		req.Active = utils.Adr(true)
 	}
-	webhook := DalAddWebhookConfig(req)
+	webhook,condition := DalAddWebhookConfig(req)
 	out := core.SerializeData(webhook, &WebHookConfigRead{}) // orm model -> out
+	out.When = &condition.Condition
 	return out
 }
 
-func DalAddWebhookConfig(req *AddWebhookConfigRequest) *model.WebHook {
+func DalAddWebhookConfig(req *AddWebhookConfigRequest) (*model.WebHook,*model.WebHookCondition) {
 	var webhook model.WebHook
 	var condition model.WebHookCondition
-	err:= query.Q.Transaction(func(tx *query.Query) error {
+	err := query.Q.Transaction(func(tx *query.Query) error {
 		if req.When != nil {
 			condition = model.WebHookCondition{Condition: utils.PrintMapAsJson(req.When)}
 			err := tx.WebHookCondition.Create(&condition)
@@ -183,8 +186,11 @@ func DalAddWebhookConfig(req *AddWebhookConfigRequest) *model.WebHook {
 			if err != nil {
 				return err
 			}
-		}else{
+		} else {
 			webhook = core.SerializeData(req, &model.WebHook{}) // req -> orm model
+			if req.ConditionId != nil {
+				webhook.WebHookConditionRefer = req.ConditionId
+			}
 			err := tx.WebHook.Create(&webhook)
 			if err != nil {
 				return err
@@ -200,7 +206,7 @@ func DalAddWebhookConfig(req *AddWebhookConfigRequest) *model.WebHook {
 	fmt.Printf("webhook: %+v\n", webhook)
 	fmt.Printf("condition: %+v\n", condition)
 
-	return &webhook
+	return &webhook, &condition
 }
 
 // GetWebhookConfigById router -------------------------------
@@ -220,14 +226,17 @@ func GetWebhookConfigById(c *gin.Context) {
 	}
 
 	// 逻辑处理
-	strId, err := strconv.ParseInt(id,10,64)
+	strId, err := strconv.ParseInt(id, 10, 64)
 	if err != nil {
 		panic(core.NewKnownError(http.StatusBadRequest, err, "id is not int"))
 	}
-	webhook := DalGetWebhookConfigById(strId)
+	webhook, condition := DalGetWebhookConfigById(strId)
 
 	// 出参序列化以及校验
+
 	out := core.SerializeData(webhook, &WebHookConfigRead{})
+	out.When = &condition.Condition
+
 	core.ValidateSchema(out)
 
 	core.SuccessHandler(c, GetWebhookConfigByIdResponse{
@@ -243,28 +252,31 @@ type GetWebhookConfigByIdResponse struct {
 	Message string            `json:"message" example:"Webhook configuration get successfully"`
 }
 
-func DalGetWebhookConfigById(id int64) *model.WebHook {
+func DalGetWebhookConfigById(id int64) (*model.WebHook, *model.WebHookCondition) {
 	var webhook *model.WebHook
-	var err error 
+	var err error
 	q := query.Q.WebHook
-	webhook,err=q.Where(q.ID.Eq(id)).First()
+	webhook, err = q.Where(q.ID.Eq(id)).First()
 	if err != nil {
-		log.Logger.Error("%s",utils.WrapError(err))
+		log.Logger.Error("%s", utils.WrapError(err))
 		panic(core.NewKnownError(core.EntityNotFound, err, "webhook not found"))
 	}
 
-	fmt.Printf("webhook: %+v\n", webhook)
-
-	return webhook
+	// gen foreign key condition not support yet, deal with handly
+	u := query.Q.WebHookCondition
+	condition, err := u.Where(u.ID.Eq(*webhook.WebHookConditionRefer)).First()
+	if err != nil {
+		log.Logger.Error("%s", utils.WrapError(err))
+		panic(core.NewKnownError(core.EntityNotFound, err, "condition not found"))
+	}
+	return webhook, condition
 }
-
-
 
 // GetWebhookConfigByName router ------------------------------
 // @Summary 根据名称获取webhook配置
 // @Description 根据名称获取webhook配置
 // @Tags Webhook
-// @Accept  json	
+// @Accept  json
 // @Produce  json
 // @Param name path string true "webhook名称"
 // @Success 200 {object} GetWebhookConfigByNameResponse
@@ -290,19 +302,17 @@ func GetWebhookConfigByName(c *gin.Context) {
 	})
 }
 
-
 type GetWebhookConfigByNameResponse struct {
 	Code    int               `json:"code" example:"200"`
 	Data    WebHookConfigRead `json:"data" `
 	Message string            `json:"message" example:"Webhook configuration get successfully"`
 }
 
-
 func DalGetWebhookConfigByName(name string) *model.WebHook {
 	var webhook *model.WebHook
-	var err error 
+	var err error
 	q := query.Q.WebHook
-	webhook,err=q.Where(q.Name.Eq(name)).First()
+	webhook, err = q.Where(q.Name.Eq(name)).First()
 	if err != nil {
 		panic(core.NewKnownError(core.EntityNotFound, err, "webhook not found"))
 	}
@@ -311,7 +321,6 @@ func DalGetWebhookConfigByName(name string) *model.WebHook {
 
 	return webhook
 }
-
 
 // CreateCondition router -------------------------------------
 // @Summary 创建触发条件
@@ -341,17 +350,16 @@ func CreateCondition(c *gin.Context) {
 	})
 }
 
-
 type CreateConditionRequest struct {
-	And []Condition `json:"and" form:"and"` // 规则列表，逻辑与
-	Or  []Condition `json:"or" form:"or"`  // 规则列表，逻辑或
-	Rule *Rule `json:"rule" form:"rule"` // 规则
+	And  []Condition `json:"and" form:"and"`   // 规则列表，逻辑与
+	Or   []Condition `json:"or" form:"or"`     // 规则列表，逻辑或
+	Rule *Rule       `json:"rule" form:"rule"` // 规则
 }
 
 type CreateConditionResponse struct {
-	Code    int                   `json:"code" example:"200"`
-	Data    WebHookConditionRead  `json:"data" `
-	Message string                `json:"message" example:"Condition created successfully"`
+	Code    int                  `json:"code" example:"200"`
+	Data    WebHookConditionRead `json:"data" `
+	Message string               `json:"message" example:"Condition created successfully"`
 }
 
 type WebHookConditionRead struct {
@@ -367,13 +375,12 @@ func ServiceCreateCondition(req *CreateConditionRequest) WebHookConditionRead {
 	return out
 }
 
-
 func DalCreateCondition(req *CreateConditionRequest) *model.WebHookCondition {
 	var condition model.WebHookCondition
 	conditionData := map[string]string{
 		"condition": utils.PrintMapAsJson(req),
 	}
-	err:= query.Q.Transaction(func(tx *query.Query) error {
+	err := query.Q.Transaction(func(tx *query.Query) error {
 		condition = core.SerializeData(conditionData, &model.WebHookCondition{}) // req -> orm model
 		err := tx.WebHookCondition.Create(&condition)
 		if err != nil {
