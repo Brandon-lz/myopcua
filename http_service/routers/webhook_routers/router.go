@@ -41,9 +41,10 @@ func RegisterRoutes(router *gin.RouterGroup) {
 // @Router /api/v1/webhook/example [POST]
 func WebHookExample(c *gin.Context) {
 	// 入参校验
-	var req AddWebhookConfigRequest
+	var req WebHookExampleRequest
 	core.BindParamAndValidate(c, &req)
-	fmt.Printf("req: %+v\n", req)
+	// fmt.Printf("req: %+v\n", req)
+	utils.PrintDataAsJson(req)
 
 	// 逻辑处理
 	// 出参序列化以及校验
@@ -66,9 +67,38 @@ type WebHookExampleResponse struct {
 	Message string `json:"message" example:"webhook example success"`
 }
 
+
 // AddWebhookConfig router -------------------------------------
 // @Summary 配置一条新的webhook
-// @Description 配置一条新的webhook
+// @Description # 配置一条新的webhook
+// @Description
+// @Description ## 例1：当节点node1值等于123时，发送通知到http://localhost:8080/api/v1/webhook/example
+// @Description ```json
+// @Description {
+// @Description     "active": true,
+// @Description     "name":"webhook1",
+// @Description     "url": "http://localhost:8080/api/v1/webhook/example",
+// @Description     "when": {
+// @Description         "rule": {
+// @Description 	 		"node_name": "node1",
+// @Description              "type": "eq",
+// @Description              "value": "123"
+// @Description          }
+// @Description      }
+// @Description }
+// @Description ```
+// @Description 使用when字段会创建新的条件condition，并将其配置在这个webhook上
+// @Description ## 例2：使用已经配置好的条件condition
+// @Description ```json
+// @Description {
+// @Description    "active": true,
+// @Description    "url": "http://localhost:8080/api/v1/webhook/example",
+// @Description    "condition_id": 10
+// @Description }
+// @Description ```
+// @Description ## 常见异常
+// @Description - "code": 2007 代表数据重复，不能创建重复的webhook，具体重复了哪个字段，请看ConstraintName最后一个下划线后面的字段名
+// @Description - "code": 400 "json: cannot unmarshal string into Go struct field AddWebhookConfigRequest.condition_id of type int64"  ： 看下body参数，数字类型传成了字符串
 // @Tags Webhook
 // @Accept  json
 // @Produce  json
@@ -79,10 +109,9 @@ func AddWebhookConfig(c *gin.Context) {
 	// 入参校验
 	var req AddWebhookConfigRequest
 	core.BindParamAndValidate(c, &req)
-	if req.When != nil && req.ConditionId!= nil {
-		panic(core.NewKnownError(http.StatusBadRequest,nil, "when and condition_id cannot be both set"))
+	if req.When != nil && req.ConditionId != nil {
+		panic(core.NewKnownError(http.StatusBadRequest, nil, "when and condition_id cannot be both set"))
 	}
-
 
 	// 逻辑处理
 	webhook := ServiceAddWebhookConfig(&req)
@@ -100,24 +129,12 @@ func AddWebhookConfig(c *gin.Context) {
 
 // GetWebhookConfig router 参数定义，字段描述放在字段后面
 type AddWebhookConfigRequest struct {
-	Name   *string    `json:"name" form:"name" example:"webhook1"`                                   // webhook名称，可以为空
-	Url    string     `json:"url" form:"url" binding:"required,url" example:"http://192.168.1.1:8800/notify"` // webhook地址
-	Active *bool      `json:"active" form:"active" example:"true"`                                   // 是否激活，不传的话默认true
-	When   *Condition `json:"when" form:"when"`                                                      // 触发条件，为空时相当于通知所有数据变化
-	ConditionId *int64 `json:"condition_id" form:"condition_id" example:"1"` // 条件id，不传的话默认新增条件
+	Name        *string    `json:"name" form:"name" example:"webhook1"`                                            // webhook名称，可以为空
+	Url         string     `json:"url" form:"url" binding:"required,url" example:"http://192.168.1.1:8800/notify"` // webhook地址
+	Active      *bool      `json:"active" form:"active" example:"true"`                                            // 是否激活，不传的话默认true
+	When        *Condition `json:"when" form:"when"`                                                               // 触发条件，为空时相当于通知所有数据变化
+	ConditionId *int64     `json:"condition_id" form:"condition_id" example:"1"`                                   // 条件id，不传的话默认新增条件
 }
-
-// type When struct {
-// 	And []Condition `json:"and" form:"and" example:"[{\"and\":[{\"type\":\"eq\",\"key\":\"tag1\",\"value\":\"value1\"}]}]"` // 规则列表，逻辑与
-// 	Or  []Condition  `json:"or" form:"or" example:"[{\"or\":[{\"type\":\"eq\",\"key\":\"tag1\",\"value\":\"value1\"}]}]"`  // 规则列表，逻辑或
-// 	Rule *Rule `json:"rule" form:"rule" example:"{\"type\":\"eq\",\"key\":\"tag1\",\"value\":\"value1\"}"` // 规则
-// }
-
-// type And struct {
-// 	And []And `json:"and" form:"and" example:"[{\"type\":\"eq\",\"key\":\"tag1\",\"value\":\"value1\"}]"` // 规则列表
-// 	Or  []Or `json:"or" form:"or" example:"[{\"type\":\"eq\",\"key\":\"tag1\",\"value\":\"value1\"}]"`  // 规则列表
-// 	Rule *Rule `json:"rule" form:"rule" example:"{\"type\":\"eq\",\"key\":\"tag1\",\"value\":\"value1\"}"` // 规则
-// }
 
 type Condition struct {
 	And  []Condition `json:"and" form:"and"`   // 规则列表，逻辑与
@@ -126,9 +143,9 @@ type Condition struct {
 }
 
 type Rule struct {
-	Type     string `json:"type" form:"type" example:"eq"`                   // 规则类型
-	NodeName string `json:"node_name" form:"node_name" example:"MyVariable"` // 节点名称
-	Value    string `json:"value" form:"value" example:"123"`                // 规则value
+	Type     string  `json:"type" form:"type" binding:"required,oneof=eq ne gt lt all-time" example:"eq"` // 规则类型 eq, ne, gt, lt, all-time : 相等, 不相等, 大于, 小于, 全时间
+	NodeName string  `json:"node_name" form:"node_name" binding:"required" example:"MyVariable"`          // 节点名称
+	Value    *string `json:"value" form:"value" example:"123"`                                            // 规则value
 }
 
 type AddWebhookConfigResponse struct {
@@ -137,24 +154,15 @@ type AddWebhookConfigResponse struct {
 	Message string            `json:"message" example:"节点添加成功"`
 }
 
-// type WebHook struct {
-// 	ID        int64          `gorm:"column:id;primaryKey;autoIncrement:true" json:"id"`
-// 	CreatedAt time.Time      `gorm:"column:created_at" json:"created_at"`
-// 	UpdatedAt time.Time      `gorm:"column:updated_at" json:"updated_at"`
-// 	DeletedAt gorm.DeletedAt `gorm:"column:deleted_at" json:"deleted_at"`
-// 	Name      string         `gorm:"column:name;not null;comment:webhook名称" json:"name"`    // webhook名称
-// 	URL       string         `gorm:"column:url;not null;comment:url地址" json:"url"`          // url地址
-// 	Active    bool           `gorm:"column:active;default:true;comment:是否激活" json:"active"` // 是否激活
-// }
-
 type WebHookConfigRead struct {
-	Id        int       `json:"id" form:"id" validate:"required"`
-	Name      string    `json:"name" form:"name" validate:"required"`
-	Url       string    `json:"url" form:"url" validate:"required"`
-	Active    bool      `json:"active" form:"active" validate:"required"`
-	When      *string   `json:"when" form:"when" validate:"omitempty"`
-	CreatedAt time.Time `json:"created_at" form:"created_at" validate:"required"`
-	UpdatedAt time.Time `json:"updated_at" form:"updated_at" validate:"required"`
+	Id          int       `json:"id" form:"id" validate:"required"`
+	Name        string    `json:"name" form:"name" validate:"required"`
+	Url         string    `json:"url" form:"url" validate:"required"`
+	Active      bool      `json:"active" form:"active" validate:"required"`
+	When        *string   `json:"when" form:"when" validate:"omitempty"`
+	ConditionId *int64    `json:"condition_id" form:"condition_id" validate:"omitempty"`
+	CreatedAt   time.Time `json:"created_at" form:"created_at" validate:"required"`
+	UpdatedAt   time.Time `json:"updated_at" form:"updated_at" validate:"required"`
 }
 
 func ServiceAddWebhookConfig(req *AddWebhookConfigRequest) WebHookConfigRead {
@@ -164,18 +172,23 @@ func ServiceAddWebhookConfig(req *AddWebhookConfigRequest) WebHookConfigRead {
 	if req.Active == nil {
 		req.Active = utils.Adr(true)
 	}
-	webhook,condition := DalAddWebhookConfig(req)
+	webhook, condition := DalAddWebhookConfig(req)
 	out := core.SerializeData(webhook, &WebHookConfigRead{}) // orm model -> out
 	out.When = &condition.Condition
+	if req.ConditionId != nil {
+		out.ConditionId = req.ConditionId
+	} else {
+		out.ConditionId = &condition.ID
+	}
 	return out
 }
 
-func DalAddWebhookConfig(req *AddWebhookConfigRequest) (*model.WebHook,*model.WebHookCondition) {
+func DalAddWebhookConfig(req *AddWebhookConfigRequest) (*model.WebHook, *model.WebHookCondition) {
 	var webhook model.WebHook
 	var condition model.WebHookCondition
 	err := query.Q.Transaction(func(tx *query.Query) error {
 		if req.When != nil {
-			condition = model.WebHookCondition{Condition: utils.PrintMapAsJson(req.When)}
+			condition = model.WebHookCondition{Condition: utils.PrintDataAsJson(req.When)}
 			err := tx.WebHookCondition.Create(&condition)
 			if err != nil {
 				return err
@@ -324,7 +337,14 @@ func DalGetWebhookConfigByName(name string) *model.WebHook {
 
 // CreateCondition router -------------------------------------
 // @Summary 创建触发条件
-// @Description 创建条件
+// @Description # 创建触发条件
+// @Description ## 请求参数
+// @Description | 参数名称 | 类型 | 必填 | 描述 |
+// @Description | --- | --- | --- | --- |
+// @Description | and | []Condition | 否 | 规则列表，逻辑与 |
+// @Description | or | []Condition | 否 | 规则列表，逻辑或 |
+// @Description | rule | Rule | 否 | 规则 |
+// @Description *注意：Condition是嵌套类型，Condition包含and，or，rule，所以and里面可以嵌套and。。。无限嵌套*
 // @Tags Webhook
 // @Accept  json
 // @Produce  json
@@ -378,7 +398,7 @@ func ServiceCreateCondition(req *CreateConditionRequest) WebHookConditionRead {
 func DalCreateCondition(req *CreateConditionRequest) *model.WebHookCondition {
 	var condition model.WebHookCondition
 	conditionData := map[string]string{
-		"condition": utils.PrintMapAsJson(req),
+		"condition": utils.PrintDataAsJson(req),
 	}
 	err := query.Q.Transaction(func(tx *query.Query) error {
 		condition = core.SerializeData(conditionData, &model.WebHookCondition{}) // req -> orm model

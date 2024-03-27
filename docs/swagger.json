@@ -180,7 +180,7 @@
         },
         "/api/v1/webhook/condition": {
             "post": {
-                "description": "创建条件",
+                "description": "# 创建触发条件\n## 请求参数\n| 参数名称 | 类型 | 必填 | 描述 |\n| --- | --- | --- | --- |\n| and | []Condition | 否 | 规则列表，逻辑与 |\n| or | []Condition | 否 | 规则列表，逻辑或 |\n| rule | Rule | 否 | 规则 |\n*注意：Condition是嵌套类型，Condition包含and，or，rule，所以and里面可以嵌套and。。。无限嵌套*",
                 "consumes": [
                     "application/json"
                 ],
@@ -214,7 +214,7 @@
         },
         "/api/v1/webhook/config": {
             "post": {
-                "description": "配置一条新的webhook",
+                "description": "# 配置一条新的webhook\n\n## 例1：当节点node1值等于123时，发送通知到http://localhost:8080/api/v1/webhook/example\n```json\n{\n\"active\": true,\n\"name\":\"webhook1\",\n\"url\": \"http://localhost:8080/api/v1/webhook/example\",\n\"when\": {\n\"rule\": {\n\"node_name\": \"node1\",\n\"type\": \"eq\",\n\"value\": \"123\"\n}\n}\n}\n```\n使用when字段会创建新的条件condition，并将其配置在这个webhook上\n## 例2：使用已经配置好的条件condition\n```json\n{\n\"active\": true,\n\"url\": \"http://localhost:8080/api/v1/webhook/example\",\n\"condition_id\": 10\n}\n```\n## 常见异常\n- \"code\": 2007 代表数据重复，不能创建重复的webhook，具体重复了哪个字段，请看ConstraintName最后一个下划线后面的字段名\n- \"code\": 400 \"json: cannot unmarshal string into Go struct field AddWebhookConfigRequest.condition_id of type int64\"  ： 看下body参数，数字类型传成了字符串",
                 "consumes": [
                     "application/json"
                 ],
@@ -464,11 +464,19 @@
         },
         "webhookrouters.AddWebhookConfigRequest": {
             "type": "object",
+            "required": [
+                "url"
+            ],
             "properties": {
                 "active": {
                     "description": "是否激活，不传的话默认true",
                     "type": "boolean",
                     "example": true
+                },
+                "condition_id": {
+                    "description": "条件id，不传的话默认新增条件",
+                    "type": "integer",
+                    "example": 1
                 },
                 "name": {
                     "description": "webhook名称，可以为空",
@@ -610,6 +618,10 @@
         },
         "webhookrouters.Rule": {
             "type": "object",
+            "required": [
+                "node_name",
+                "type"
+            ],
             "properties": {
                 "node_name": {
                     "description": "节点名称",
@@ -617,8 +629,15 @@
                     "example": "MyVariable"
                 },
                 "type": {
-                    "description": "规则类型",
+                    "description": "规则类型 eq, ne, gt, lt, all-time : 相等, 不相等, 大于, 小于, 全时间",
                     "type": "string",
+                    "enum": [
+                        "eq",
+                        "ne",
+                        "gt",
+                        "lt",
+                        "all-time"
+                    ],
                     "example": "eq"
                 },
                 "value": {
@@ -659,12 +678,14 @@
                 "id",
                 "name",
                 "updated_at",
-                "url",
-                "when"
+                "url"
             ],
             "properties": {
                 "active": {
                     "type": "boolean"
+                },
+                "condition_id": {
+                    "type": "integer"
                 },
                 "created_at": {
                     "type": "string"

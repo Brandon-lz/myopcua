@@ -87,6 +87,10 @@ definitions:
         description: 是否激活，不传的话默认true
         example: true
         type: boolean
+      condition_id:
+        description: 条件id，不传的话默认新增条件
+        example: 1
+        type: integer
       name:
         description: webhook名称，可以为空
         example: webhook1
@@ -99,6 +103,8 @@ definitions:
         allOf:
         - $ref: '#/definitions/webhookrouters.Condition'
         description: 触发条件，为空时相当于通知所有数据变化
+    required:
+    - url
     type: object
   webhookrouters.AddWebhookConfigResponse:
     properties:
@@ -185,13 +191,22 @@ definitions:
         example: MyVariable
         type: string
       type:
-        description: 规则类型
+        description: '规则类型 eq, ne, gt, lt, all-time : 相等, 不相等, 大于, 小于, 全时间'
+        enum:
+        - eq
+        - ne
+        - gt
+        - lt
+        - all-time
         example: eq
         type: string
       value:
         description: 规则value
         example: "123"
         type: string
+    required:
+    - node_name
+    - type
     type: object
   webhookrouters.WebHookConditionRead:
     properties:
@@ -213,6 +228,8 @@ definitions:
     properties:
       active:
         type: boolean
+      condition_id:
+        type: integer
       created_at:
         type: string
       id:
@@ -232,7 +249,6 @@ definitions:
     - name
     - updated_at
     - url
-    - when
     type: object
   webhookrouters.WebHookExampleRequest:
     properties:
@@ -375,7 +391,15 @@ paths:
     post:
       consumes:
       - application/json
-      description: 创建条件
+      description: |-
+        # 创建触发条件
+        ## 请求参数
+        | 参数名称 | 类型 | 必填 | 描述 |
+        | --- | --- | --- | --- |
+        | and | []Condition | 否 | 规则列表，逻辑与 |
+        | or | []Condition | 否 | 规则列表，逻辑或 |
+        | rule | Rule | 否 | 规则 |
+        *注意：Condition是嵌套类型，Condition包含and，or，rule，所以and里面可以嵌套and。。。无限嵌套*
       parameters:
       - description: 创建条件
         in: body
@@ -397,7 +421,36 @@ paths:
     post:
       consumes:
       - application/json
-      description: 配置一条新的webhook
+      description: |-
+        # 配置一条新的webhook
+
+        ## 例1：当节点node1值等于123时，发送通知到http://localhost:8080/api/v1/webhook/example
+        ```json
+        {
+        "active": true,
+        "name":"webhook1",
+        "url": "http://localhost:8080/api/v1/webhook/example",
+        "when": {
+        "rule": {
+        "node_name": "node1",
+        "type": "eq",
+        "value": "123"
+        }
+        }
+        }
+        ```
+        使用when字段会创建新的条件condition，并将其配置在这个webhook上
+        ## 例2：使用已经配置好的条件condition
+        ```json
+        {
+        "active": true,
+        "url": "http://localhost:8080/api/v1/webhook/example",
+        "condition_id": 10
+        }
+        ```
+        ## 常见异常
+        - "code": 2007 代表数据重复，不能创建重复的webhook，具体重复了哪个字段，请看ConstraintName最后一个下划线后面的字段名
+        - "code": 400 "json: cannot unmarshal string into Go struct field AddWebhookConfigRequest.condition_id of type int64"  ： 看下body参数，数字类型传成了字符串
       parameters:
       - description: Webhook configuration
         in: body
