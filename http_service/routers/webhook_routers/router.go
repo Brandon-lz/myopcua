@@ -2,11 +2,14 @@ package webhookrouters
 
 import (
 	"fmt"
+	"net/http"
+	"strconv"
 	"time"
 
 	"github.com/Brandon-lz/myopcua/db/gen/model"
 	"github.com/Brandon-lz/myopcua/db/gen/query"
 	"github.com/Brandon-lz/myopcua/http_service/core"
+	"github.com/Brandon-lz/myopcua/log"
 	"github.com/Brandon-lz/myopcua/utils"
 	"github.com/jackc/pgx/v5/pgconn"
 
@@ -16,9 +19,11 @@ import (
 
 func RegisterRoutes(router *gin.RouterGroup) {
 	group := router.Group("/webhook")
+	group.POST("/example", WebHookExample)
 	group.POST("/condition", CreateCondition)
 	group.POST("/config", AddWebhookConfig)
-	group.POST("/example", WebHookExample)
+	group.GET("/config/:id", GetWebhookConfigById)
+	group.GET("/config-by-name/:name", GetWebhookConfigByName)
 	// group.PUT("/config/:id", UpdateWebhookConfig)
 	// group.GET("/config/:id", GetWebhookConfig)
 	// group.GET("/configs", GetAllWebhookConfigs)
@@ -196,6 +201,115 @@ func DalAddWebhookConfig(req *AddWebhookConfigRequest) *model.WebHook {
 	fmt.Printf("condition: %+v\n", condition)
 
 	return &webhook
+}
+
+// GetWebhookConfigById router -------------------------------
+// @Summary 根据id获取webhook配置
+// @Description 根据id获取webhook配置
+// @Tags Webhook
+// @Accept  json
+// @Produce  json
+// @Param id path string true "webhook id"
+// @Success 200 {object} GetWebhookConfigByIdResponse
+// @Router /api/v1/webhook/config/{id} [get]
+func GetWebhookConfigById(c *gin.Context) {
+	// 入参校验
+	id := c.Param("id")
+	if id == "" {
+		panic(core.NewKnownError(http.StatusBadRequest, nil, "id is empty"))
+	}
+
+	// 逻辑处理
+	strId, err := strconv.ParseInt(id,10,64)
+	if err != nil {
+		panic(core.NewKnownError(http.StatusBadRequest, err, "id is not int"))
+	}
+	webhook := DalGetWebhookConfigById(strId)
+
+	// 出参序列化以及校验
+	out := core.SerializeData(webhook, &WebHookConfigRead{})
+	core.ValidateSchema(out)
+
+	core.SuccessHandler(c, GetWebhookConfigByIdResponse{
+		Code:    200,
+		Data:    out,
+		Message: "Webhook configuration get successfully",
+	})
+}
+
+type GetWebhookConfigByIdResponse struct {
+	Code    int               `json:"code" example:"200"`
+	Data    WebHookConfigRead `json:"data" `
+	Message string            `json:"message" example:"Webhook configuration get successfully"`
+}
+
+func DalGetWebhookConfigById(id int64) *model.WebHook {
+	var webhook *model.WebHook
+	var err error 
+	q := query.Q.WebHook
+	webhook,err=q.Where(q.ID.Eq(id)).First()
+	if err != nil {
+		log.Logger.Error("%s",utils.WrapError(err))
+		panic(core.NewKnownError(core.EntityNotFound, err, "webhook not found"))
+	}
+
+	fmt.Printf("webhook: %+v\n", webhook)
+
+	return webhook
+}
+
+
+
+// GetWebhookConfigByName router ------------------------------
+// @Summary 根据名称获取webhook配置
+// @Description 根据名称获取webhook配置
+// @Tags Webhook
+// @Accept  json	
+// @Produce  json
+// @Param name path string true "webhook名称"
+// @Success 200 {object} GetWebhookConfigByNameResponse
+// @Router /api/v1/webhook/config-by-name/{name} [get]
+func GetWebhookConfigByName(c *gin.Context) {
+	// 入参校验
+	name := c.Param("name")
+	if name == "" {
+		panic(core.NewKnownError(http.StatusBadRequest, nil, "name is empty"))
+	}
+
+	// 逻辑处理
+	webhook := DalGetWebhookConfigByName(name)
+
+	// 出参序列化以及校验
+	out := core.SerializeData(webhook, &WebHookConfigRead{})
+	core.ValidateSchema(out)
+
+	core.SuccessHandler(c, GetWebhookConfigByNameResponse{
+		Code:    200,
+		Data:    out,
+		Message: "Webhook configuration get successfully",
+	})
+}
+
+
+type GetWebhookConfigByNameResponse struct {
+	Code    int               `json:"code" example:"200"`
+	Data    WebHookConfigRead `json:"data" `
+	Message string            `json:"message" example:"Webhook configuration get successfully"`
+}
+
+
+func DalGetWebhookConfigByName(name string) *model.WebHook {
+	var webhook *model.WebHook
+	var err error 
+	q := query.Q.WebHook
+	webhook,err=q.Where(q.Name.Eq(name)).First()
+	if err != nil {
+		panic(core.NewKnownError(core.EntityNotFound, err, "webhook not found"))
+	}
+
+	fmt.Printf("webhook: %+v\n", webhook)
+
+	return webhook
 }
 
 

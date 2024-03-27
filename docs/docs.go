@@ -249,6 +249,70 @@ const docTemplate = `{
                 }
             }
         },
+        "/api/v1/webhook/config-by-name/{name}": {
+            "get": {
+                "description": "根据名称获取webhook配置",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Webhook"
+                ],
+                "summary": "根据名称获取webhook配置",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "webhook名称",
+                        "name": "name",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/webhookrouters.GetWebhookConfigByNameResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/webhook/config/{id}": {
+            "get": {
+                "description": "根据id获取webhook配置",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Webhook"
+                ],
+                "summary": "根据id获取webhook配置",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "webhook id",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/webhookrouters.GetWebhookConfigByIdResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/api/v1/webhook/example": {
             "post": {
                 "description": "webhook示例",
@@ -512,6 +576,38 @@ const docTemplate = `{
                 "message": {
                     "type": "string",
                     "example": "Condition created successfully"
+                }
+            }
+        },
+        "webhookrouters.GetWebhookConfigByIdResponse": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "integer",
+                    "example": 200
+                },
+                "data": {
+                    "$ref": "#/definitions/webhookrouters.WebHookConfigRead"
+                },
+                "message": {
+                    "type": "string",
+                    "example": "Webhook configuration get successfully"
+                }
+            }
+        },
+        "webhookrouters.GetWebhookConfigByNameResponse": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "integer",
+                    "example": 200
+                },
+                "data": {
+                    "$ref": "#/definitions/webhookrouters.WebHookConfigRead"
+                },
+                "message": {
+                    "type": "string",
+                    "example": "Webhook configuration get successfully"
                 }
             }
         },

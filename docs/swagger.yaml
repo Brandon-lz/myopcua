@@ -156,6 +156,28 @@ definitions:
         example: Condition created successfully
         type: string
     type: object
+  webhookrouters.GetWebhookConfigByIdResponse:
+    properties:
+      code:
+        example: 200
+        type: integer
+      data:
+        $ref: '#/definitions/webhookrouters.WebHookConfigRead'
+      message:
+        example: Webhook configuration get successfully
+        type: string
+    type: object
+  webhookrouters.GetWebhookConfigByNameResponse:
+    properties:
+      code:
+        example: 200
+        type: integer
+      data:
+        $ref: '#/definitions/webhookrouters.WebHookConfigRead'
+      message:
+        example: Webhook configuration get successfully
+        type: string
+    type: object
   webhookrouters.Rule:
     properties:
       node_name:
@@ -388,6 +410,48 @@ paths:
           schema:
             $ref: '#/definitions/webhookrouters.AddWebhookConfigResponse'
       summary: 配置一条新的webhook
+      tags:
+      - Webhook
+  /api/v1/webhook/config-by-name/{name}:
+    get:
+      consumes:
+      - application/json
+      description: 根据名称获取webhook配置
+      parameters:
+      - description: webhook名称
+        in: path
+        name: name
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/webhookrouters.GetWebhookConfigByNameResponse'
+      summary: 根据名称获取webhook配置
+      tags:
+      - Webhook
+  /api/v1/webhook/config/{id}:
+    get:
+      consumes:
+      - application/json
+      description: 根据id获取webhook配置
+      parameters:
+      - description: webhook id
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/webhookrouters.GetWebhookConfigByIdResponse'
+      summary: 根据id获取webhook配置
       tags:
       - Webhook
   /api/v1/webhook/example:

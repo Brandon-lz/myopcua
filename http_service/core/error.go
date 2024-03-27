@@ -20,6 +20,7 @@ const (
 	FieldTooBig = 2005
 	FieldNotMatch = 2006
 	FieldNotUnique = 2007
+	EntityNotFound = 2008
 )
 
 type KnownError struct {
