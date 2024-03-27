@@ -8,7 +8,10 @@ import (
 	"github.com/Brandon-lz/myopcua/utils"
 )
 
-var OPCNodeVars *OPCNodeVarsDFT
+var (
+	OPCNodeVars *OPCNodeVarsDFT
+	WebHook     *WebHookConfig
+)
 
 func InitSystemVars() {
 	// 判断systemvars.obj是否存在，不存在则创建

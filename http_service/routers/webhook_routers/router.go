@@ -8,6 +8,7 @@ import (
 
 	"github.com/Brandon-lz/myopcua/db/gen/model"
 	"github.com/Brandon-lz/myopcua/db/gen/query"
+	globaldata "github.com/Brandon-lz/myopcua/global_data"
 	"github.com/Brandon-lz/myopcua/http_service/core"
 	"github.com/Brandon-lz/myopcua/log"
 	"github.com/Brandon-lz/myopcua/utils"
@@ -131,21 +132,10 @@ type AddWebhookConfigRequest struct {
 	Name        *string    `json:"name" form:"name" example:"webhook1"`                                            // webhook名称，可以为空
 	Url         string     `json:"url" form:"url" binding:"required,url" example:"http://192.168.1.1:8800/notify"` // webhook地址
 	Active      *bool      `json:"active" form:"active" example:"true"`                                            // 是否激活，不传的话默认true
-	When        *Condition `json:"when" form:"when"`                                                               // 触发条件，为空时相当于通知所有数据变化
+	When        *globaldata.Condition `json:"when" form:"when"`                                                               // 触发条件，为空时相当于通知所有数据变化
 	ConditionId *int64     `json:"condition_id" form:"condition_id" example:"1"`                                   // 条件id，不传的话默认新增条件
 }
 
-type Condition struct {
-	And  []Condition `json:"and" form:"and"`   // 规则列表，逻辑与
-	Or   []Condition `json:"or" form:"or"`     // 规则列表，逻辑或
-	Rule *Rule       `json:"rule" form:"rule"` // 规则
-}
-
-type Rule struct {
-	Type     string  `json:"type" form:"type" binding:"required,oneof=eq ne gt lt all-time" example:"eq"` // 规则类型 eq, ne, gt, lt, all-time : 相等, 不相等, 大于, 小于, 全时间
-	NodeName string  `json:"node_name" form:"node_name" binding:"required" example:"MyVariable"`          // 节点名称
-	Value    *string `json:"value" form:"value" example:"123"`                                            // 规则value
-}
 
 type AddWebhookConfigResponse struct {
 	Code    int               `json:"code" example:"200"`
@@ -154,7 +144,7 @@ type AddWebhookConfigResponse struct {
 }
 
 type WebHookConfigRead struct {
-	Id          int       `json:"id" form:"id" validate:"required"`
+	Id          int64     `json:"id" form:"id" validate:"required"`
 	Name        string    `json:"name" form:"name" validate:"required"`
 	Url         string    `json:"url" form:"url" validate:"required"`
 	Active      bool      `json:"active" form:"active" validate:"required"`
@@ -260,10 +250,10 @@ func ServiceGetWebhookConfigById(id string) WebHookConfigRead {
 	if err != nil {
 		panic(core.NewKnownError(http.StatusBadRequest, err, "id is not int"))
 	}
-	return GetWebhookConfigFromDB(intId)
+	return GetWebhookConfigByIdFromDB(intId)
 }
 
-func GetWebhookConfigFromDB(id int64) WebHookConfigRead {
+func GetWebhookConfigByIdFromDB(id int64) WebHookConfigRead {
 	webhook, condition := DalGetWebhookConfigById(id)
 	// 出参序列化以及校验
 	out := core.SerializeData(webhook, &WebHookConfigRead{})
@@ -272,6 +262,25 @@ func GetWebhookConfigFromDB(id int64) WebHookConfigRead {
 	}
 	return out
 }
+
+func GetAllWebhookConfigFromDB() []WebHookConfigRead {
+	var out []WebHookConfigRead
+	tuples,err := globaldata.DalGetAllWebhookConfig()
+	if err != nil {
+		log.Logger.Error("%s", utils.WrapError(err))
+		panic(core.NewKnownError(core.EntityNotFound, err, "webhook not found"))
+	}
+	for _, tuple := range tuples{
+		var webhook WebHookConfigRead = core.SerializeData(tuple.Webhook, &WebHookConfigRead{})
+		if tuple.Condition != nil {
+			webhook.Id = tuple.Condition.ID
+			webhook.When = &tuple.Condition.Condition
+		}
+		out = append(out, webhook)
+	}
+	return out
+}
+
 
 func DalGetWebhookConfigById(id int64) (*model.WebHook, *model.WebHookCondition) {
 	var webhook *model.WebHook
@@ -294,6 +303,7 @@ func DalGetWebhookConfigById(id int64) (*model.WebHook, *model.WebHookCondition)
 	}
 	return webhook, condition
 }
+
 
 // GetWebhookConfigByName router ------------------------------
 // @Summary 根据名称获取webhook配置
@@ -381,9 +391,9 @@ func CreateCondition(c *gin.Context) {
 }
 
 type CreateConditionRequest struct {
-	And  []Condition `json:"and" form:"and"`   // 规则列表，逻辑与
-	Or   []Condition `json:"or" form:"or"`     // 规则列表，逻辑或
-	Rule *Rule       `json:"rule" form:"rule"` // 规则
+	And  []globaldata.Condition `json:"and" form:"and"`   // 规则列表，逻辑与
+	Or   []globaldata.Condition `json:"or" form:"or"`     // 规则列表，逻辑或
+	Rule *globaldata.Rule       `json:"rule" form:"rule"` // 规则
 }
 
 type CreateConditionResponse struct {
@@ -393,7 +403,7 @@ type CreateConditionResponse struct {
 }
 
 type WebHookConditionRead struct {
-	Id        int       `json:"id" form:"id" validate:"required"`
+	Id        int64     `json:"id" form:"id" validate:"required"`
 	Condition string    `json:"condition" form:"condition" validate:"required"`
 	CreatedAt time.Time `json:"created_at" form:"created_at" validate:"required"`
 	UpdatedAt time.Time `json:"updated_at" form:"updated_at" validate:"required"`

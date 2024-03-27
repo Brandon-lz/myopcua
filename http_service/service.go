@@ -2,6 +2,7 @@ package httpservice
 
 import (
 	"github.com/Brandon-lz/myopcua/http_service/routers"
+	webhookrouters "github.com/Brandon-lz/myopcua/http_service/routers/webhook_routers"
 
 	"github.com/gin-gonic/gin"
 
@@ -32,6 +33,7 @@ func Start() {
 
 	v1 := router.Group("/api/v1")
 	routers.RegisterRoutes(v1)
+	webhookrouters.GetAllWebhookConfigFromDB()
 
 	router.Run("0.0.0.0:8080")
 }
