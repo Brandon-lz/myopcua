@@ -67,7 +67,6 @@ type WebHookExampleResponse struct {
 	Message string `json:"message" example:"webhook example success"`
 }
 
-
 // AddWebhookConfig router -------------------------------------
 // @Summary 配置一条新的webhook
 // @Description # 配置一条新的webhook
@@ -238,17 +237,7 @@ func GetWebhookConfigById(c *gin.Context) {
 		panic(core.NewKnownError(http.StatusBadRequest, nil, "id is empty"))
 	}
 
-	// 逻辑处理
-	strId, err := strconv.ParseInt(id, 10, 64)
-	if err != nil {
-		panic(core.NewKnownError(http.StatusBadRequest, err, "id is not int"))
-	}
-	webhook, condition := DalGetWebhookConfigById(strId)
-
-	// 出参序列化以及校验
-
-	out := core.SerializeData(webhook, &WebHookConfigRead{})
-	out.When = &condition.Condition
+	out := ServiceGetWebhookConfigById(id)
 
 	core.ValidateSchema(out)
 
@@ -265,6 +254,25 @@ type GetWebhookConfigByIdResponse struct {
 	Message string            `json:"message" example:"Webhook configuration get successfully"`
 }
 
+func ServiceGetWebhookConfigById(id string) WebHookConfigRead {
+	// 逻辑处理
+	intId, err := strconv.ParseInt(id, 10, 64)
+	if err != nil {
+		panic(core.NewKnownError(http.StatusBadRequest, err, "id is not int"))
+	}
+	return GetWebhookConfigFromDB(intId)
+}
+
+func GetWebhookConfigFromDB(id int64) WebHookConfigRead {
+	webhook, condition := DalGetWebhookConfigById(id)
+	// 出参序列化以及校验
+	out := core.SerializeData(webhook, &WebHookConfigRead{})
+	if condition != nil {
+		out.When = &condition.Condition
+	}
+	return out
+}
+
 func DalGetWebhookConfigById(id int64) (*model.WebHook, *model.WebHookCondition) {
 	var webhook *model.WebHook
 	var err error
@@ -274,7 +282,9 @@ func DalGetWebhookConfigById(id int64) (*model.WebHook, *model.WebHookCondition)
 		log.Logger.Error("%s", utils.WrapError(err))
 		panic(core.NewKnownError(core.EntityNotFound, err, "webhook not found"))
 	}
-
+	if webhook.WebHookConditionRefer == nil {
+		return webhook, nil
+	}
 	// gen foreign key condition not support yet, deal with handly
 	u := query.Q.WebHookCondition
 	condition, err := u.Where(u.ID.Eq(*webhook.WebHookConditionRefer)).First()
