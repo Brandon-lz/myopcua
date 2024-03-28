@@ -4,6 +4,7 @@ import (
 	// "io"
 	// "net/http"
 	// "net/http/httptest"
+	"log/slog"
 	"testing"
 	"time"
 
@@ -27,7 +28,8 @@ func TestMain(t *testing.T) {
 
 	config.Init("../../config.toml")
 	log.Init()
-	log.Logger.Info("Starting the opc application...")
+	// log.Logger.Info("Starting the opc application...")
+	slog.Info("Starting the opc application...")
 	globaldata.InitSystemVars()
 	go opcservice.Start()
 	sysdb.InitDB()

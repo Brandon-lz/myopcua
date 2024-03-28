@@ -37,6 +37,12 @@ type WebHookConfig struct {
 	ConditionId *int64     `json:"condition_id" form:"condition_id" validate:"omitempty"`
 }
 
+
+func (wc *WebHookConfig)SendMsg(){
+	// TODO: send msg to webhook url
+}
+
+
 // 加载webhook配置到内存，用于判断webhook，所以只会添加有效和激活的webhook
 func (w *WebHookConditions) AddWebHookConfig(webhook *WebHookConfig) {
 	if !webhook.Active || webhook.ConditionId == nil {

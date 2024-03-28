@@ -77,7 +77,6 @@ func readOpcData(c *opcua.Client) {
 
 	slog.Debug("OPC读取数据成功:" + fmt.Sprintf("%+v", datas))
 	// 写入数据到全局变量
-	globaldata.OPCNodeVars.NodeDataList = datas
 	for i, data := range datas {
 		globaldata.OPCNodeVars.CurrentNodes[int64(i)].Value = data
 	}
