@@ -10,7 +10,7 @@ import (
 
 var (
 	OPCNodeVars *OPCNodeVarsDFT
-	WebHooks     *WebHookConditions
+	WebHooks    *WebHookConditions
 )
 
 func InitSystemVars() {
@@ -26,4 +26,7 @@ func InitSystemVars() {
 			log.Fatalf("load systemvars failed:%v\n", err)
 		}
 	}
+
+	// todo: 初始化WebHooks
+	WebHooks = NewWebHookConditions()
 }

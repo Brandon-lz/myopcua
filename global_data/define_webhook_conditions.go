@@ -43,6 +43,16 @@ func (wc *WebHookConfig)SendMsg(){
 }
 
 
+func NewWebHookConditions() *WebHookConditions {
+	return &WebHookConditions{
+		Webhooks:                   make(map[int64]*WebHookConfig),
+		ConditionList:              make([]*Condition, 0),
+		IndexConditionId2WebHookId: make(map[int64]int64),
+		IndexNodeName2WebHookId:    make(map[string]int64),
+	}
+}
+
+
 // 加载webhook配置到内存，用于判断webhook，所以只会添加有效和激活的webhook
 func (w *WebHookConditions) AddWebHookConfig(webhook *WebHookConfig) {
 	if !webhook.Active || webhook.ConditionId == nil {

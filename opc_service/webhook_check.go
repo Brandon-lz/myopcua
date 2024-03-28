@@ -6,8 +6,12 @@ import (
 )
 
 func checkWebhook() {
+	if globaldata.WebHooks.ConditionList == nil || len(globaldata.WebHooks.ConditionList) == 0 {
+		return
+	}
 	for conditionId, condition := range globaldata.WebHooks.ConditionList {
-		if CheckCondition(*condition){
+
+		if CheckCondition(*condition) {
 			globaldata.WebHooks.FindWebHookByConditionId(int64(conditionId)).SendMsg()
 		}
 	}
