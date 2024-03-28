@@ -24,14 +24,14 @@ func TestSerialize(t *testing.T) {
 
 	body := `
 	{
-		"name": "webhook1",
+		"name": 123,
 		"url": "http://192.168.1.1:8800/notify"
 	}
 	`
 
 	out:=utils.SerializeData(body, &AddWebhookConfigRequest{})
-	require.Equal(out.Name, "webhook1")
-	out = core.ValidateSchema(out)
+	core.ValidateSchema(out)
+	
+	require.Equal(out.Name, float64(123))
 
-	require.Equal(out.Name, "webhook1")
 }

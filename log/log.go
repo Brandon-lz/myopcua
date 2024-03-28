@@ -5,17 +5,19 @@ import (
 	"os"
 )
 
-var Logger *slog.Logger
-var LogLevel slog.Level
+var logger *slog.Logger
+var logLevel slog.Level
 
 func Init(level ...slog.Level) {
-	Logger = slog.New(slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{Level: slog.LevelInfo}))
+	logger = slog.New(slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{Level: slog.LevelInfo}))
 	for _,l := range level {
 		SetLevel(l)
 	}
+	slog.SetDefault(logger)
 }
 
 func SetLevel(level slog.Level) {
-	LogLevel = level
-	Logger = slog.New(slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{Level: LogLevel}))
+	logLevel = level
+	logger = slog.New(slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{Level: logLevel}))
+	slog.SetDefault(logger)
 }

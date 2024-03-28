@@ -1,0 +1,22 @@
+{
+    "and": [
+        {
+            "rule": {
+                "node_name": "MyVariable",
+                "type": "in",
+                "value": [
+                    "abc",
+                    "def",
+                    "123"
+                ]
+            }
+        },
+        {
+            "rule": {
+                "node_name": "MyVariable",
+                "type": "eq",
+                "value": 123
+            }
+        }
+    ]
+}

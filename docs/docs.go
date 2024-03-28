@@ -183,7 +183,7 @@ const docTemplate = `{
         },
         "/api/v1/webhook/condition": {
             "post": {
-                "description": "# 创建触发条件\n## 请求参数\n| 参数名称 | 类型 | 必填 | 描述 |\n| --- | --- | --- | --- |\n| and | []Condition | 否 | 规则列表，逻辑与 |\n| or | []Condition | 否 | 规则列表，逻辑或 |\n| rule | Rule | 否 | 规则 |\n*注意：Condition是嵌套类型，Condition包含and，or，rule，所以and里面可以嵌套and。。。无限嵌套*",
+                "description": "# 参数说明\n## 请求参数\n| 参数名称 | 类型 | 必填 | 描述 |\n| --- | --- | --- | --- |\n| and | list中嵌套本参数 | 否 | 规则列表，逻辑与 |\n| or | list中嵌套本参数 | 否 | 规则列表，逻辑或 |\n| rule | Rule | 否 | 规则 |\n## Rule类型 定义\n| 字段 | 类型 | 是否必填 | 描述 |\n| --- | --- | --- | --- |\n| node_name | string | 是 | 节点名称 |\n| type | string | 是 | 规则类型，支持eq ne gt lt all-time in not-in |\n| value | any | 是 | 比对值 |\n## 参数示例1 : 当节点MyVariable大于123时触发\n` + "`" + `` + "`" + `` + "`" + `json\n{\n\"rule\": {\n\"node_name\": \"MyVariable\",\n\"type\": \"gt\",\n\"value\": 123\n}\n}\n` + "`" + `` + "`" + `` + "`" + `\n## 参数示例2 : 当节点node1等于在[\"abc\",\"def\"]，并且节点node2等于123时触发\n` + "`" + `` + "`" + `` + "`" + `json\n{\n\"and\": [\n{\n\"rule\": {\n\"node_name\": \"node1\",\n\"type\": \"in\",\n\"value\": [\n\"abc\",\n\"def\",\n}\n},\n{\n\"rule\": {\n\"node_name\": \"node2\",\n\"type\": \"eq\",\n\"value\": 123\n}\n}\n]\n}\n` + "`" + `` + "`" + `` + "`" + `\n*注意：Condition是嵌套类型，Condition包含and，or，rule，所以and里面可以嵌套and。。。无限嵌套*",
                 "consumes": [
                     "application/json"
                 ],
@@ -412,21 +412,21 @@ const docTemplate = `{
                     "example": "MyVariable"
                 },
                 "type": {
-                    "description": "规则类型 eq, ne, gt, lt, all-time : 相等, 不相等, 大于, 小于, 全时间",
+                    "description": "规则类型 eq, ne, gt, lt, all-time, in, not-in: 相等, 不相等, 大于, 小于, 全时间, 包含, 不包含",
                     "type": "string",
                     "enum": [
                         "eq",
                         "ne",
                         "gt",
                         "lt",
-                        "all-time"
+                        "all-time",
+                        "in",
+                        "not-in"
                     ],
                     "example": "eq"
                 },
                 "value": {
-                    "description": "规则value",
-                    "type": "string",
-                    "example": "123"
+                    "description": "规则value"
                 }
             }
         },

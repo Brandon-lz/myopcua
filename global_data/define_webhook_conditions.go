@@ -2,13 +2,12 @@ package globaldata
 
 import (
 	"encoding/json"
+	"log/slog"
 
 	"github.com/Brandon-lz/myopcua/db/gen/model"
 	"github.com/Brandon-lz/myopcua/db/gen/query"
-	"github.com/Brandon-lz/myopcua/log"
 	"github.com/Brandon-lz/myopcua/utils"
 )
-
 
 
 type Condition struct {
@@ -18,9 +17,9 @@ type Condition struct {
 }
 
 type Rule struct {
-	Type     string  `json:"type" form:"type" binding:"required,oneof=eq ne gt lt all-time" example:"eq"` // 规则类型 eq, ne, gt, lt, all-time : 相等, 不相等, 大于, 小于, 全时间
+	Type     string  `json:"type" form:"type" binding:"required,oneof=eq ne gt lt all-time in not-in" example:"eq"` // 规则类型 eq, ne, gt, lt, all-time, in, not-in: 相等, 不相等, 大于, 小于, 全时间, 包含, 不包含
 	NodeName string  `json:"node_name" form:"node_name" binding:"required" example:"MyVariable"`          // 节点名称
-	Value    *string `json:"value" form:"value" example:"123"`                                            // 规则value
+	Value    interface{} `json:"value" form:"value"`                                            // 规则value
 }
 
 
@@ -37,7 +36,7 @@ func GetAllWebHookConfig() ([]*WebHookConfig ,error){
 	var out []*WebHookConfig
 	tuples, err := DalGetAllWebhookConfig()
 	if err != nil {
-		log.Logger.Error("%s", utils.WrapError(err))
+		slog.Error("get all webhook config error: " + utils.WrapError(err).Error())
 		return nil, err
 	}
 	for _, tuple := range tuples {
@@ -46,7 +45,7 @@ func GetAllWebHookConfig() ([]*WebHookConfig ,error){
 			webhook.Id = tuple.Condition.ID
 			err := json.Unmarshal([]byte(tuple.Condition.Condition), &webhook.When)
 			if err != nil {
-				log.Logger.Error("%s", utils.WrapError(err))
+				slog.Error("unmarshal condition error: " + err.Error())
 				return nil, err
 			}
 			out = append(out, &webhook)
@@ -67,7 +66,7 @@ func DalGetAllWebhookConfig() ([]*tuple,error) {
 	u := query.Q.WebHookCondition
 	webhooks, err := q.Find()
 	if err != nil {
-		log.Logger.Error("%s", utils.WrapError(err))
+		slog.Error("get all webhook config error: " + utils.WrapError(err).Error())
 		return nil, err
 	}
 	for _, webhook := range webhooks {
@@ -78,7 +77,7 @@ func DalGetAllWebhookConfig() ([]*tuple,error) {
 		// gen foreign key condition not support yet, deal with handly
 		condition, err := u.Where(u.ID.Eq(*webhook.WebHookConditionRefer)).First()
 		if err != nil {
-			log.Logger.Error("%s", utils.WrapError(err))
+			slog.Error(utils.WrapError(err).Error())
 			return nil, err
 		}
 		out = append(out, &tuple{Webhook: webhook, Condition: condition})

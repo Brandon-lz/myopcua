@@ -1,0 +1,7 @@
+{
+    "rule": {
+        "node_name": "MyVariable",
+        "type": "eq",
+        "value": "string"
+    }
+}

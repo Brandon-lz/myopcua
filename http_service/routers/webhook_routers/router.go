@@ -2,6 +2,7 @@ package webhookrouters
 
 import (
 	"fmt"
+	"log/slog"
 	"net/http"
 	"strconv"
 	"time"
@@ -10,7 +11,6 @@ import (
 	"github.com/Brandon-lz/myopcua/db/gen/query"
 	globaldata "github.com/Brandon-lz/myopcua/global_data"
 	"github.com/Brandon-lz/myopcua/http_service/core"
-	"github.com/Brandon-lz/myopcua/log"
 	"github.com/Brandon-lz/myopcua/utils"
 	"github.com/jackc/pgx/v5/pgconn"
 
@@ -184,14 +184,14 @@ func DalAddWebhookConfig(req *AddWebhookConfigRequest) (*model.WebHook, *model.W
 			condition = model.WebHookCondition{Condition: utils.PrintDataAsJson(req.When)}
 			err := tx.WebHookCondition.Create(&condition)
 			if err != nil {
-				log.Logger.Error("%s",utils.WrapError(err))
+				slog.Error(utils.WrapError(err).Error())
 				return err
 			}
 			webhook = core.SerializeData(req, &model.WebHook{}) // req -> orm model
 			webhook.WebHookConditionRefer = &condition.ID
 			err = tx.WebHook.Create(&webhook)
 			if err != nil {
-				log.Logger.Error("%s",utils.WrapError(err))
+				slog.Error(utils.WrapError(err).Error())
 				return err
 			}
 		} else {
@@ -201,14 +201,14 @@ func DalAddWebhookConfig(req *AddWebhookConfigRequest) (*model.WebHook, *model.W
 			}
 			err := tx.WebHook.Create(&webhook)
 			if err != nil {
-				log.Logger.Error("%s",utils.WrapError(err))
+				slog.Error(utils.WrapError(err).Error())
 				return err
 			}
 		}
 		return nil
 	})
 	if err != nil {
-		log.Logger.Error("%s",utils.WrapError(err))
+		slog.Error(utils.WrapError(err).Error())
 		sqlErr := err.(*pgconn.PgError)
 		panic(core.NewKnownError(core.FieldNotUnique, err, sqlErr.Message))
 	}
@@ -275,7 +275,7 @@ func GetAllWebhookConfigFromDB() []WebHookConfigRead {
 	var out []WebHookConfigRead
 	tuples,err := globaldata.DalGetAllWebhookConfig()
 	if err != nil {
-		log.Logger.Error("%s", utils.WrapError(err))
+		slog.Error(utils.WrapError(err).Error())
 		panic(core.NewKnownError(core.EntityNotFound, err, "webhook not found"))
 	}
 	for _, tuple := range tuples{
@@ -296,7 +296,7 @@ func DalGetWebhookConfigById(id int64) (*model.WebHook, *model.WebHookCondition)
 	q := query.Q.WebHook
 	webhook, err = q.Where(q.ID.Eq(id)).First()
 	if err != nil {
-		log.Logger.Error("%s", utils.WrapError(err))
+		slog.Error(utils.WrapError(err).Error())
 		panic(core.NewKnownError(core.EntityNotFound, err, "webhook not found"))
 	}
 	if webhook.WebHookConditionRefer == nil {
@@ -306,7 +306,7 @@ func DalGetWebhookConfigById(id int64) (*model.WebHook, *model.WebHookCondition)
 	u := query.Q.WebHookCondition
 	condition, err := u.Where(u.ID.Eq(*webhook.WebHookConditionRefer)).First()
 	if err != nil {
-		log.Logger.Error("%s", utils.WrapError(err))
+		slog.Error(utils.WrapError(err).Error())
 		panic(core.NewKnownError(core.EntityNotFound, err, "condition not found"))
 	}
 	return webhook, condition
@@ -365,13 +365,52 @@ func DalGetWebhookConfigByName(name string) *model.WebHook {
 
 // CreateCondition router -------------------------------------
 // @Summary 创建触发条件
-// @Description # 创建触发条件
+// @Description # 参数说明
 // @Description ## 请求参数
 // @Description | 参数名称 | 类型 | 必填 | 描述 |
 // @Description | --- | --- | --- | --- |
-// @Description | and | []Condition | 否 | 规则列表，逻辑与 |
-// @Description | or | []Condition | 否 | 规则列表，逻辑或 |
+// @Description | and | list中嵌套本参数 | 否 | 规则列表，逻辑与 |
+// @Description | or | list中嵌套本参数 | 否 | 规则列表，逻辑或 |
 // @Description | rule | Rule | 否 | 规则 |
+// @Description ## Rule类型 定义
+// @Description | 字段 | 类型 | 是否必填 | 描述 |
+// @Description | --- | --- | --- | --- |
+// @Description | node_name | string | 是 | 节点名称 |
+// @Description | type | string | 是 | 规则类型，支持eq ne gt lt all-time in not-in |
+// @Description | value | any | 是 | 比对值 |
+// @Description ## 参数示例1 : 当节点MyVariable大于123时触发
+// @Description ```json
+// @Description {
+// @Description     "rule": {
+// @Description         "node_name": "MyVariable",
+// @Description         "type": "gt",
+// @Description         "value": 123
+// @Description     }
+// @Description }
+// @Description ```
+// @Description ## 参数示例2 : 当节点node1等于在["abc","def"]，并且节点node2等于123时触发
+// @Description ```json
+// @Description {
+// @Description     "and": [
+// @Description         {
+// @Description             "rule": {
+// @Description                 "node_name": "node1",
+// @Description                 "type": "in",
+// @Description                 "value": [
+// @Description                     "abc",
+// @Description                     "def",
+// @Description             }
+// @Description         },
+// @Description         {
+// @Description             "rule": {
+// @Description                 "node_name": "node2",
+// @Description                 "type": "eq",
+// @Description                 "value": 123
+// @Description             }
+// @Description         }
+// @Description     ]
+// @Description }
+// @Description ```
 // @Description *注意：Condition是嵌套类型，Condition包含and，or，rule，所以and里面可以嵌套and。。。无限嵌套*
 // @Tags Webhook
 // @Accept  json
@@ -383,6 +422,9 @@ func CreateCondition(c *gin.Context) {
 	// 入参校验
 	var req CreateConditionRequest
 	core.BindParamAndValidate(c, &req)
+
+	// log.Logger.Debug("req: ", utils.PrintDataAsJson(req.Rule.Value))
+	slog.Debug("req: ", utils.PrintDataAsJson(req))
 
 	// 逻辑处理
 	condition := ServiceCreateCondition(&req)

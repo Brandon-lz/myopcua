@@ -24,19 +24,20 @@ definitions:
         example: MyVariable
         type: string
       type:
-        description: '规则类型 eq, ne, gt, lt, all-time : 相等, 不相等, 大于, 小于, 全时间'
+        description: '规则类型 eq, ne, gt, lt, all-time, in, not-in: 相等, 不相等, 大于, 小于,
+          全时间, 包含, 不包含'
         enum:
         - eq
         - ne
         - gt
         - lt
         - all-time
+        - in
+        - not-in
         example: eq
         type: string
       value:
         description: 规则value
-        example: "123"
-        type: string
     required:
     - node_name
     - type
@@ -392,13 +393,52 @@ paths:
       consumes:
       - application/json
       description: |-
-        # 创建触发条件
+        # 参数说明
         ## 请求参数
         | 参数名称 | 类型 | 必填 | 描述 |
         | --- | --- | --- | --- |
-        | and | []Condition | 否 | 规则列表，逻辑与 |
-        | or | []Condition | 否 | 规则列表，逻辑或 |
+        | and | list中嵌套本参数 | 否 | 规则列表，逻辑与 |
+        | or | list中嵌套本参数 | 否 | 规则列表，逻辑或 |
         | rule | Rule | 否 | 规则 |
+        ## Rule类型 定义
+        | 字段 | 类型 | 是否必填 | 描述 |
+        | --- | --- | --- | --- |
+        | node_name | string | 是 | 节点名称 |
+        | type | string | 是 | 规则类型，支持eq ne gt lt all-time in not-in |
+        | value | any | 是 | 比对值 |
+        ## 参数示例1 : 当节点MyVariable大于123时触发
+        ```json
+        {
+        "rule": {
+        "node_name": "MyVariable",
+        "type": "gt",
+        "value": 123
+        }
+        }
+        ```
+        ## 参数示例2 : 当节点node1等于在["abc","def"]，并且节点node2等于123时触发
+        ```json
+        {
+        "and": [
+        {
+        "rule": {
+        "node_name": "node1",
+        "type": "in",
+        "value": [
+        "abc",
+        "def",
+        }
+        },
+        {
+        "rule": {
+        "node_name": "node2",
+        "type": "eq",
+        "value": 123
+        }
+        }
+        ]
+        }
+        ```
         *注意：Condition是嵌套类型，Condition包含and，or，rule，所以and里面可以嵌套and。。。无限嵌套*
       parameters:
       - description: 创建条件
