@@ -10,7 +10,7 @@ import (
 
 var (
 	OPCNodeVars *OPCNodeVarsDFT
-	WebHook     *WebHookConfig
+	WebHooks     *WebHookConditions
 )
 
 func InitSystemVars() {

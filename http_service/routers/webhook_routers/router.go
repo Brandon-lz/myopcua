@@ -131,13 +131,12 @@ func AddWebhookConfig(c *gin.Context) {
 
 // GetWebhookConfig router 参数定义，字段描述放在字段后面
 type AddWebhookConfigRequest struct {
-	Name        *string    `json:"name" form:"name" example:"webhook1"`                                            // webhook名称，可以为空
-	Url         string     `json:"url" form:"url" binding:"required,url" example:"http://192.168.1.1:8800/notify"` // webhook地址
-	Active      *bool      `json:"active" form:"active" example:"true"`                                            // 是否激活，不传的话默认true
+	Name        *string               `json:"name" form:"name" example:"webhook1"`                                            // webhook名称，可以为空
+	Url         string                `json:"url" form:"url" binding:"required,url" example:"http://192.168.1.1:8800/notify"` // webhook地址
+	Active      *bool                 `json:"active" form:"active" example:"true"`                                            // 是否激活，不传的话默认true
 	When        *globaldata.Condition `json:"when" form:"when"`                                                               // 触发条件，为空时相当于通知所有数据变化
-	ConditionId *int64     `json:"condition_id" form:"condition_id" example:"1"`                                   // 条件id，不传的话默认新增条件
+	ConditionId *int64                `json:"condition_id" form:"condition_id" example:"1"`                                   // 条件id，不传的话默认新增条件
 }
-
 
 type AddWebhookConfigResponse struct {
 	Code    int               `json:"code" example:"200"`
@@ -197,7 +196,14 @@ func DalAddWebhookConfig(req *AddWebhookConfigRequest) (*model.WebHook, *model.W
 		} else {
 			webhook = core.SerializeData(req, &model.WebHook{}) // req -> orm model
 			if req.ConditionId != nil {
+				condition,err:=query.Q.WebHookCondition.Where(query.Q.WebHookCondition.ID.Eq(*req.ConditionId)).First()
+				if err != nil || condition == nil {
+					return core.NewKnownError(http.StatusBadRequest, err, "condition not exist")
+				}
 				webhook.WebHookConditionRefer = req.ConditionId
+			}else{
+				webhook.WebHookConditionRefer = nil
+				webhook.Active = utils.Adr(false)
 			}
 			err := tx.WebHook.Create(&webhook)
 			if err != nil {
@@ -273,12 +279,12 @@ func GetWebhookConfigByIdFromDB(id int64) WebHookConfigRead {
 
 func GetAllWebhookConfigFromDB() []WebHookConfigRead {
 	var out []WebHookConfigRead
-	tuples,err := globaldata.DalGetAllWebhookConfig()
+	tuples, err := globaldata.DalGetAllWebhookConfig()
 	if err != nil {
 		slog.Error(utils.WrapError(err).Error())
 		panic(core.NewKnownError(core.EntityNotFound, err, "webhook not found"))
 	}
-	for _, tuple := range tuples{
+	for _, tuple := range tuples {
 		var webhook WebHookConfigRead = core.SerializeData(tuple.Webhook, &WebHookConfigRead{})
 		if tuple.Condition != nil {
 			webhook.Id = tuple.Condition.ID
@@ -288,7 +294,6 @@ func GetAllWebhookConfigFromDB() []WebHookConfigRead {
 	}
 	return out
 }
-
 
 func DalGetWebhookConfigById(id int64) (*model.WebHook, *model.WebHookCondition) {
 	var webhook *model.WebHook
@@ -311,7 +316,6 @@ func DalGetWebhookConfigById(id int64) (*model.WebHook, *model.WebHookCondition)
 	}
 	return webhook, condition
 }
-
 
 // GetWebhookConfigByName router ------------------------------
 // @Summary 根据名称获取webhook配置
@@ -424,7 +428,6 @@ func CreateCondition(c *gin.Context) {
 	core.BindParamAndValidate(c, &req)
 
 	// log.Logger.Debug("req: ", utils.PrintDataAsJson(req.Rule.Value))
-	slog.Debug("req: ", utils.PrintDataAsJson(req))
 
 	// 逻辑处理
 	condition := ServiceCreateCondition(&req)
@@ -460,6 +463,13 @@ type WebHookConditionRead struct {
 }
 
 func ServiceCreateCondition(req *CreateConditionRequest) WebHookConditionRead {
+	// check params
+	if req.And == nil && req.Or == nil && req.Rule == nil {
+		panic(core.NewKnownError(http.StatusBadRequest, nil, "params is empty"))
+	}
+	// 解析即校验???
+	
+	// to db
 	condition := DalCreateCondition(req)
 	out := core.SerializeData(condition, &WebHookConditionRead{}) // orm model -> out
 	return out
@@ -482,8 +492,6 @@ func DalCreateCondition(req *CreateConditionRequest) *model.WebHookCondition {
 		sqlErr := err.(*pgconn.PgError)
 		panic(core.NewKnownError(core.FieldNotUnique, err, sqlErr.Message))
 	}
-
-	fmt.Printf("condition: %+v\n", condition)
 
 	return &condition
 }
