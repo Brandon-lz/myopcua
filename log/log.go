@@ -6,8 +6,16 @@ import (
 )
 
 var Logger *slog.Logger
+var LogLevel slog.Level
 
-func Init() {
-    Logger = slog.New(slog.NewJSONHandler(os.Stdout, nil))
-    // Logger.Info("hello, world", "user", os.Getenv("USER"))
+func Init(level ...slog.Level) {
+	Logger = slog.New(slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{Level: slog.LevelInfo}))
+	for _,l := range level {
+		SetLevel(l)
+	}
+}
+
+func SetLevel(level slog.Level) {
+	LogLevel = level
+	Logger = slog.New(slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{Level: LogLevel}))
 }
