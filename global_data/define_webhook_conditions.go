@@ -52,11 +52,10 @@ func (wc *WebHookConfig) SendMsg() {
 	slog.Debug(fmt.Sprintf("send msg to webhook url, values: %+v", values))
 	utils.PostRequest(wc.Url,
 		utils.PrintDataAsJson(map[string]interface{}{
-			"node_name": wc.When.Rule.NodeName,
 			"values":    values,
 		}),
 	)
-	slog.Info("1111111111111111111send msg to webhook url")
+	slog.Info(fmt.Sprintf("send msg to webhook url success: %s values: %v", wc.Url,values))
 }
 
 func NewWebHookConditions() *WebHookConditions {

@@ -268,8 +268,13 @@ definitions:
         description: 节点名称
         example: MyVariable
         type: string
-      value:
+      values:
+        additionalProperties: true
         description: 节点值 any类型
+        type: object
+    required:
+    - node_name
+    - values
     type: object
   webhookrouters.WebHookExampleResponse:
     properties:

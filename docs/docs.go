@@ -750,14 +750,20 @@ const docTemplate = `{
         },
         "webhookrouters.WebHookExampleRequest": {
             "type": "object",
+            "required": [
+                "node_name",
+                "values"
+            ],
             "properties": {
                 "node_name": {
                     "description": "节点名称",
                     "type": "string",
                     "example": "MyVariable"
                 },
-                "value": {
-                    "description": "节点值 any类型"
+                "values": {
+                    "description": "节点值 any类型",
+                    "type": "object",
+                    "additionalProperties": true
                 }
             }
         },
