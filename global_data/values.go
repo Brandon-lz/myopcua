@@ -12,6 +12,7 @@ import (
 )
 
 var (
+	Debug       bool = false
 	OPCNodeVars *OPCNodeVarsDFT
 	WebHooks    *WebHookConditions
 )
@@ -34,21 +35,33 @@ func InitSystemVars() {
 	initWebHooks()
 }
 
-
 func initWebHooks() {
 	WebHooks = NewWebHookConditions()
-	
+
 	var webhooks []*model.WebHook
 	var err error
-	webhooks,err = query.Q.WebHook.Find()
-	if err!= nil {
+	webhooks, err = query.Q.WebHook.Find()
+	if err != nil {
 		slog.Error(err.Error())
 		panic(err)
 	}
 
 	for _, hook := range webhooks {
-		wh := utils.SerializeData(hook, &WebHookConfig{})
+		if hook.WebHookConditionRefer == nil {
+			continue
+		}
+		wh := utils.DeserializeData(hook, &WebHookConfig{})
+		dbConditions, err := query.Q.WebHookCondition.Where(query.WebHookCondition.ID.Eq(*hook.WebHookConditionRefer)).Find()
+		if err != nil {
+			slog.Error(err.Error())
+			continue
+		}
+		if len(dbConditions) == 0 {
+			continue
+		}
+		wh.ConditionId = hook.WebHookConditionRefer
+		utils.DeserializeData(dbConditions[0].Condition, &wh.When)
+		slog.Debug(fmt.Sprintf("add webhook:%+v", wh.When))
 		WebHooks.AddWebHookConfig(&wh)
 	}
 }
-

@@ -5,7 +5,7 @@ import (
 	"log/slog"
 )
 
-func SerializeData[T interface{}](source any, target *T) T { // target必须为指针类型
+func DeserializeData[T interface{}](source any, target *T) T { // target必须为指针类型
 	var jsonData []byte
 	var err error
 

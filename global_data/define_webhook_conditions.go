@@ -13,7 +13,7 @@ type WebHookConditions struct {
 	Webhooks                   map[int64]*WebHookConfig `json:"webhooks"`
 	ConditionList              []*Condition             `json:"conditions"`
 	IndexConditionId2WebHookId map[int64]int64          `json:"index_condition_id_2_web_hook_id"` // find webhook by condition id
-	IndexNodeName2WebHookId    map[string]int64         `json:"index_node_name_2_web_hook_id"` // find webhook by node name
+	IndexNodeName2WebHookId    map[string]int64         `json:"index_node_name_2_web_hook_id"`    // find webhook by node name
 }
 
 type Condition struct {
@@ -37,11 +37,10 @@ type WebHookConfig struct {
 	ConditionId *int64     `json:"condition_id" form:"condition_id" validate:"omitempty"`
 }
 
-
-func (wc *WebHookConfig)SendMsg(){
+func (wc *WebHookConfig) SendMsg() {
 	// TODO: send msg to webhook url
+	slog.Info("1111111111111111111send msg to webhook url")
 }
-
 
 func NewWebHookConditions() *WebHookConditions {
 	return &WebHookConditions{
@@ -52,7 +51,6 @@ func NewWebHookConditions() *WebHookConditions {
 	}
 }
 
-
 // 加载webhook配置到内存，用于判断webhook，所以只会添加有效和激活的webhook
 func (w *WebHookConditions) AddWebHookConfig(webhook *WebHookConfig) {
 	if !webhook.Active || webhook.ConditionId == nil {
@@ -61,20 +59,20 @@ func (w *WebHookConditions) AddWebHookConfig(webhook *WebHookConfig) {
 	WebHookWriteLock.Lock()
 	defer WebHookWriteLock.Unlock()
 	w.Webhooks[webhook.Id] = webhook
-	findNil := false
+	findNilSeat := false
 	for i, condition := range w.ConditionList {
 		if condition == nil {
 			w.ConditionList[i] = webhook.When
 			w.IndexConditionId2WebHookId[int64(i)] = webhook.Id
-			findNil = true
+			findNilSeat = true
 			break
 		}
-		if !findNil {
-			w.ConditionList = append(w.ConditionList, webhook.When)
-		}
-		w.IndexConditionId2WebHookId[*webhook.ConditionId] = webhook.Id
 	}
-	w.IndexNodeName2WebHookId[webhook.When.Rule.NodeName] = webhook.Id
+	if !findNilSeat {
+		w.ConditionList = append(w.ConditionList, webhook.When)
+	}
+	w.IndexConditionId2WebHookId[*webhook.ConditionId] = webhook.Id
+	w.IndexNodeName2WebHookId[webhook.When.Rule.NodeName] = webhook.Id    // ??? 多个nodename
 }
 
 func (w *WebHookConditions) RemoveWebHookConfig(webhookId int64) {
@@ -109,7 +107,7 @@ func GetAllWebHookConfig() ([]*WebHookConfig, error) {
 		return nil, err
 	}
 	for _, tuple := range tuples {
-		var webhook WebHookConfig = utils.SerializeData(tuple.Webhook, &WebHookConfig{})
+		var webhook WebHookConfig = utils.DeserializeData(tuple.Webhook, &WebHookConfig{})
 		if tuple.Condition != nil {
 			webhook.Id = tuple.Condition.ID
 			err := json.Unmarshal([]byte(tuple.Condition.Condition), &webhook.When)

@@ -25,7 +25,6 @@ func TestMain(t *testing.T) {
 
 	config.Init("../../config.toml")
 	log.Init(slog.LevelDebug)
-	// log.Logger.Info("Starting the opc application...")
 	slog.Info("Starting the opc application...")
 	sysdb.InitDB()
 	query.SetDefault(sysdb.DB) // init gen model, for decouple with db

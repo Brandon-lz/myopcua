@@ -25,7 +25,10 @@ func Start() {
 	for {
 		err := TestOpc()
 		if err != nil {
-			slog.Error("OPCUA发生故障或目标设备失去连接，尝试重启服务，请勿关闭服务\n故障信息:" + err.Error())
+			slog.Error("OPCUA发生故障或目标设备失去连接，尝试重启服务，请勿关闭服务")
+			slog.Error("故障信息:")
+			slog.Error(err.Error())
+			fmt.Println(err.Error())
 			time.Sleep(time.Second * 3)
 			continue
 		}
@@ -78,6 +81,7 @@ func readOpcData(c *opcua.Client) {
 	slog.Debug("OPC读取数据成功:" + fmt.Sprintf("%+v", datas))
 	// 写入数据到全局变量
 	for i, data := range datas {
+		globaldata.OPCNodeVars.CurrentValues[int64(i)] = data
 		globaldata.OPCNodeVars.CurrentNodes[int64(i)].Value = data
 	}
 	go checkWebhook()

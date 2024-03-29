@@ -50,7 +50,7 @@ func testAddWebhookConfig(t *testing.T) {
 		"url": "http://localhost:8080/api/v1/webhook/example",
 		"when": {
 			"rule": {
-				"node_name": "node1",
+				"node_name": "MyVariable",
 				"type": "gt",
 				"value": "123" 
 			}

@@ -29,6 +29,7 @@ func NewGlobalOPCNodeVars() *OPCNodeVarsDFT {
 		NodeIdSets:    make(map[string]struct{}),
 		NodeIdList:    make([]string, 0),
 		NodeNameIndex: make(map[string]int64),
+		CurrentValues: make(map[int64]interface{}),
 	}
 }
 
@@ -47,6 +48,7 @@ func (s *OPCNodeVarsDFT) AddNode(node *OpcNode) error {
 	_, idOk := s.NodeIdSets[node.NodeID]
 	if !nameOk && !idOk {
 		s.CurrentNodes[int64(s.len())] = node
+		s.CurrentValues[int64(s.len())] = interface{}(node.Value)
 		s.NodeNameSets[node.Name] = struct{}{}
 		s.NodeIdSets[node.NodeID] = struct{}{}
 		s.NodeIdList = append(s.NodeIdList, node.NodeID)

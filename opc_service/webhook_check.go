@@ -1,17 +1,22 @@
 package opcservice
 
 import (
+	"fmt"
+	"log/slog"
+
 	globaldata "github.com/Brandon-lz/myopcua/global_data"
 	"github.com/Brandon-lz/myopcua/utils"
 )
 
 func checkWebhook() {
+	slog.Debug("checkWebhook")
 	if globaldata.WebHooks.ConditionList == nil || len(globaldata.WebHooks.ConditionList) == 0 {
 		return
 	}
 	for conditionId, condition := range globaldata.WebHooks.ConditionList {
-
+		slog.Debug(fmt.Sprintf("checkWebhook conditino: %s", utils.PrintDataAsJson(condition)))
 		if CheckCondition(*condition) {
+			slog.Debug(fmt.Sprintf("checkWebhook conditionId: %d is true", conditionId))
 			globaldata.WebHooks.FindWebHookByConditionId(int64(conditionId)).SendMsg()
 		}
 	}
@@ -49,6 +54,11 @@ func CheckRule(rule globaldata.Rule) bool {
 	if err != nil {
 		return false
 	}
+	if val == nil {
+		slog.Warn(fmt.Sprintf("CheckRule: %s, %s, val is nil", rule.Type, rule.NodeName))
+		return false
+	}
+	slog.Debug(fmt.Sprintf("CheckRule: %s, %s, %v, %v", rule.Type, rule.NodeName, val, rule.Value))
 
 	switch rule.Type {
 	case "eq":
