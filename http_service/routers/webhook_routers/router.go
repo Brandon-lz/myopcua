@@ -300,6 +300,11 @@ func GetWebhookConfigByIdFromDB(id int64) WebHookConfigRead {
 	if condition != nil {
 		out.When = &condition.Condition
 	}
+	needNodes := DalGetNeedNodesByWebhookId(webhook.ID)
+	for _, needNode := range needNodes {
+		out.NeedNodeList = append(out.NeedNodeList, needNode.NodeName)
+	}
+
 	return out
 }
 
@@ -341,6 +346,18 @@ func DalGetWebhookConfigById(id int64) (*model.WebHook, *model.WebHookCondition)
 		panic(core.NewKnownError(core.EntityNotFound, err, "condition not found"))
 	}
 	return webhook, condition
+}
+
+
+func DalGetNeedNodesByWebhookId(id int64) []*model.NeedNode {
+	var needNodes []*model.NeedNode
+	q := query.Q.NeedNode
+	needNodes, err := q.Where(q.WebHookRefer.Eq(id)).Find()
+	if err != nil {
+		slog.Error(utils.WrapError(err).Error())
+		panic(core.NewKnownError(core.EntityNotFound, err, "need node not found"))
+	}
+	return needNodes
 }
 
 // GetWebhookConfigByName router ------------------------------
