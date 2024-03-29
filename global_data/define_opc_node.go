@@ -2,6 +2,7 @@ package globaldata
 
 import (
 	"fmt"
+	"log/slog"
 
 	"github.com/Brandon-lz/myopcua/utils"
 )
@@ -25,11 +26,11 @@ type OPCNodeVarsDFT struct {
 func NewGlobalOPCNodeVars() *OPCNodeVarsDFT {
 	return &OPCNodeVarsDFT{
 		CurrentNodes:  make(map[int64]*OpcNode),
+		CurrentValues: make(map[int64]interface{}),
 		NodeNameSets:  make(map[string]struct{}),
 		NodeIdSets:    make(map[string]struct{}),
 		NodeIdList:    make([]string, 0),
 		NodeNameIndex: make(map[string]int64),
-		CurrentValues: make(map[int64]interface{}),
 	}
 }
 
@@ -47,12 +48,12 @@ func (s *OPCNodeVarsDFT) AddNode(node *OpcNode) error {
 	_, nameOk := s.NodeNameSets[node.Name]
 	_, idOk := s.NodeIdSets[node.NodeID]
 	if !nameOk && !idOk {
-		s.CurrentNodes[int64(s.len())] = node
-		s.CurrentValues[int64(s.len())] = interface{}(node.Value)
+		s.CurrentNodes[int64(len(s.NodeIdList))] = node
+		s.CurrentValues[int64(len(s.NodeIdList))] = interface{}(nil)
 		s.NodeNameSets[node.Name] = struct{}{}
 		s.NodeIdSets[node.NodeID] = struct{}{}
-		s.NodeIdList = append(s.NodeIdList, node.NodeID)
-		s.NodeNameIndex[node.Name] = int64(s.len())
+		s.NodeNameIndex[node.Name] = int64(len(s.NodeIdList))
+		s.NodeIdList = append(s.NodeIdList, node.NodeID)   // must be last add in
 		return nil
 	}
 
@@ -79,6 +80,8 @@ func (s *OPCNodeVarsDFT) GetValueByName(name string) (interface{}, error) {
 	if !ok {
 		return nil, fmt.Errorf("node name not found")
 	}
+	slog.Debug(fmt.Sprintf("GetValueByName name:%s index:%d", name, index))
+	slog.Debug(fmt.Sprintf("CurrentValues:%v", s.CurrentValues))
 	return s.CurrentValues[index], nil
 }
 

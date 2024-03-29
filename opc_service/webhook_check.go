@@ -25,7 +25,7 @@ func checkWebhook() {
 func CheckCondition(condition globaldata.Condition) bool {
 	var subResultAnd bool = true
 	var subResultOr bool = false
-	var subResultRule bool = false
+	var subResultRule bool = true
 	if condition.And != nil {
 		for _, subCondition := range condition.And {
 			subResultAnd = subResultAnd && CheckCondition(subCondition)
@@ -39,7 +39,7 @@ func CheckCondition(condition globaldata.Condition) bool {
 	if condition.Rule != nil {
 		subResultRule = CheckRule(*condition.Rule)
 	}
-	return subResultAnd && subResultOr && subResultRule
+	return subResultAnd || subResultOr && subResultRule
 }
 
 // type Rule struct {
@@ -79,21 +79,21 @@ func CheckRule(rule globaldata.Rule) bool {
 	case "all-time":
 		result = true
 	case "in":
-		result = false
 		for _, v := range rule.Value.([]interface{}) {
 			if val == v {
 				result = true
 				break
 			}
 		}
+		result = false
 	case "not-in":
-		result = true
 		for _, v := range rule.Value.([]interface{}) {
 			if val == v {
 				result = false
 				break
 			}
 		}
+		result = true
 	}
 	return result
 }
