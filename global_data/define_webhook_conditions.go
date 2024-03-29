@@ -11,7 +11,7 @@ import (
 )
 
 type WebHookConditions struct {
-	Webhooks                   map[int64]*WebHookConfig `json:"webhooks"`   // 0:webhook1, 1:webhook2, 2:webhook3  注意，这里的1,2,3并不是webhook的id，而是condition的id，或者说切片id
+	Webhooks                   map[int64]*WebHookConfig `json:"webhooks"` // 0:webhook1, 1:webhook2, 2:webhook3  注意，这里的1,2,3并不是webhook的id，而是condition的id，或者说切片id
 	ConditionList              []*Condition             `json:"conditions"`
 	IndexConditionId2WebHookId map[int64]int64          `json:"index_condition_id_2_web_hook_id"` // find webhook by condition id
 	// IndexNodeName2WebHookId    map[string]int64         `json:"index_node_name_2_web_hook_id"`    // find webhook by node name
@@ -30,26 +30,31 @@ type Rule struct {
 }
 
 type WebHookConfig struct {
-	Id          int64      `json:"id" form:"id" validate:"required"`
-	Name        string     `json:"name" form:"name" validate:"required"`
-	Url         string     `json:"url" form:"url" validate:"required"`
-	Active      bool       `json:"active" form:"active" validate:"required"`
-	When        *Condition `json:"when" form:"when" validate:"omitempty"`
-	ConditionId *int64     `json:"condition_id" form:"condition_id" validate:"omitempty"`
+	Id               int64      `json:"id" form:"id" validate:"required"`
+	Name             string     `json:"name" form:"name" validate:"required"`
+	Url              string     `json:"url" form:"url" validate:"required"`
+	Active           bool       `json:"active" form:"active" validate:"required"`
+	When             *Condition `json:"when" form:"when" validate:"omitempty"`
+	ConditionId      *int64     `json:"condition_id" form:"condition_id" validate:"omitempty"`
+	NeedNodeNameList []string   `validate:"required"`
 }
 
 func (wc *WebHookConfig) SendMsg() {
-	// TODO: send msg to webhook url
 	slog.Debug(fmt.Sprintf("send msg to webhook url: %+v", wc.When))
-	val,err:=OPCNodeVars.GetValueByName(wc.When.Rule.NodeName)
-	if err!= nil {
-		return
+	var values = make(map[string]interface{})
+	for _, needNodeName := range wc.NeedNodeNameList {
+		val, err := OPCNodeVars.GetValueByName(needNodeName)
+		if err != nil {
+			val = nil
+		}
+		values[needNodeName] = val
 	}
+	slog.Debug(fmt.Sprintf("send msg to webhook url, values: %+v", values))
 	utils.PostRequest(wc.Url,
-	utils.PrintDataAsJson(map[string]interface{}{
-		"node_name": wc.When.Rule.NodeName,
-		"value":     val,
-	}),
+		utils.PrintDataAsJson(map[string]interface{}{
+			"node_name": wc.When.Rule.NodeName,
+			"values":    values,
+		}),
 	)
 	slog.Info("1111111111111111111send msg to webhook url")
 }
@@ -77,7 +82,7 @@ func (w *WebHookConditions) AddWebHookConfig(webhook *WebHookConfig) {
 		if condition == nil {
 			newConditionId = int64(i)
 			w.ConditionList[newConditionId] = webhook.When
-			w.IndexConditionId2WebHookId[newConditionId] = newConditionId    // 这里重复了，应该改成conditionId2WebHookIdinDb
+			w.IndexConditionId2WebHookId[newConditionId] = newConditionId // 这里重复了，应该改成conditionId2WebHookIdinDb
 			findNilSeat = true
 			w.Webhooks[newConditionId] = webhook
 			break

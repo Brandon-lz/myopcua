@@ -708,6 +708,7 @@
                 "created_at",
                 "id",
                 "name",
+                "needNodeList",
                 "updated_at",
                 "url"
             ],
@@ -726,6 +727,12 @@
                 },
                 "name": {
                     "type": "string"
+                },
+                "needNodeList": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
                 },
                 "updated_at": {
                     "type": "string"

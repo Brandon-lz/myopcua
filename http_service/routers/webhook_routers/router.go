@@ -45,7 +45,7 @@ func WebHookExample(c *gin.Context) {
 	var req WebHookExampleRequest
 	core.BindParamAndValidate(c, &req)
 	// fmt.Printf("req: %+v\n", req)
-	utils.PrintDataAsJson(req)
+	slog.Debug(fmt.Sprintf("received webhook example request: %+v\n", req))
 
 	// 逻辑处理
 	// 出参序列化以及校验
@@ -135,7 +135,7 @@ type AddWebhookConfigRequest struct {
 	Active      *bool                 `json:"active" form:"active" example:"true"`                                            // 是否激活，不传的话默认true
 	When        *globaldata.Condition `json:"when" form:"when"`                                                               // 触发条件，为空时相当于通知所有数据变化
 	ConditionId *int64                `json:"condition_id" form:"condition_id" example:"1"`                                   // 条件id，不传的话默认新增条件
-	NeedNodeList []string `json:"need_node_list" form:"need_node_list" binding:"required" example:["node1,node2"]` // 需要的节点值列表，到时候会传参给webhook
+	NeedNodeList []string `json:"need_node_list" form:"need_node_list" binding:"required" example:["node1","node2"]` // 需要的节点值列表，到时候会传参给webhook
 }
 
 type AddWebhookConfigResponse struct {

@@ -243,6 +243,10 @@ definitions:
         type: integer
       name:
         type: string
+      needNodeList:
+        items:
+          type: string
+        type: array
       updated_at:
         type: string
       url:
@@ -254,6 +258,7 @@ definitions:
     - created_at
     - id
     - name
+    - needNodeList
     - updated_at
     - url
     type: object

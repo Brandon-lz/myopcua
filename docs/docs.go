@@ -711,6 +711,7 @@ const docTemplate = `{
                 "created_at",
                 "id",
                 "name",
+                "needNodeList",
                 "updated_at",
                 "url"
             ],
@@ -729,6 +730,12 @@ const docTemplate = `{
                 },
                 "name": {
                     "type": "string"
+                },
+                "needNodeList": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
                 },
                 "updated_at": {
                     "type": "string"

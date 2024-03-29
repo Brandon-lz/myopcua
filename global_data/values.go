@@ -47,7 +47,7 @@ func initWebHooks() {
 	}
 
 	for _, hook := range webhooks {
-		if hook.WebHookConditionRefer == nil {
+		if hook.WebHookConditionRefer == nil || !*hook.Active {
 			continue
 		}
 		wh := utils.DeserializeData(hook, &WebHookConfig{})
@@ -61,7 +61,17 @@ func initWebHooks() {
 		}
 		wh.ConditionId = hook.WebHookConditionRefer
 		utils.DeserializeData(dbConditions[0].Condition, &wh.When)
-		slog.Debug(fmt.Sprintf("111111111111111111add webhook:%+v", wh.When))
+
+		needNodes, err := query.Q.NeedNode.Where(query.NeedNode.WebHookRefer.Eq(hook.ID)).Find()
+		if err != nil {
+			slog.Error(err.Error())
+			continue
+		}
+		for _, node := range needNodes {
+			wh.NeedNodeNameList = append(wh.NeedNodeNameList, node.NodeName)
+		}
+
+		slog.Debug(fmt.Sprintf("111111111111111111add webhook:%+v", wh.Active))
 		WebHooks.AddWebHookConfig(&wh)
 	}
 }
