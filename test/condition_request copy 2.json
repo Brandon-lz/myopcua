@@ -13,9 +13,9 @@
         },
         {
             "rule": {
-                "node_name": "MyVariable",
+                "node_name": "gongzhuangban",
                 "type": "eq",
-                "value": 123
+                "value": true
             }
         }
     ]

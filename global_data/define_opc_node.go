@@ -101,5 +101,10 @@ func (s *OPCNodeVarsDFT) DeleteNode(id int64) error {
 	for i := id; i < int64(s.len()); i++ {
 		s.CurrentNodes[i] = s.CurrentNodes[i+1]
 	}
+	delete(s.CurrentNodes, int64(s.len()-1))
+	for i:=id; i < int64(s.len()); i++ {
+		s.CurrentValues[i] = s.CurrentValues[i+1]
+	}
+	delete(s.CurrentValues, int64(s.len()-1))
 	return nil
 }

@@ -7,6 +7,7 @@ import (
 func initModels() {
 	modelsToMigrate.Add(&WebHookConditions{})
 	modelsToMigrate.Add(&WebHooks{})
+	modelsToMigrate.Add(&NeedNode{})
 }
 
 
@@ -29,5 +30,11 @@ type WebHooks struct {
 	Url    string `json:"url" gorm:"unique;not null;index;comment:url地址"`
 	Active bool   `json:"active" gorm:"default:true;comment:是否激活"`
 	WebHookConditionRefer *uint `json:"web_hook_condition_refer" gorm:"comment:WebHookCondition foreign key"`   // 外键，在数据库中最好不要not null，在逻辑上去判空
+	NeedNodes []NeedNode `gorm:"foreignKey:WebHookRefer"`
 }
 
+type NeedNode struct {
+	gorm.Model
+	NodeName string `json:"node_name" gorm:"not null;index;comment:需要订阅的节点名称"`
+	WebHookRefer *uint `json:"web_hook_refer" gorm:"comment:WebHook foreign key"`   // 外键，在数据库中最好不要not null，在逻辑上去判空
+}

@@ -2,6 +2,7 @@ package globaldata
 
 import (
 	"encoding/json"
+	"fmt"
 	"log/slog"
 
 	"github.com/Brandon-lz/myopcua/db/gen/model"
@@ -10,10 +11,10 @@ import (
 )
 
 type WebHookConditions struct {
-	Webhooks                   map[int64]*WebHookConfig `json:"webhooks"`
+	Webhooks                   map[int64]*WebHookConfig `json:"webhooks"`   // 0:webhook1, 1:webhook2, 2:webhook3  注意，这里的1,2,3并不是webhook的id，而是condition的id，或者说切片id
 	ConditionList              []*Condition             `json:"conditions"`
 	IndexConditionId2WebHookId map[int64]int64          `json:"index_condition_id_2_web_hook_id"` // find webhook by condition id
-	IndexNodeName2WebHookId    map[string]int64         `json:"index_node_name_2_web_hook_id"`    // find webhook by node name
+	// IndexNodeName2WebHookId    map[string]int64         `json:"index_node_name_2_web_hook_id"`    // find webhook by node name
 }
 
 type Condition struct {
@@ -39,6 +40,17 @@ type WebHookConfig struct {
 
 func (wc *WebHookConfig) SendMsg() {
 	// TODO: send msg to webhook url
+	slog.Debug(fmt.Sprintf("send msg to webhook url: %+v", wc.When))
+	val,err:=OPCNodeVars.GetValueByName(wc.When.Rule.NodeName)
+	if err!= nil {
+		return
+	}
+	utils.PostRequest(wc.Url,
+	utils.PrintDataAsJson(map[string]interface{}{
+		"node_name": wc.When.Rule.NodeName,
+		"value":     val,
+	}),
+	)
 	slog.Info("1111111111111111111send msg to webhook url")
 }
 
@@ -47,7 +59,7 @@ func NewWebHookConditions() *WebHookConditions {
 		Webhooks:                   make(map[int64]*WebHookConfig),
 		ConditionList:              make([]*Condition, 0),
 		IndexConditionId2WebHookId: make(map[int64]int64),
-		IndexNodeName2WebHookId:    make(map[string]int64),
+		// IndexNodeName2WebHookId:    make(map[string]int64),
 	}
 }
 
@@ -58,21 +70,26 @@ func (w *WebHookConditions) AddWebHookConfig(webhook *WebHookConfig) {
 	}
 	WebHookWriteLock.Lock()
 	defer WebHookWriteLock.Unlock()
-	w.Webhooks[webhook.Id] = webhook
+
+	var newConditionId int64
 	findNilSeat := false
 	for i, condition := range w.ConditionList {
 		if condition == nil {
-			w.ConditionList[i] = webhook.When
-			w.IndexConditionId2WebHookId[int64(i)] = webhook.Id
+			newConditionId = int64(i)
+			w.ConditionList[newConditionId] = webhook.When
+			w.IndexConditionId2WebHookId[newConditionId] = newConditionId    // 这里重复了，应该改成conditionId2WebHookIdinDb
 			findNilSeat = true
+			w.Webhooks[newConditionId] = webhook
 			break
 		}
 	}
 	if !findNilSeat {
+		newConditionId = int64(len(w.ConditionList))
 		w.ConditionList = append(w.ConditionList, webhook.When)
+		w.Webhooks[newConditionId] = webhook
+		w.IndexConditionId2WebHookId[newConditionId] = newConditionId
 	}
-	w.IndexConditionId2WebHookId[*webhook.ConditionId] = webhook.Id
-	w.IndexNodeName2WebHookId[webhook.When.Rule.NodeName] = webhook.Id    // ??? 多个nodename
+	// w.IndexNodeName2WebHookId[webhook.When.Rule.NodeName] = webhook.Id    // ??? 多个nodename
 }
 
 func (w *WebHookConditions) RemoveWebHookConfig(webhookId int64) {
@@ -81,7 +98,7 @@ func (w *WebHookConditions) RemoveWebHookConfig(webhookId int64) {
 	conditionId := w.Webhooks[webhookId].ConditionId
 	w.ConditionList[*conditionId] = nil
 	delete(w.IndexConditionId2WebHookId, *conditionId)
-	delete(w.IndexNodeName2WebHookId, w.Webhooks[webhookId].When.Rule.NodeName)
+	// delete(w.IndexNodeName2WebHookId, w.Webhooks[webhookId].When.Rule.NodeName)
 	delete(w.Webhooks, webhookId)
 }
 
@@ -92,12 +109,12 @@ func (w *WebHookConditions) FindWebHookByConditionId(conditionId int64) *WebHook
 	return nil
 }
 
-func (w *WebHookConditions) FindWebHookByNodeName(nodeName string) *WebHookConfig {
-	if webhookId, ok := w.IndexNodeName2WebHookId[nodeName]; ok {
-		return w.Webhooks[webhookId]
-	}
-	return nil
-}
+// func (w *WebHookConditions) FindWebHookByNodeName(nodeName string) *WebHookConfig {
+// 	if webhookId, ok := w.IndexNodeName2WebHookId[nodeName]; ok {
+// 		return w.Webhooks[webhookId]
+// 	}
+// 	return nil
+// }
 
 func GetAllWebHookConfig() ([]*WebHookConfig, error) {
 	var out []*WebHookConfig

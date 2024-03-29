@@ -549,6 +549,7 @@ const docTemplate = `{
         "webhookrouters.AddWebhookConfigRequest": {
             "type": "object",
             "required": [
+                "need_node_list",
                 "url"
             ],
             "properties": {
@@ -566,6 +567,13 @@ const docTemplate = `{
                     "description": "webhook名称，可以为空",
                     "type": "string",
                     "example": "webhook1"
+                },
+                "need_node_list": {
+                    "description": "需要的节点值列表，到时候会传参给webhook",
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
                 },
                 "url": {
                     "description": "webhook地址",
@@ -736,20 +744,13 @@ const docTemplate = `{
         "webhookrouters.WebHookExampleRequest": {
             "type": "object",
             "properties": {
-                "node_id": {
-                    "description": "节点id",
-                    "type": "string",
-                    "example": "ns=1;s=MyVariable"
-                },
                 "node_name": {
                     "description": "节点名称",
                     "type": "string",
                     "example": "MyVariable"
                 },
                 "value": {
-                    "description": "入参示例",
-                    "type": "string",
-                    "example": "123"
+                    "description": "节点值 any类型"
                 }
             }
         },

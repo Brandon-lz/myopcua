@@ -23,23 +23,26 @@ func checkWebhook() {
 }
 
 func CheckCondition(condition globaldata.Condition) bool {
-	var subResultAnd bool = true
-	var subResultOr bool = false
-	var subResultRule bool = true
+	var result bool = false
 	if condition.And != nil {
+		result = true
 		for _, subCondition := range condition.And {
-			subResultAnd = subResultAnd && CheckCondition(subCondition)
+			result = result && CheckCondition(subCondition)
 		}
 	}
 	if condition.Or != nil {
 		for _, subCondition := range condition.Or {
-			subResultOr = subResultOr || CheckCondition(subCondition)
+			result = result || CheckCondition(subCondition)
 		}
 	}
 	if condition.Rule != nil {
-		subResultRule = CheckRule(*condition.Rule)
+		if condition.And == nil && condition.Or == nil {
+			result = CheckRule(*condition.Rule)
+		} else {
+			result = result && CheckRule(*condition.Rule)
+		}
 	}
-	return subResultAnd || subResultOr && subResultRule
+	return result
 }
 
 // type Rule struct {

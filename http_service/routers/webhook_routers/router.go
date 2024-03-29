@@ -58,8 +58,7 @@ func WebHookExample(c *gin.Context) {
 
 type WebHookExampleRequest struct {
 	NodeName string `json:"node_name" form:"node_name" example:"MyVariable"`    // 节点名称
-	NodeId   string `json:"node_id" form:"node_id" example:"ns=1;s=MyVariable"` // 节点id
-	Value    string `json:"value" form:"value" example:"123"`                   // 入参示例
+	Value    interface{} `json:"value" form:"value"`                   // 节点值 any类型
 }
 
 type WebHookExampleResponse struct {
@@ -136,6 +135,7 @@ type AddWebhookConfigRequest struct {
 	Active      *bool                 `json:"active" form:"active" example:"true"`                                            // 是否激活，不传的话默认true
 	When        *globaldata.Condition `json:"when" form:"when"`                                                               // 触发条件，为空时相当于通知所有数据变化
 	ConditionId *int64                `json:"condition_id" form:"condition_id" example:"1"`                                   // 条件id，不传的话默认新增条件
+	NeedNodeList []string `json:"need_node_list" form:"need_node_list" binding:"required" example:["node1,node2"]` // 需要的节点值列表，到时候会传参给webhook
 }
 
 type AddWebhookConfigResponse struct {
@@ -150,6 +150,7 @@ type WebHookConfigRead struct {
 	Url         string    `json:"url" form:"url" validate:"required"`
 	Active      bool      `json:"active" form:"active" validate:"required"`
 	When        *string   `json:"when" form:"when" validate:"omitempty"`
+	NeedNodeList []string `validate:"required"`
 	ConditionId *int64    `json:"condition_id" form:"condition_id" validate:"omitempty"`
 	CreatedAt   time.Time `json:"created_at" form:"created_at" validate:"required"`
 	UpdatedAt   time.Time `json:"updated_at" form:"updated_at" validate:"required"`
@@ -162,7 +163,7 @@ func ServiceAddWebhookConfig(req *AddWebhookConfigRequest) WebHookConfigRead {
 	if req.Active == nil {
 		req.Active = utils.Adr(true)
 	}
-	webhook, condition := DalAddWebhookConfig(req)
+	webhook, condition, needNodes := DalAddWebhookConfig(req)
 	out := core.SerializeData(webhook, &WebHookConfigRead{}) // orm model -> out
 	out.When = &condition.Condition
 	if req.ConditionId != nil {
@@ -170,14 +171,18 @@ func ServiceAddWebhookConfig(req *AddWebhookConfigRequest) WebHookConfigRead {
 	} else {
 		out.ConditionId = &condition.ID
 	}
+	for _, needNode := range needNodes {
+		out.NeedNodeList = append(out.NeedNodeList, needNode.NodeName)
+	}
 	return out
 }
 
 // {"name":"webhook1","url":"http://localhost:8080/api/v1/webhook/example","active":true,"when":{"and":null,"or":null,"rule":{"type":"eq","node_name":"node1","value":"123"}},"condition_id":null}
 // {"name":"webhook1","url":"http://localhost:8080/api/v1/webhook/example","active":true,"when":{"and":null,"or":null,"rule":{"type":"eq","node_name":"node1","value":"123"}},"condition_id":null}
-func DalAddWebhookConfig(req *AddWebhookConfigRequest) (*model.WebHook, *model.WebHookCondition) {
+func DalAddWebhookConfig(req *AddWebhookConfigRequest) (*model.WebHook, *model.WebHookCondition,[]model.NeedNode) {
 	var webhook model.WebHook
 	var condition model.WebHookCondition
+	var needNodes []model.NeedNode
 	err := query.Q.Transaction(func(tx *query.Query) error {
 		if req.When != nil {
 			condition = model.WebHookCondition{Condition: utils.PrintDataAsJson(req.When)}
@@ -186,12 +191,23 @@ func DalAddWebhookConfig(req *AddWebhookConfigRequest) (*model.WebHook, *model.W
 				slog.Error(utils.WrapError(err).Error())
 				return err
 			}
+			// create webhook foreign
 			webhook = core.SerializeData(req, &model.WebHook{}) // req -> orm model
 			webhook.WebHookConditionRefer = &condition.ID
 			err = tx.WebHook.Create(&webhook)
 			if err != nil {
 				slog.Error(utils.WrapError(err).Error())
 				return err
+			}
+			// create need node foreign
+			for _, nodeName := range req.NeedNodeList {
+				var needNode = model.NeedNode{WebHookRefer: &webhook.ID, NodeName: nodeName}
+				err = query.Q.NeedNode.Create(&needNode)
+				if err != nil {
+					slog.Error(utils.WrapError(err).Error())
+					return err
+				}
+				needNodes = append(needNodes, needNode)
 			}
 		} else {
 			webhook = core.SerializeData(req, &model.WebHook{}) // req -> orm model
@@ -210,6 +226,16 @@ func DalAddWebhookConfig(req *AddWebhookConfigRequest) (*model.WebHook, *model.W
 				slog.Error(utils.WrapError(err).Error())
 				return err
 			}
+			// create need node foreign
+			for _, nodeName := range req.NeedNodeList {
+				var needNode = model.NeedNode{WebHookRefer: &webhook.ID, NodeName: nodeName}
+				err = query.Q.NeedNode.Create(&needNode)
+				if err != nil {
+					slog.Error(utils.WrapError(err).Error())
+					return err
+				}
+				needNodes = append(needNodes, needNode)
+			}
 		}
 		return nil
 	})
@@ -222,7 +248,7 @@ func DalAddWebhookConfig(req *AddWebhookConfigRequest) (*model.WebHook, *model.W
 	fmt.Printf("webhook: %+v\n", webhook)
 	fmt.Printf("condition: %+v\n", condition)
 
-	return &webhook, &condition
+	return &webhook, &condition, needNodes
 }
 
 // GetWebhookConfigById router -------------------------------
@@ -242,7 +268,7 @@ func GetWebhookConfigById(c *gin.Context) {
 	}
 
 	out := ServiceGetWebhookConfigById(id)
-
+	slog.Debug(fmt.Sprintf("out: %+v", out.NeedNodeList))
 	core.ValidateSchema(out)
 
 	core.SuccessHandler(c, GetWebhookConfigByIdResponse{

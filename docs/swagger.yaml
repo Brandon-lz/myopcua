@@ -137,6 +137,11 @@ definitions:
         description: webhook名称，可以为空
         example: webhook1
         type: string
+      need_node_list:
+        description: 需要的节点值列表，到时候会传参给webhook
+        items:
+          type: string
+        type: array
       url:
         description: webhook地址
         example: http://192.168.1.1:8800/notify
@@ -146,6 +151,7 @@ definitions:
         - $ref: '#/definitions/globaldata.Condition'
         description: 触发条件，为空时相当于通知所有数据变化
     required:
+    - need_node_list
     - url
     type: object
   webhookrouters.AddWebhookConfigResponse:
@@ -253,18 +259,12 @@ definitions:
     type: object
   webhookrouters.WebHookExampleRequest:
     properties:
-      node_id:
-        description: 节点id
-        example: ns=1;s=MyVariable
-        type: string
       node_name:
         description: 节点名称
         example: MyVariable
         type: string
       value:
-        description: 入参示例
-        example: "123"
-        type: string
+        description: 节点值 any类型
     type: object
   webhookrouters.WebHookExampleResponse:
     properties:

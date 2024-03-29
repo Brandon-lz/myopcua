@@ -61,7 +61,7 @@ func initWebHooks() {
 		}
 		wh.ConditionId = hook.WebHookConditionRefer
 		utils.DeserializeData(dbConditions[0].Condition, &wh.When)
-		slog.Debug(fmt.Sprintf("add webhook:%+v", wh.When))
+		slog.Debug(fmt.Sprintf("111111111111111111add webhook:%+v", wh.When))
 		WebHooks.AddWebHookConfig(&wh)
 	}
 }
