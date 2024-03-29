@@ -1,9 +1,6 @@
 package test
 
 import (
-	// "io"
-	// "net/http"
-	// "net/http/httptest"
 	"log/slog"
 	"testing"
 	"time"
@@ -27,18 +24,20 @@ func TestMain(t *testing.T) {
 	migrateModel()
 
 	config.Init("../../config.toml")
-	log.Init()
+	log.Init(slog.LevelDebug)
 	// log.Logger.Info("Starting the opc application...")
 	slog.Info("Starting the opc application...")
+	sysdb.InitDB()
+	query.SetDefault(sysdb.DB) // init gen model, for decouple with db
 	globaldata.InitSystemVars()
 	go opcservice.Start()
-	sysdb.InitDB()
-	query.SetDefault(sysdb.DB)    // init gen model, for decouple with db
 	go httpservice.Start()
 
 	time.Sleep(1 * time.Second)
-	// Run tests
-	t.Run("Test_GetNode", testHomepageHandler)
+
+	// Run router tests ---------------------------------
+	t.Run("Test_AddWebhookConfig", testAddWebhookConfig)
+	t.Run("Test_getWebhookConfig", testGetWebhookConfigById)
 }
 
 func cleanDb(assert *assert.Assertions) {
@@ -50,6 +49,5 @@ func cleanDb(assert *assert.Assertions) {
 }
 
 func migrateModel() {
-	sysdb.InitDB() 
+	sysdb.InitDB()
 }
-

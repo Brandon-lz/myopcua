@@ -3,8 +3,11 @@ package globaldata
 import (
 	"fmt"
 	"log"
+	"log/slog"
 	"os"
 
+	"github.com/Brandon-lz/myopcua/db/gen/model"
+	"github.com/Brandon-lz/myopcua/db/gen/query"
 	"github.com/Brandon-lz/myopcua/utils"
 )
 
@@ -28,5 +31,24 @@ func InitSystemVars() {
 	}
 
 	// todo: 初始化WebHooks
-	WebHooks = NewWebHookConditions()
+	initWebHooks()
 }
+
+
+func initWebHooks() {
+	WebHooks = NewWebHookConditions()
+	
+	var webhooks []*model.WebHook
+	var err error
+	webhooks,err = query.Q.WebHook.Find()
+	if err!= nil {
+		slog.Error(err.Error())
+		panic(err)
+	}
+
+	for _, hook := range webhooks {
+		wh := utils.SerializeData(hook, &WebHookConfig{})
+		WebHooks.AddWebHookConfig(&wh)
+	}
+}
+
