@@ -28,6 +28,21 @@ func testAddWebhookConfig(t *testing.T) {
 		"need_node_list": ["MyVariable", "MyVariable2"]
     }
     `
+
+	body = `
+    {
+        "active": true,
+        "name": "webhook1",
+        "url": "http://localhost:8080/api/v1/webhook/example",
+        "when": {
+            "rule": {
+                "node_name": "MyVariable",
+                "type": "all-time"
+            }
+        },
+		"need_node_list": ["MyVariable"]
+    }
+    `
     res, err := utils.PostRequest(url, body)
     require.NoError(err)
 

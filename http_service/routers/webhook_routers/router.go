@@ -57,7 +57,6 @@ func WebHookExample(c *gin.Context) {
 }
 
 type WebHookExampleRequest struct {
-	NodeName string `json:"node_name" form:"node_name" example:"MyVariable" binding:"required"`    // 节点名称
 	Values    map[string]interface{} `json:"values" form:"values" binding:"required"`                   // 节点值 any类型
 }
 
@@ -304,7 +303,6 @@ func GetWebhookConfigByIdFromDB(id int64) WebHookConfigRead {
 	for _, needNode := range needNodes {
 		out.NeedNodeList = append(out.NeedNodeList, needNode.NodeName)
 	}
-
 	return out
 }
 
