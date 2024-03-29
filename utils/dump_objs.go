@@ -9,7 +9,6 @@ import (
 
 
 func Dump(obj interface{},filepath string) error {
-
     // 打开一个文件用于写入序列化后的数据
     file, err := os.Create(filepath)
     if err != nil {
