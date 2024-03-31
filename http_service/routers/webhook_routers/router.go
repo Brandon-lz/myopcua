@@ -162,6 +162,9 @@ func ServiceAddWebhookConfig(req *AddWebhookConfigRequest) WebHookConfigRead {
 	if req.Active == nil {
 		req.Active = utils.Adr(true)
 	}
+	if req.When != nil {
+		globaldata.CheckCondition(*req.When)
+	}
 	webhook, condition, needNodes := DalAddWebhookConfig(req)
 	out := core.SerializeData(webhook, &WebHookConfigRead{}) // orm model -> out
 	out.When = &condition.Condition
