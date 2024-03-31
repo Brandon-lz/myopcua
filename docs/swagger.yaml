@@ -203,16 +203,6 @@ definitions:
     type: object
   webhookrouters.GetAllConditionsByPageData:
     type: object
-  webhookrouters.GetAllConditionsByPageRequest:
-    properties:
-      page:
-        type: integer
-      page_size:
-        type: integer
-    required:
-    - page
-    - page_size
-    type: object
   webhookrouters.GetAllConditionsByPageResponse:
     properties:
       code:
@@ -760,12 +750,14 @@ paths:
         | created_at | time.Time | 创建时间 |
         | updated_at | time.Time | 更新时间 |
       parameters:
-      - description: 获取条件列表
-        in: body
-        name: body
+      - in: query
+        name: page
         required: true
-        schema:
-          $ref: '#/definitions/webhookrouters.GetAllConditionsByPageRequest'
+        type: integer
+      - in: query
+        name: page_size
+        required: true
+        type: integer
       produces:
       - application/json
       responses:

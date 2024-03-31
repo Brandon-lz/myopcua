@@ -594,12 +594,13 @@ func DalCreateCondition(req *CreateConditionRequest) *model.WebHookCondition {
 // @Tags Webhook
 // @Accept  json
 // @Produce  json
-// @Param body body GetAllConditionsByPageRequest true "获取条件列表"
+// @Param name query GetAllConditionsByPageRequest true "获取条件列表"
 // @Success 200 {object} GetAllConditionsByPageResponse
 // @Router /api/v1/webhook/conditions [get]
 func GetAllConditionsByPage(c *gin.Context) {
 	// 入参校验
 	var req GetAllConditionsByPageRequest
+	
 	core.BindParamAndValidate(c, &req)
 
 	// 逻辑处理
@@ -624,8 +625,8 @@ func GetAllConditionsByPage(c *gin.Context) {
 }
 
 type GetAllConditionsByPageRequest struct {
-	Page     int `json:"page" form:"page" validate:"required"`
-	PageSize int `json:"page_size" form:"page_size" validate:"required"`
+	Page     int `json:"page" form:"page" binding:"required,gte=0" validate:"required"`
+	PageSize int `json:"page_size" form:"page_size" binding:"required,gte=0" validate:"required"`
 }
 
 type GetAllConditionsByPageResponse struct {
