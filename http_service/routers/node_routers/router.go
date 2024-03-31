@@ -5,7 +5,7 @@ import (
 	"net/http"
 	"strconv"
 
-	globaldata "github.com/Brandon-lz/myopcua/global_data"
+	globaldata "github.com/Brandon-lz/myopcua/global"
 	"github.com/Brandon-lz/myopcua/http_service/core"
 
 	"github.com/gin-gonic/gin"

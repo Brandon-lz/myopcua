@@ -10,7 +10,7 @@ import (
 	"os"
 
 	"github.com/Brandon-lz/myopcua/config"
-	globaldata "github.com/Brandon-lz/myopcua/global_data"
+	globaldata "github.com/Brandon-lz/myopcua/global"
 	opcUa "github.com/Brandon-lz/myopcua/opc_ua"
 
 	"github.com/gopcua/opcua"

@@ -6,7 +6,7 @@ import (
 	"github.com/Brandon-lz/myopcua/config"
 	"github.com/Brandon-lz/myopcua/db"
 	"github.com/Brandon-lz/myopcua/db/gen/query"
-	globaldata "github.com/Brandon-lz/myopcua/global_data"
+	globaldata "github.com/Brandon-lz/myopcua/global"
 
 	// "github.com/Brandon-lz/myopcua/health"
 	"github.com/Brandon-lz/myopcua/log"
@@ -30,7 +30,7 @@ func main() {
 	log.Init(slog.LevelDebug)
 	slog.Info("Starting the opc application...")
 	db.InitDB()
-	query.SetDefault(db.DB)    // init gen model, for decouple with db
+	query.SetDefault(db.DB) // init gen model, for decouple with db
 	globaldata.InitSystemVars()
 	go opcservices.Start()
 	go httpservice.Start()

@@ -8,7 +8,7 @@ import (
 	"github.com/Brandon-lz/myopcua/config"
 	sysdb "github.com/Brandon-lz/myopcua/db"
 	"github.com/Brandon-lz/myopcua/db/gen/query"
-	globaldata "github.com/Brandon-lz/myopcua/global_data"
+	globaldata "github.com/Brandon-lz/myopcua/global"
 	httpservice "github.com/Brandon-lz/myopcua/http_service"
 	"github.com/Brandon-lz/myopcua/log"
 	opcservice "github.com/Brandon-lz/myopcua/opc_service"

@@ -9,7 +9,7 @@ import (
 
 	"github.com/Brandon-lz/myopcua/db/gen/model"
 	"github.com/Brandon-lz/myopcua/db/gen/query"
-	globaldata "github.com/Brandon-lz/myopcua/global_data"
+	globaldata "github.com/Brandon-lz/myopcua/global"
 	"github.com/Brandon-lz/myopcua/http_service/core"
 	"github.com/Brandon-lz/myopcua/utils"
 	"github.com/jackc/pgx/v5/pgconn"
@@ -57,7 +57,7 @@ func WebHookExample(c *gin.Context) {
 }
 
 type WebHookExampleRequest struct {
-	Values    map[string]interface{} `json:"values" form:"values" binding:"required"`                   // 节点值 any类型
+	Values map[string]interface{} `json:"values" form:"values" binding:"required"` // 节点值 any类型
 }
 
 type WebHookExampleResponse struct {
@@ -129,30 +129,30 @@ func AddWebhookConfig(c *gin.Context) {
 
 // GetWebhookConfig router 参数定义，字段描述放在字段后面
 type AddWebhookConfigRequest struct {
-	Name        *string               `json:"name" form:"name" example:"webhook1"`                                            // webhook名称，可以为空
-	Url         string                `json:"url" form:"url" binding:"required,url" example:"http://192.168.1.1:8800/notify"` // webhook地址
-	Active      *bool                 `json:"active" form:"active" example:"true"`                                            // 是否激活，不传的话默认true
-	When        *globaldata.Condition `json:"when" form:"when"`                                                               // 触发条件，为空时相当于通知所有数据变化
-	ConditionId *int64                `json:"condition_id" form:"condition_id" example:"1"`                                   // 条件id，不传的话默认新增条件
-	NeedNodeList []string `json:"need_node_list" form:"need_node_list" binding:"required"` // 需要的节点值列表，到时候会传参给webhook
+	Name         *string               `json:"name" form:"name" example:"webhook1"`                                            // webhook名称，可以为空
+	Url          string                `json:"url" form:"url" binding:"required,url" example:"http://192.168.1.1:8800/notify"` // webhook地址
+	Active       *bool                 `json:"active" form:"active" example:"true"`                                            // 是否激活，不传的话默认true
+	When         *globaldata.Condition `json:"when" form:"when"`                                                               // 触发条件，为空时相当于通知所有数据变化
+	ConditionId  *int64                `json:"condition_id" form:"condition_id" example:"1"`                                   // 条件id，不传的话默认新增条件
+	NeedNodeList []string              `json:"need_node_list" form:"need_node_list" binding:"required"`                        // 需要的节点值列表，到时候会传参给webhook
 }
 
 type AddWebhookConfigResponse struct {
 	Code    int               `json:"code" example:"200"`
-	Data    WebHookConfigRead `json:"data" `
+	Data    WebHookConfigRead `json:"data"`
 	Message string            `json:"message" example:"节点添加成功"`
 }
 
 type WebHookConfigRead struct {
-	Id          int64     `json:"id" form:"id" validate:"required"`
-	Name        string    `json:"name" form:"name" validate:"required"`
-	Url         string    `json:"url" form:"url" validate:"required"`
-	Active      bool      `json:"active" form:"active" validate:"required"`
-	When        *string   `json:"when" form:"when" validate:"omitempty"`
-	NeedNodeList []string `validate:"required"`
-	ConditionId *int64    `json:"condition_id" form:"condition_id" validate:"omitempty"`
-	CreatedAt   time.Time `json:"created_at" form:"created_at" validate:"required"`
-	UpdatedAt   time.Time `json:"updated_at" form:"updated_at" validate:"required"`
+	Id           int64     `json:"id" form:"id" validate:"required"`
+	Name         string    `json:"name" form:"name" validate:"required"`
+	Url          string    `json:"url" form:"url" validate:"required"`
+	Active       bool      `json:"active" form:"active" validate:"required"`
+	When         *string   `json:"when" form:"when" validate:"omitempty"`
+	NeedNodeList []string  `validate:"required"`
+	ConditionId  *int64    `json:"condition_id" form:"condition_id" validate:"omitempty"`
+	CreatedAt    time.Time `json:"created_at" form:"created_at" validate:"required"`
+	UpdatedAt    time.Time `json:"updated_at" form:"updated_at" validate:"required"`
 }
 
 func ServiceAddWebhookConfig(req *AddWebhookConfigRequest) WebHookConfigRead {
@@ -178,7 +178,7 @@ func ServiceAddWebhookConfig(req *AddWebhookConfigRequest) WebHookConfigRead {
 
 // {"name":"webhook1","url":"http://localhost:8080/api/v1/webhook/example","active":true,"when":{"and":null,"or":null,"rule":{"type":"eq","node_name":"node1","value":"123"}},"condition_id":null}
 // {"name":"webhook1","url":"http://localhost:8080/api/v1/webhook/example","active":true,"when":{"and":null,"or":null,"rule":{"type":"eq","node_name":"node1","value":"123"}},"condition_id":null}
-func DalAddWebhookConfig(req *AddWebhookConfigRequest) (*model.WebHook, *model.WebHookCondition,[]model.NeedNode) {
+func DalAddWebhookConfig(req *AddWebhookConfigRequest) (*model.WebHook, *model.WebHookCondition, []model.NeedNode) {
 	var webhook model.WebHook
 	var condition model.WebHookCondition
 	var needNodes []model.NeedNode
@@ -211,12 +211,12 @@ func DalAddWebhookConfig(req *AddWebhookConfigRequest) (*model.WebHook, *model.W
 		} else {
 			webhook = core.SerializeData(req, &model.WebHook{}) // req -> orm model
 			if req.ConditionId != nil {
-				condition,err:=query.Q.WebHookCondition.Where(query.Q.WebHookCondition.ID.Eq(*req.ConditionId)).First()
+				condition, err := query.Q.WebHookCondition.Where(query.Q.WebHookCondition.ID.Eq(*req.ConditionId)).First()
 				if err != nil || condition == nil {
 					return core.NewKnownError(http.StatusBadRequest, err, "condition not exist")
 				}
 				webhook.WebHookConditionRefer = req.ConditionId
-			}else{
+			} else {
 				webhook.WebHookConditionRefer = nil
 				webhook.Active = utils.Adr(false)
 			}
@@ -345,7 +345,6 @@ func DalGetWebhookConfigById(id int64) (*model.WebHook, *model.WebHookCondition)
 	}
 	return webhook, condition
 }
-
 
 func DalGetNeedNodesByWebhookId(id int64) []*model.NeedNode {
 	var needNodes []*model.NeedNode
@@ -508,10 +507,16 @@ func ServiceCreateCondition(req *CreateConditionRequest) WebHookConditionRead {
 	if req.And == nil && req.Or == nil && req.Rule == nil {
 		panic(core.NewKnownError(http.StatusBadRequest, nil, "params is empty"))
 	}
-	// 解析即校验???
-	
+	// check rule
+	{
+		var condition globaldata.Condition
+		utils.DeserializeData(req, &condition)
+		if !globaldata.CheckCondition(condition){
+			panic(core.NewKnownError(http.StatusBadRequest, nil, "condition is invalid, please check the rule type and value"))
+		}	
+	}
 	// to db
-	condition := DalCreateCondition(req)
+	var condition = DalCreateCondition(req)
 	out := core.SerializeData(condition, &WebHookConditionRead{}) // orm model -> out
 	return out
 }
