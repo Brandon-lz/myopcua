@@ -22,9 +22,9 @@ func RegisterRoutes(router *gin.RouterGroup) {
 	group := router.Group("/webhook")
 	group.POST("/example", WebHookExample)
 	group.POST("/condition", CreateCondition)
-	group.POST("/config", AddWebhookConfig)
-	group.GET("/config/:id", GetWebhookConfigById)
-	group.GET("/config-by-name/:name", GetWebhookConfigByName)
+	group.POST("/webhook", AddWebhookConfig)
+	group.GET("/:id", GetWebhookConfigById)
+	group.GET("/by-name/:name", GetWebhookConfigByName)
 	// group.PUT("/config/:id", UpdateWebhookConfig)
 	// group.GET("/config/:id", GetWebhookConfig)
 	// group.GET("/configs", GetAllWebhookConfigs)
@@ -270,7 +270,7 @@ func DalAddWebhookConfig(req *AddWebhookConfigRequest) (*model.WebHook, *model.W
 // @Produce  json
 // @Param id path string true "webhook id"
 // @Success 200 {object} GetWebhookConfigByIdResponse
-// @Router /api/v1/webhook/config/{id} [get]
+// @Router /api/v1/webhook/{id} [get]
 func GetWebhookConfigById(c *gin.Context) {
 	// 入参校验
 	id := c.Param("id")
@@ -311,12 +311,20 @@ func GetWebhookConfigByIdFromDB(id int64) WebHookConfigRead {
 	if condition != nil {
 		out.When = &condition.Condition
 	}
-	needNodes := DalGetNeedNodesByWebhookId(webhook.ID)
-	for _, needNode := range needNodes {
-		out.NeedNodeList = append(out.NeedNodeList, needNode.NodeName)
-	}
+	out.NeedNodeList = GetNeedeNodesListByWebhookId(id)
 	return out
 }
+
+func GetNeedeNodesListByWebhookId(id int64) []string {
+	var needNodeList []string
+	needNodes := DalGetNeedNodesByWebhookId(id)
+	for _, needNode := range needNodes {
+		needNodeList = append(needNodeList, needNode.NodeName)
+	}
+	return needNodeList
+}
+
+// GetWebhookConfig router -
 
 func GetAllWebhookConfigFromDB() []WebHookConfigRead {
 	var out []WebHookConfigRead
@@ -377,7 +385,7 @@ func DalGetNeedNodesByWebhookId(id int64) []*model.NeedNode {
 // @Produce  json
 // @Param name path string true "webhook名称"
 // @Success 200 {object} GetWebhookConfigByNameResponse
-// @Router /api/v1/webhook/config-by-name/{name} [get]
+// @Router /api/v1/webhook/by-name/{name} [get]
 func GetWebhookConfigByName(c *gin.Context) {
 	// 入参校验
 	name := c.Param("name")
@@ -390,6 +398,7 @@ func GetWebhookConfigByName(c *gin.Context) {
 
 	// 出参序列化以及校验
 	out := core.SerializeData(webhook, &WebHookConfigRead{})
+	out.NeedNodeList = GetNeedeNodesListByWebhookId(webhook.ID)
 	core.ValidateSchema(out)
 
 	core.SuccessHandler(c, GetWebhookConfigByNameResponse{

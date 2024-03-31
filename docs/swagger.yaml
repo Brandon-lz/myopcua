@@ -392,6 +392,48 @@ paths:
       summary: ping 路由
       tags:
       - default
+  /api/v1/webhook/{id}:
+    get:
+      consumes:
+      - application/json
+      description: 根据id获取webhook配置
+      parameters:
+      - description: webhook id
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/webhookrouters.GetWebhookConfigByIdResponse'
+      summary: 根据id获取webhook配置
+      tags:
+      - Webhook
+  /api/v1/webhook/by-name/{name}:
+    get:
+      consumes:
+      - application/json
+      description: 根据名称获取webhook配置
+      parameters:
+      - description: webhook名称
+        in: path
+        name: name
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/webhookrouters.GetWebhookConfigByNameResponse'
+      summary: 根据名称获取webhook配置
+      tags:
+      - Webhook
   /api/v1/webhook/condition:
     post:
       consumes:
@@ -477,7 +519,7 @@ paths:
       description: |-
         # 配置一条新的webhook
         ## 说明
-        该接口用于配置一条新的webhook，可以配置条件，也可以不配置条件，条件配置后，只有满足条件的数据变化才会触发webhook。
+        该接口用于配置一条新的webhook，并通过when字段或condition_id字段配置触发条件，当条件满足时会触发webhook，并将所需要的数据传给webhook url接口。
         ## 请求参数
 
         - name：webhook名称，为空时系统会自动生成一个uuid
@@ -528,48 +570,6 @@ paths:
           schema:
             $ref: '#/definitions/webhookrouters.AddWebhookConfigResponse'
       summary: 配置一条新的webhook
-      tags:
-      - Webhook
-  /api/v1/webhook/config-by-name/{name}:
-    get:
-      consumes:
-      - application/json
-      description: 根据名称获取webhook配置
-      parameters:
-      - description: webhook名称
-        in: path
-        name: name
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/webhookrouters.GetWebhookConfigByNameResponse'
-      summary: 根据名称获取webhook配置
-      tags:
-      - Webhook
-  /api/v1/webhook/config/{id}:
-    get:
-      consumes:
-      - application/json
-      description: 根据id获取webhook配置
-      parameters:
-      - description: webhook id
-        in: path
-        name: id
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/webhookrouters.GetWebhookConfigByIdResponse'
-      summary: 根据id获取webhook配置
       tags:
       - Webhook
   /api/v1/webhook/example:
