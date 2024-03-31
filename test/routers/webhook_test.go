@@ -36,7 +36,6 @@ func testAddWebhookConfig(t *testing.T) {
         "url": "http://localhost:8080/api/v1/webhook/example",
         "when": {
             "rule": {
-                "node_name": "MyVariable",
                 "type": "all-time"
             }
         },

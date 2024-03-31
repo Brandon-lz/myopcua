@@ -69,7 +69,16 @@ type WebHookExampleResponse struct {
 // AddWebhookConfig router -------------------------------------
 // @Summary 配置一条新的webhook
 // @Description # 配置一条新的webhook
-// @Description
+// @Description ## 说明
+// @Description 该接口用于配置一条新的webhook，并通过when字段或condition_id字段配置触发条件，当条件满足时会触发webhook，并将所需要的数据传给webhook url接口。
+// @Description ## 请求参数
+// @Description 
+// @Description - name：webhook名称，为空时系统会自动生成一个uuid
+// @Description - url：webhook地址（POST请求），必填，当条件满足时会调用该url，并挂载数据到body中
+// @Description - active：是否激活，不传的话默认true
+// @Description - when：条件，里面是一个json，具体的格式看/api/v1/webhook/condition接口说明，when其实就是一个condition条件。该字段和condition_id字段必须传一个。
+// @Description - condition_id：条件id，将条件condition配置到webhook上，该字段和when字段必须传一个。
+// @Description - need_node_list：需要的节点值列表，条件触发时会传参给webhook
 // @Description ## 例1：当节点node1值等于123时，发送通知到http://localhost:8080/api/v1/webhook/example
 // @Description ```json
 // @Description {
@@ -457,6 +466,14 @@ func DalGetWebhookConfigByName(name string) *model.WebHook {
 // @Description             }
 // @Description         }
 // @Description     ]
+// @Description }
+// @Description ```
+// @Description ## 参数示例3 : 一直触发
+// @Description ```json
+// @Description {
+// @Description     "rule": {
+// @Description         "type": "all-time"
+// @Description     }
 // @Description }
 // @Description ```
 // @Description *注意：Condition是嵌套类型，Condition包含and，or，rule，所以and里面可以嵌套and。。。无限嵌套*
