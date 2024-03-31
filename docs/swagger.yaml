@@ -192,6 +192,40 @@ definitions:
         example: Condition created successfully
         type: string
     type: object
+  webhookrouters.DeleteConditionResponse:
+    properties:
+      code:
+        example: 200
+        type: integer
+      message:
+        example: Condition deleted successfully
+        type: string
+    type: object
+  webhookrouters.GetAllConditionsByPageData:
+    type: object
+  webhookrouters.GetAllConditionsByPageRequest:
+    properties:
+      page:
+        type: integer
+      page_size:
+        type: integer
+    required:
+    - page
+    - page_size
+    type: object
+  webhookrouters.GetAllConditionsByPageResponse:
+    properties:
+      code:
+        example: 200
+        type: integer
+      data:
+        $ref: '#/definitions/webhookrouters.GetAllConditionsByPageData'
+      message:
+        example: Condition get successfully
+        type: string
+      total:
+        type: integer
+    type: object
   webhookrouters.GetWebhookConfigByIdResponse:
     properties:
       code:
@@ -212,6 +246,34 @@ definitions:
         $ref: '#/definitions/webhookrouters.WebHookConfigRead'
       message:
         example: Webhook configuration get successfully
+        type: string
+    type: object
+  webhookrouters.UpdateConditionRequest:
+    properties:
+      and:
+        description: 规则列表，逻辑与
+        items:
+          $ref: '#/definitions/globaldata.Condition'
+        type: array
+      or:
+        description: 规则列表，逻辑或
+        items:
+          $ref: '#/definitions/globaldata.Condition'
+        type: array
+      rule:
+        allOf:
+        - $ref: '#/definitions/globaldata.Rule'
+        description: 规则
+    type: object
+  webhookrouters.UpdateConditionResponse:
+    properties:
+      code:
+        example: 200
+        type: integer
+      data:
+        $ref: '#/definitions/webhookrouters.WebHookConditionRead'
+      message:
+        example: Condition updated successfully
         type: string
     type: object
   webhookrouters.WebHookConditionRead:
@@ -392,6 +454,86 @@ paths:
       summary: ping 路由
       tags:
       - default
+  /api/v1/webhook:
+    get:
+      consumes:
+      - application/json
+      description: 根据名称获取webhook配置
+      parameters:
+      - description: webhook名称
+        example: webhook1
+        in: query
+        name: name
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/webhookrouters.GetWebhookConfigByNameResponse'
+      summary: 根据名称获取webhook配置
+      tags:
+      - Webhook
+    post:
+      consumes:
+      - application/json
+      description: |-
+        # 配置一条新的webhook
+        ## 说明
+        该接口用于配置一条新的webhook，并通过when字段或condition_id字段配置触发条件，当条件满足时会触发webhook，并将所需要的数据传给webhook url接口。
+        ## 请求参数
+
+        - name：webhook名称，为空时系统会自动生成一个uuid
+        - url：webhook地址（POST请求），必填，当条件满足时会调用该url，并挂载数据到body中
+        - active：是否激活，不传的话默认true
+        - when：条件，里面是一个json，具体的格式看/api/v1/webhook/condition接口说明，when其实就是一个condition条件。该字段和condition_id字段必须传一个。
+        - condition_id：条件id，将条件condition配置到webhook上，该字段和when字段必须传一个。
+        - need_node_list：需要的节点值列表，条件触发时会传参给webhook
+        ## 例1：当节点node1值等于123时，发送通知到http://localhost:8080/api/v1/webhook/example
+        ```json
+        {
+        "active": true,
+        "name":"webhook1",
+        "url": "http://localhost:8080/api/v1/webhook/example",
+        "when": {
+        "rule": {
+        "node_name": "node1",
+        "type": "eq",
+        "value": "123"
+        }
+        }
+        }
+        ```
+        使用when字段会创建新的条件condition，并将其配置在这个webhook上
+        ## 例2：使用已经配置好的条件condition
+        ```json
+        {
+        "active": true,
+        "url": "http://localhost:8080/api/v1/webhook/example",
+        "condition_id": 10
+        }
+        ```
+        ## 常见异常
+        - "code": 2007 代表数据重复，不能创建重复的webhook，具体重复了哪个字段，请看ConstraintName最后一个下划线后面的字段名
+        - "code": 400 "json: cannot unmarshal string into Go struct field AddWebhookConfigRequest.condition_id of type int64"  ： 看下body参数，数字类型传成了字符串
+      parameters:
+      - description: Webhook configuration
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/webhookrouters.AddWebhookConfigRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/webhookrouters.AddWebhookConfigResponse'
+      summary: 配置一条新的webhook
+      tags:
+      - Webhook
   /api/v1/webhook/{id}:
     get:
       consumes:
@@ -411,27 +553,6 @@ paths:
           schema:
             $ref: '#/definitions/webhookrouters.GetWebhookConfigByIdResponse'
       summary: 根据id获取webhook配置
-      tags:
-      - Webhook
-  /api/v1/webhook/by-name/{name}:
-    get:
-      consumes:
-      - application/json
-      description: 根据名称获取webhook配置
-      parameters:
-      - description: webhook名称
-        in: path
-        name: name
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/webhookrouters.GetWebhookConfigByNameResponse'
-      summary: 根据名称获取webhook配置
       tags:
       - Webhook
   /api/v1/webhook/condition:
@@ -512,64 +633,147 @@ paths:
       summary: 创建触发条件
       tags:
       - Webhook
-  /api/v1/webhook/config:
-    post:
+  /api/v1/webhook/condition/{id}:
+    delete:
       consumes:
       - application/json
-      description: |-
-        # 配置一条新的webhook
-        ## 说明
-        该接口用于配置一条新的webhook，并通过when字段或condition_id字段配置触发条件，当条件满足时会触发webhook，并将所需要的数据传给webhook url接口。
-        ## 请求参数
-
-        - name：webhook名称，为空时系统会自动生成一个uuid
-        - url：webhook地址（POST请求），必填，当条件满足时会调用该url，并挂载数据到body中
-        - active：是否激活，不传的话默认true
-        - when：条件，里面是一个json，具体的格式看/api/v1/webhook/condition接口说明，when其实就是一个condition条件。该字段和condition_id字段必须传一个。
-        - condition_id：条件id，将条件condition配置到webhook上，该字段和when字段必须传一个。
-        - need_node_list：需要的节点值列表，条件触发时会传参给webhook
-        ## 例1：当节点node1值等于123时，发送通知到http://localhost:8080/api/v1/webhook/example
-        ```json
-        {
-        "active": true,
-        "name":"webhook1",
-        "url": "http://localhost:8080/api/v1/webhook/example",
-        "when": {
-        "rule": {
-        "node_name": "node1",
-        "type": "eq",
-        "value": "123"
-        }
-        }
-        }
-        ```
-        使用when字段会创建新的条件condition，并将其配置在这个webhook上
-        ## 例2：使用已经配置好的条件condition
-        ```json
-        {
-        "active": true,
-        "url": "http://localhost:8080/api/v1/webhook/example",
-        "condition_id": 10
-        }
-        ```
-        ## 常见异常
-        - "code": 2007 代表数据重复，不能创建重复的webhook，具体重复了哪个字段，请看ConstraintName最后一个下划线后面的字段名
-        - "code": 400 "json: cannot unmarshal string into Go struct field AddWebhookConfigRequest.condition_id of type int64"  ： 看下body参数，数字类型传成了字符串
       parameters:
-      - description: Webhook configuration
-        in: body
-        name: body
+      - description: 条件ID
+        in: path
+        name: id
         required: true
-        schema:
-          $ref: '#/definitions/webhookrouters.AddWebhookConfigRequest'
+        type: integer
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/webhookrouters.AddWebhookConfigResponse'
-      summary: 配置一条新的webhook
+            $ref: '#/definitions/webhookrouters.DeleteConditionResponse'
+      summary: 删除触发条件
+      tags:
+      - Webhook
+    put:
+      consumes:
+      - application/json
+      description: |-
+        # 参数说明
+        ## 请求参数
+        | 参数名称 | 类型 | 必填 | 描述 |
+        | --- | --- | --- | --- |
+        | id | int | 是 | 条件ID |
+        | and | list中嵌套本参数 | 否 | 规则列表，逻辑与 |
+        | or | list中嵌套本参数 | 否 | 规则列表，逻辑或 |
+        | rule | Rule | 否 | 规则 |
+        ## Rule类型 定义
+        | 字段 | 类型 | 是否必填 | 描述 |
+        | --- | --- |
+        | node_name | string | 是 | 节点名称 |
+        | type | string | 是 | 规则类型，支持eq ne gt lt all-time in not-in |
+        | value | any | 是 | 比对值 |
+        ## 参数示例1 : 更新条件ID为1的条件，将节点MyVariable大于123改为小于123
+        ```json
+        {
+        "id": 1,
+        "rule": {
+        "node_name": "MyVariable",
+        "type": "lt",
+        "value": 123
+        }
+        }
+        ```
+        ## 参数示例2 : 更新条件ID为2的条件，将节点node1等于在["abc","def"]，并且节点node2等于123改为节点node1等于在["abc","def"]，并且节点node2等于123
+        ```json
+        {
+        "id": 2,
+        "and": [
+        {
+        "rule": {
+        "node_name": "node1",
+        "type": "in",
+        "value": [
+        "abc",
+        "def"
+        ]
+        }
+        },
+        {
+        "rule": {
+        "node_name": "node2",
+        "type": "eq",
+        "value": 123
+        }
+        }
+        ]
+        }
+        ```
+        ## 参数示例3 : 更新条件ID为3的条件，将一直触发改为节点node1等于123
+        ```json
+        {
+        "id": 3,
+        "rule": {
+        "node_name": "node1",
+        "type": "eq",
+        "value": 123
+        }
+        }
+        ```
+        *注意：Condition是嵌套类型，Condition包含and，or，rule，所以and里面可以嵌套and。。。无限嵌套*
+      parameters:
+      - description: 条件ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: 更新条件
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/webhookrouters.UpdateConditionRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/webhookrouters.UpdateConditionResponse'
+      summary: 更新触发条件
+      tags:
+      - Webhook
+  /api/v1/webhook/conditions:
+    get:
+      consumes:
+      - application/json
+      description: |-
+        # 参数说明
+        ## 请求参数
+        | 参数名称 | 类型 | 必填 | 描述 |
+        | --- | --- | --- | --- |
+        | page | int | 是 | 页码 |
+        | page_size | int | 是 | 每页数量 |
+        ## 返回参数
+        | 参数名称 | 类型 | 描述 |
+        | --- | --- | --- |
+        | id | int | 条件ID |
+        | condition | string | 条件表达式 |
+        | created_at | time.Time | 创建时间 |
+        | updated_at | time.Time | 更新时间 |
+      parameters:
+      - description: 获取条件列表
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/webhookrouters.GetAllConditionsByPageRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/webhookrouters.GetAllConditionsByPageResponse'
+      summary: 获取触发条件列表
       tags:
       - Webhook
   /api/v1/webhook/example:

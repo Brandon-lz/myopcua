@@ -11,7 +11,7 @@ import (
 
 func testAddWebhookConfig(t *testing.T) {
     require := require.New(t)
-    url := "http://localhost:8080/api/v1/webhook/config"
+    url := "http://localhost:8080/api/v1/webhook"
 
     body := `
     {
@@ -36,6 +36,7 @@ func testAddWebhookConfig(t *testing.T) {
         "url": "http://localhost:8080/api/v1/webhook/example",
         "when": {
             "rule": {
+				"node_name": "MyVariable",
                 "type": "all-time"
             }
         },
@@ -55,7 +56,7 @@ func testAddWebhookConfig(t *testing.T) {
 
 func testGetWebhookConfigById(t *testing.T) {
     require := require.New(t)
-    res, err := utils.GetRequest("http://localhost:8080/api/v1/webhook/config/1")
+    res, err := utils.GetRequest("http://localhost:8080/api/v1/webhook/1")
     require.NoError(err)
     require.Equal(http.StatusOK, res.StatusCode) // 断言状态码
 }

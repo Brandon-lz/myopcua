@@ -26,5 +26,6 @@
             }
         ],
         "rule": null
-    }
+    },
+    "need_node_list": ["MyVariable", "MyVariable2"]
 }
