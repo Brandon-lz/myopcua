@@ -24,8 +24,8 @@ type Condition struct {
 }
 
 type Rule struct {
-	Type     string      `json:"type" form:"type" binding:"required,oneof=eq ne gt lt all-time in not-in" example:"eq"` // 规则类型 eq, ne, gt, lt, all-time, in, not-in: 相等, 不相等, 大于, 小于, 全时间, 包含, 不包含
-	NodeName string      `json:"node_name" form:"node_name" binding:"required" example:"MyVariable"`                    // 节点名称
+	Type     string      `json:"type" form:"type" validate:"required" binding:"required,oneof=eq ne gt lt all-time in not-in" example:"eq"` // 规则类型 eq, ne, gt, lt, all-time, in, not-in: 相等, 不相等, 大于, 小于, 全时间, 包含, 不包含
+	NodeName *string      `json:"node_name" form:"node_name" example:"MyVariable"`                    // 节点名称
 	Value    interface{} `json:"value" form:"value"`                                                                    // 规则value
 }
 

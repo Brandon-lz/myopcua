@@ -40,15 +40,17 @@ func CheckCondition(condition Condition) bool {
 
 func CheckRule(rule Rule) bool {
 	var result bool = false
-	var val, err = OPCNodeVars.GetValueByName(rule.NodeName)
+	if rule.Type == "all-time" {return true}
+	if rule.NodeName == nil {panic("CheckRule: NodeName is nil")}
+	var val, err = OPCNodeVars.GetValueByName(*rule.NodeName)
 	if err != nil {
 		return false
 	}
 	if val == nil {
-		slog.Warn(fmt.Sprintf("CheckRule: %s, %s, val is nil", rule.Type, rule.NodeName))
+		slog.Warn(fmt.Sprintf("CheckRule: %s, %s, val is nil", rule.Type, *rule.NodeName))
 		return false
 	}
-	slog.Debug(fmt.Sprintf("CheckRule: %s, %s, %v, %v", rule.Type, rule.NodeName, val, rule.Value))
+	slog.Debug(fmt.Sprintf("CheckRule: %s, %s, %v, %v", rule.Type, *rule.NodeName, val, rule.Value))
 
 	switch rule.Type {
 	case "eq":
@@ -66,8 +68,6 @@ func CheckRule(rule Rule) bool {
 			return false
 		}
 		result = !result
-	case "all-time":
-		result = true
 	case "in":
 		for _, v := range rule.Value.([]interface{}) {
 			if val == v {

@@ -2,20 +2,15 @@
     "and": [
         {
             "rule": {
-                "node_name": "MyVariable",
-                "type": "in",
-                "value": [
-                    "abc",
-                    "def",
-                    "123"
-                ]
+                "type": "in"
+              
             }
         },
         {
             "rule": {
-                "node_name": "gongzhuangban",
+                "node_name": "node2",
                 "type": "eq",
-                "value": true
+                "value": 123
             }
         }
     ]

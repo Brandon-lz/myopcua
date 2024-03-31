@@ -442,7 +442,8 @@ func DalGetWebhookConfigByName(name string) *model.WebHook {
 // @Description                 "type": "in",
 // @Description                 "value": [
 // @Description                     "abc",
-// @Description                     "def",
+// @Description                     "def"
+// @Description                 ]
 // @Description             }
 // @Description         },
 // @Description         {
@@ -511,9 +512,7 @@ func ServiceCreateCondition(req *CreateConditionRequest) WebHookConditionRead {
 	{
 		var condition globaldata.Condition
 		utils.DeserializeData(req, &condition)
-		if !globaldata.CheckCondition(condition){
-			panic(core.NewKnownError(http.StatusBadRequest, nil, "condition is invalid, please check the rule type and value"))
-		}
+		globaldata.CheckCondition(condition)
 	}
 	// to db
 	var condition = DalCreateCondition(req)
