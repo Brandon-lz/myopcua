@@ -202,6 +202,16 @@ definitions:
         type: string
     type: object
   webhookrouters.GetAllConditionsByPageData:
+    properties:
+      conditions:
+        items:
+          $ref: '#/definitions/webhookrouters.WebHookConditionRead'
+        type: array
+      total:
+        type: integer
+    required:
+    - conditions
+    - total
     type: object
   webhookrouters.GetAllConditionsByPageResponse:
     properties:
@@ -213,8 +223,6 @@ definitions:
       message:
         example: Condition get successfully
         type: string
-      total:
-        type: integer
     type: object
   webhookrouters.GetWebhookConfigByIdResponse:
     properties:
@@ -751,10 +759,12 @@ paths:
         | updated_at | time.Time | 更新时间 |
       parameters:
       - in: query
+        minimum: 0
         name: page
         required: true
         type: integer
       - in: query
+        minimum: 0
         name: page_size
         required: true
         type: integer

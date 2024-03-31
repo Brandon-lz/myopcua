@@ -364,12 +364,14 @@ const docTemplate = `{
                 "summary": "获取触发条件列表",
                 "parameters": [
                     {
+                        "minimum": 0,
                         "type": "integer",
                         "name": "page",
                         "in": "query",
                         "required": true
                     },
                     {
+                        "minimum": 0,
                         "type": "integer",
                         "name": "page_size",
                         "in": "query",
@@ -767,7 +769,22 @@ const docTemplate = `{
             }
         },
         "webhookrouters.GetAllConditionsByPageData": {
-            "type": "object"
+            "type": "object",
+            "required": [
+                "conditions",
+                "total"
+            ],
+            "properties": {
+                "conditions": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/webhookrouters.WebHookConditionRead"
+                    }
+                },
+                "total": {
+                    "type": "integer"
+                }
+            }
         },
         "webhookrouters.GetAllConditionsByPageResponse": {
             "type": "object",
@@ -782,9 +799,6 @@ const docTemplate = `{
                 "message": {
                     "type": "string",
                     "example": "Condition get successfully"
-                },
-                "total": {
-                    "type": "integer"
                 }
             }
         },

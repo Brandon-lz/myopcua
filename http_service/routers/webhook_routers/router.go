@@ -613,8 +613,8 @@ func GetAllConditionsByPage(c *gin.Context) {
 	}
 
 	var outData GetAllConditionsByPageData
-	outData.total = total
-	outData.conditions = webhookData
+	outData.Total = total
+	outData.Conditions = webhookData
 	core.ValidateSchema(outData)
 
 	core.SuccessHandler(c, GetAllConditionsByPageResponse{
@@ -632,13 +632,12 @@ type GetAllConditionsByPageRequest struct {
 type GetAllConditionsByPageResponse struct {
 	Code    int                        `json:"code" example:"200"`
 	Data    GetAllConditionsByPageData `json:"data" `
-	Total   int                        `json:"total" `
 	Message string                     `json:"message" example:"Condition get successfully"`
 }
 
 type GetAllConditionsByPageData struct {
-	conditions []WebHookConditionRead `json:"conditions" form:"conditions" validate:"required"`
-	total      int64                  `json:"total" form:"total" validate:"required"`
+	Conditions []WebHookConditionRead `json:"conditions" form:"conditions" validate:"required"`
+	Total      int64                  `json:"total" form:"total" validate:"required"`
 }
 
 func ServiceGetAllConditionsByPage(req GetAllConditionsByPageRequest) ([]WebHookConditionRead, int64) {
