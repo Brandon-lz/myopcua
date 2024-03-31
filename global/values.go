@@ -26,7 +26,7 @@ func InitSystemVars() {
 		}
 
 	} else {
-		if err := utils.Load("systemvars.obj", &OPCNodeVars); err != nil {
+		if err := utils.LoadObj("systemvars.obj", &OPCNodeVars); err != nil {
 			log.Fatalf("load systemvars failed:%v\n", err)
 		}
 	}

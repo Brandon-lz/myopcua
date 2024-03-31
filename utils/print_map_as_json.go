@@ -10,6 +10,6 @@ func PrintDataAsJson(m interface{}) string {
 	if err != nil {
 		panic(fmt.Sprintf("PrintDataAsJson Error:%+v", err))
 	}
-	fmt.Println(string(d))
+	// fmt.Println(string(d))
 	return string(d)
 }

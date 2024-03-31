@@ -2,6 +2,7 @@ package test
 
 import (
 	"log/slog"
+	"os"
 	"testing"
 	"time"
 
@@ -20,6 +21,8 @@ var db *gorm.DB
 
 func TestMain(t *testing.T) {
 	assert := assert.New(t)
+	assert.NoError(os.Remove("./systemvars.obj"))
+
 	cleanDb(assert)
 	migrateModel()
 

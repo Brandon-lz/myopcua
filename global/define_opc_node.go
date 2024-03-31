@@ -15,12 +15,12 @@ type OpcNode struct {
 }
 
 type OPCNodeVarsDFT struct {
-	CurrentNodes         map[int64]*OpcNode  // 0 node1, 1 node2, 2 node3...
-	CurrentValues        map[int64]interface{}  // 0 value1, 1 value2, 2 value3...
-	NodeNameSets         map[string]struct{} // set of node names
-	NodeIdSets           map[string]struct{} // set of node ids  golang中没有集合  nodeid unique
-	NodeIdList           []string            // list of node ids
-	NodeNameIndex        map[string]int64    // node name to index in CurrentValues   node name 索引
+	CurrentNodes  map[int64]*OpcNode    // 0 node1, 1 node2, 2 node3...
+	CurrentValues map[int64]interface{} // 0 value1, 1 value2, 2 value3...
+	NodeNameSets  map[string]struct{}   // set of node names
+	NodeIdSets    map[string]struct{}   // set of node ids  golang中没有集合  nodeid unique
+	NodeIdList    []string              // list of node ids
+	NodeNameIndex map[string]int64      // node name to index in CurrentValues   node name 索引
 }
 
 func NewGlobalOPCNodeVars() *OPCNodeVarsDFT {
@@ -35,7 +35,7 @@ func NewGlobalOPCNodeVars() *OPCNodeVarsDFT {
 }
 
 func (s *OPCNodeVarsDFT) Save() error {
-	return utils.Dump(s, "systemvars.obj")
+	return utils.DumpObj2Local(s, "systemvars.obj")
 }
 
 func (s *OPCNodeVarsDFT) len() int {
@@ -53,7 +53,7 @@ func (s *OPCNodeVarsDFT) AddNode(node *OpcNode) error {
 		s.NodeNameSets[node.Name] = struct{}{}
 		s.NodeIdSets[node.NodeID] = struct{}{}
 		s.NodeNameIndex[node.Name] = int64(len(s.NodeIdList))
-		s.NodeIdList = append(s.NodeIdList, node.NodeID)   // must be last add in
+		s.NodeIdList = append(s.NodeIdList, node.NodeID) // must be last add in
 		return nil
 	}
 
@@ -85,7 +85,6 @@ func (s *OPCNodeVarsDFT) GetValueByName(name string) (interface{}, error) {
 	return s.CurrentValues[index], nil
 }
 
-
 func (s *OPCNodeVarsDFT) DeleteNode(id int64) error {
 	OpcWriteLock.Lock()
 	defer OpcWriteLock.Unlock()
@@ -102,7 +101,7 @@ func (s *OPCNodeVarsDFT) DeleteNode(id int64) error {
 		s.CurrentNodes[i] = s.CurrentNodes[i+1]
 	}
 	delete(s.CurrentNodes, int64(s.len()-1))
-	for i:=id; i < int64(s.len()); i++ {
+	for i := id; i < int64(s.len()); i++ {
 		s.CurrentValues[i] = s.CurrentValues[i+1]
 	}
 	delete(s.CurrentValues, int64(s.len()-1))
