@@ -513,7 +513,7 @@ func ServiceCreateCondition(req *CreateConditionRequest) WebHookConditionRead {
 		utils.DeserializeData(req, &condition)
 		if !globaldata.CheckCondition(condition){
 			panic(core.NewKnownError(http.StatusBadRequest, nil, "condition is invalid, please check the rule type and value"))
-		}	
+		}
 	}
 	// to db
 	var condition = DalCreateCondition(req)
