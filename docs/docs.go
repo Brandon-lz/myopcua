@@ -160,7 +160,7 @@ const docTemplate = `{
                         "BearerAuth": []
                     }
                 ],
-                "description": "WriteNodeValue 路由",
+                "description": "WriteNodeValue 路由\n参数定义\n## 请求参数\n| 参数名称 | 类型 | 必填 | 描述 |\n| --- | --- | --- | --- |\n| data | list | 是 | 见下方JSON |\n## data类型 定义\n| 字段 | 类型 | 是否必填 | 描述 |\n| --- | --- | --- | --- |\n| NodeId | string | 是 | 节点ID |\n| Value | any | 是 | 写入值 |\n## 参数示例\n` + "`" + `` + "`" + `` + "`" + `json\n{\n\"data\": [\n{\n\"NodeId\": \"ns=2;s=MyVariable\",\n\"Value\": 123\n},\n{\n\"NodeId\": \"ns=2;s=MyVariable2\",\n\"Value\": \"abc\"\n}\n]\n}\n` + "`" + `` + "`" + `` + "`" + `\n## 返回值定义\n| 字段 | 类型 | 描述 |\n| --- | --- | --- |\n| Code | int | 状态码 |\n| Message | string | 状态信息 |\n## 返回值示例\n` + "`" + `` + "`" + `` + "`" + `json\n{\n\"Code\": 200,\n\"Message\": \"节点值写入完成\"\n}\n` + "`" + `` + "`" + `` + "`" + `",
                 "consumes": [
                     "application/json"
                 ],

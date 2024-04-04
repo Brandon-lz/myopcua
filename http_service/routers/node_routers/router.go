@@ -173,9 +173,47 @@ func ServiceDeleteNode(nodeID int64) {
 	globaldata.OPCNodeVars.Save()
 }
 
+
 // WriteNodeValue 路由 -------------------------------------------------------
 // @Summary  WriteNodeValue 路由
 // @Description  WriteNodeValue 路由
+// @Description  参数定义
+// @Description  ## 请求参数
+// @Description  | 参数名称 | 类型 | 必填 | 描述 |
+// @Description  | --- | --- | --- | --- |
+// @Description  | data | list | 是 | 见下方JSON |
+// @Description  ## data类型 定义
+// @Description  | 字段 | 类型 | 是否必填 | 描述 |
+// @Description  | --- | --- | --- | --- |
+// @Description  | NodeId | string | 是 | 节点ID |
+// @Description  | Value | any | 是 | 写入值 |
+// @Description  ## 参数示例
+// @Description  ```json
+// @Description  {
+// @Description  "data": [
+// @Description  {
+// @Description  "NodeId": "ns=2;s=MyVariable",
+// @Description  "Value": 123
+// @Description  },
+// @Description  {
+// @Description  "NodeId": "ns=2;s=MyVariable2",
+// @Description  "Value": "abc"
+// @Description  }
+// @Description  ]
+// @Description  }
+// @Description  ```
+// @Description  ## 返回值定义
+// @Description  | 字段 | 类型 | 描述 |
+// @Description  | --- | --- | --- |
+// @Description  | Code | int | 状态码 |
+// @Description  | Message | string | 状态信息 |
+// @Description  ## 返回值示例
+// @Description  ```json
+// @Description  {
+// @Description  "Code": 200,
+// @Description  "Message": "节点值写入完成"
+// @Description  }
+// @Description  ```
 // @Tags     opc-nodes
 // @Security BearerAuth
 // @Accept   json
@@ -209,12 +247,6 @@ func WriteNodeValue(c *gin.Context) {
 type WriteNodeValueRequest struct {
 	Data []globaldata.NodeIdWithValueInput `json:"data" form:"data" binding:"required"`
 }
-
-// type NodeIdWithValueInput struct {
-// 	NodeID   string  `json:"node_id" form:"node_id" binding:"required" example:"ns=2;i=2"`
-// 	Value    interface{}  `json:"value" form:"value" binding:"required"`
-// 	DataType string `json:"data_type" form:"data_type" example:"Int"`
-// }
 
 type WriteNodeValueResponse struct {
 	Code int `json:"code" example:"200"`

@@ -474,7 +474,45 @@ paths:
     put:
       consumes:
       - application/json
-      description: WriteNodeValue 路由
+      description: |-
+        WriteNodeValue 路由
+        参数定义
+        ## 请求参数
+        | 参数名称 | 类型 | 必填 | 描述 |
+        | --- | --- | --- | --- |
+        | data | list | 是 | 见下方JSON |
+        ## data类型 定义
+        | 字段 | 类型 | 是否必填 | 描述 |
+        | --- | --- | --- | --- |
+        | NodeId | string | 是 | 节点ID |
+        | Value | any | 是 | 写入值 |
+        ## 参数示例
+        ```json
+        {
+        "data": [
+        {
+        "NodeId": "ns=2;s=MyVariable",
+        "Value": 123
+        },
+        {
+        "NodeId": "ns=2;s=MyVariable2",
+        "Value": "abc"
+        }
+        ]
+        }
+        ```
+        ## 返回值定义
+        | 字段 | 类型 | 描述 |
+        | --- | --- | --- |
+        | Code | int | 状态码 |
+        | Message | string | 状态信息 |
+        ## 返回值示例
+        ```json
+        {
+        "Code": 200,
+        "Message": "节点值写入完成"
+        }
+        ```
       parameters:
       - description: 见下方JSON
         in: body
