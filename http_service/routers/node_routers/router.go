@@ -19,7 +19,7 @@ func RegisterRoutes(router *gin.RouterGroup) {
 }
 
 // AddNodeToRead 路由 -------------------------------------------------------
-// @Summary  AddNodeToRead 路由
+// @Summary  AddNodeToRead 路由 步骤**1**
 // @Description  AddNodeToRead 路由
 // @Tags     opc-nodes
 // @Security BearerAuth

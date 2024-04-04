@@ -63,6 +63,7 @@ func TestOpc() (err error) {
 				os.Exit(0)
 			}
 			readOpcData(c)
+			go checkWebhook()
 		}
 	}()
 	select {}
@@ -88,7 +89,6 @@ func readOpcData(c *opcua.Client) {
 		globaldata.OPCNodeVars.CurrentValues[int64(i)] = data
 		globaldata.OPCNodeVars.CurrentNodes[int64(i)].Value = data
 	}
-	go checkWebhook()
 
 }
 

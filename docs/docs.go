@@ -57,7 +57,7 @@ const docTemplate = `{
                 "tags": [
                     "opc-nodes"
                 ],
-                "summary": "AddNodeToRead 路由",
+                "summary": "AddNodeToRead 路由 步骤**1**",
                 "parameters": [
                     {
                         "description": "见下方JSON",
@@ -213,7 +213,7 @@ const docTemplate = `{
                 }
             },
             "post": {
-                "description": "# 配置一条新的webhook\n## 说明\n该接口用于配置一条新的webhook，并通过when字段或condition_id字段配置触发条件，当条件满足时会触发webhook，并将所需要的数据传给webhook url接口。\n## 请求参数\n\n- name：webhook名称，为空时系统会自动生成一个uuid\n- url：webhook地址（POST请求），必填，当条件满足时会调用该url，并挂载数据到body中\n- active：是否激活，不传的话默认true\n- when：条件，里面是一个json，具体的格式看/api/v1/webhook/condition接口说明，when其实就是一个condition条件。该字段和condition_id字段必须传一个。\n- condition_id：条件id，将条件condition配置到webhook上，该字段和when字段必须传一个。\n- need_node_list：需要的节点值列表，条件触发时会传参给webhook\n## 例1：当节点node1值等于123时，发送通知到http://localhost:8080/api/v1/webhook/example\n` + "`" + `` + "`" + `` + "`" + `json\n{\n\"active\": true,\n\"name\":\"webhook1\",\n\"url\": \"http://localhost:8080/api/v1/webhook/example\",\n\"when\": {\n\"rule\": {\n\"node_name\": \"node1\",\n\"type\": \"eq\",\n\"value\": \"123\"\n}\n}\n}\n` + "`" + `` + "`" + `` + "`" + `\n使用when字段会创建新的条件condition，并将其配置在这个webhook上\n## 例2：使用已经配置好的条件condition\n` + "`" + `` + "`" + `` + "`" + `json\n{\n\"active\": true,\n\"url\": \"http://localhost:8080/api/v1/webhook/example\",\n\"condition_id\": 10\n}\n` + "`" + `` + "`" + `` + "`" + `\n## 常见异常\n- \"code\": 2007 代表数据重复，不能创建重复的webhook，具体重复了哪个字段，请看ConstraintName最后一个下划线后面的字段名\n- \"code\": 400 \"json: cannot unmarshal string into Go struct field AddWebhookConfigRequest.condition_id of type int64\"  ： 看下body参数，数字类型传成了字符串",
+                "description": "# 配置一条新的webhook\n## 说明\n该接口用于配置一条新的webhook，并通过when字段或condition_id字段配置触发条件，当条件满足时会触发webhook，并将所需要的数据传给webhook url接口。\n## 请求参数\n\n- name：webhook名称，为空时系统会自动生成一个uuid\n- url：webhook地址（POST请求），必填，当条件满足时会调用该url，并挂载数据到body中\n- active：是否激活，不传的话默认true\n- when：条件，里面是一个json，具体的格式看/api/v1/webhook/condition接口说明，when其实就是一个condition条件。该字段和condition_id字段必须传一个。\n- condition_id：条件id，将条件condition配置到webhook上，该字段和when字段必须传一个。\n- need_node_list：需要的节点值列表，条件触发时会传参给webhook\n## 例1：当节点node1值等于123时，发送通知到http://localhost:8080/api/v1/webhook/example\n` + "`" + `` + "`" + `` + "`" + `json\n{\n\"active\": true,\n\"name\":\"webhook1\",\n\"url\": \"http://localhost:8080/api/v1/webhook/example\",\n\"when\": {\n\"rule\": {\n\"node_name\": \"node1\",\n\"type\": \"eq\",\n\"value\": 123\n}\n}\n}\n` + "`" + `` + "`" + `` + "`" + `\n使用when字段会创建新的条件condition，并将其配置在这个webhook上\n## 例2：使用已经配置好的条件condition\n` + "`" + `` + "`" + `` + "`" + `json\n{\n\"active\": true,\n\"url\": \"http://localhost:8080/api/v1/webhook/example\",\n\"condition_id\": 10\n}\n` + "`" + `` + "`" + `` + "`" + `\n## 常见异常\n- \"code\": 2007 代表数据重复，不能创建重复的webhook，具体重复了哪个字段，请看ConstraintName最后一个下划线后面的字段名\n- \"code\": 400 \"json: cannot unmarshal string into Go struct field AddWebhookConfigRequest.condition_id of type int64\"  ： 看下body参数，数字类型传成了字符串",
                 "consumes": [
                     "application/json"
                 ],
@@ -223,7 +223,7 @@ const docTemplate = `{
                 "tags": [
                     "Webhook"
                 ],
-                "summary": "配置一条新的webhook",
+                "summary": "配置一条新的webhook  步骤**2**",
                 "parameters": [
                     {
                         "description": "Webhook configuration",
@@ -247,7 +247,7 @@ const docTemplate = `{
         },
         "/api/v1/webhook/condition": {
             "post": {
-                "description": "# 参数说明\n## 请求参数\n| 参数名称 | 类型 | 必填 | 描述 |\n| --- | --- | --- | --- |\n| and | list中嵌套本参数 | 否 | 规则列表，逻辑与 |\n| or | list中嵌套本参数 | 否 | 规则列表，逻辑或 |\n| rule | Rule | 否 | 规则 |\n## Rule类型 定义\n| 字段 | 类型 | 是否必填 | 描述 |\n| --- | --- | --- | --- |\n| node_name | string | 是 | 节点名称 |\n| type | string | 是 | 规则类型，支持eq ne gt lt all-time in not-in |\n| value | any | 是 | 比对值 |\n## 参数示例1 : 当节点MyVariable大于123时触发\n` + "`" + `` + "`" + `` + "`" + `json\n{\n\"rule\": {\n\"node_name\": \"MyVariable\",\n\"type\": \"gt\",\n\"value\": 123\n}\n}\n` + "`" + `` + "`" + `` + "`" + `\n## 参数示例2 : 当节点node1等于在[\"abc\",\"def\"]，并且节点node2等于123时触发\n` + "`" + `` + "`" + `` + "`" + `json\n{\n\"and\": [\n{\n\"rule\": {\n\"node_name\": \"node1\",\n\"type\": \"in\",\n\"value\": [\n\"abc\",\n\"def\"\n]\n}\n},\n{\n\"rule\": {\n\"node_name\": \"node2\",\n\"type\": \"eq\",\n\"value\": 123\n}\n}\n]\n}\n` + "`" + `` + "`" + `` + "`" + `\n## 参数示例3 : 一直触发\n` + "`" + `` + "`" + `` + "`" + `json\n{\n\"rule\": {\n\"type\": \"all-time\"\n}\n}\n` + "`" + `` + "`" + `` + "`" + `\n*注意：Condition是嵌套类型，Condition包含and，or，rule，所以and里面可以嵌套and。。。无限嵌套*",
+                "description": "# 参数说明\n## 请求参数\n| 参数名称 | 类型 | 必填 | 描述 |\n| --- | --- | --- | --- |\n| and | list中嵌套本参数 | 否 | 规则列表，逻辑与 |\n| or | list中嵌套本参数 | 否 | 规则列表，逻辑或 |\n| rule | Rule | 否 | 规则 |\n## Rule类型 定义\n| 字段 | 类型 | 必填 | 描述 |\n| --- | --- | --- | --- |\n| node_name | string | 是 | 节点名称 |\n| type | string | 是 | 规则类型，支持eq ne gt lt all-time in not-in |\n| value | any | 是 | 比对值 |\n## 参数示例1 : 当节点MyVariable大于123时触发\n` + "`" + `` + "`" + `` + "`" + `json\n{\n\"rule\": {\n\"node_name\": \"MyVariable\",\n\"type\": \"gt\",\n\"value\": 123\n}\n}\n` + "`" + `` + "`" + `` + "`" + `\n## 参数示例2 : 当节点node1等于在[\"abc\",\"def\"]，并且节点node2等于123时触发\n` + "`" + `` + "`" + `` + "`" + `json\n{\n\"and\": [\n{\n\"rule\": {\n\"node_name\": \"node1\",\n\"type\": \"in\",\n\"value\": [\n\"abc\",\n\"def\"\n]\n}\n},\n{\n\"rule\": {\n\"node_name\": \"node2\",\n\"type\": \"eq\",\n\"value\": 123\n}\n}\n]\n}\n` + "`" + `` + "`" + `` + "`" + `\n## 参数示例3 : 一直触发\n` + "`" + `` + "`" + `` + "`" + `json\n{\n\"rule\": {\n\"type\": \"all-time\"\n}\n}\n` + "`" + `` + "`" + `` + "`" + `\n*注意：Condition是嵌套类型，Condition包含and，or，rule，所以and里面可以嵌套and。。。无限嵌套*",
                 "consumes": [
                     "application/json"
                 ],
@@ -281,7 +281,7 @@ const docTemplate = `{
         },
         "/api/v1/webhook/condition/{id}": {
             "put": {
-                "description": "# 参数说明\n## 请求参数\n| 参数名称 | 类型 | 必填 | 描述 |\n| --- | --- | --- | --- |\n| id | int | 是 | 条件ID |\n| and | list中嵌套本参数 | 否 | 规则列表，逻辑与 |\n| or | list中嵌套本参数 | 否 | 规则列表，逻辑或 |\n| rule | Rule | 否 | 规则 |\n## Rule类型 定义\n| 字段 | 类型 | 是否必填 | 描述 |\n| --- | --- |\n| node_name | string | 是 | 节点名称 |\n| type | string | 是 | 规则类型，支持eq ne gt lt all-time in not-in |\n| value | any | 是 | 比对值 |\n## 参数示例1 : 更新条件ID为1的条件，将节点MyVariable大于123改为小于123\n` + "`" + `` + "`" + `` + "`" + `json\n{\n\"id\": 1,\n\"rule\": {\n\"node_name\": \"MyVariable\",\n\"type\": \"lt\",\n\"value\": 123\n}\n}\n` + "`" + `` + "`" + `` + "`" + `\n## 参数示例2 : 更新条件ID为2的条件，将节点node1等于在[\"abc\",\"def\"]，并且节点node2等于123改为节点node1等于在[\"abc\",\"def\"]，并且节点node2等于123\n` + "`" + `` + "`" + `` + "`" + `json\n{\n\"id\": 2,\n\"and\": [\n{\n\"rule\": {\n\"node_name\": \"node1\",\n\"type\": \"in\",\n\"value\": [\n\"abc\",\n\"def\"\n]\n}\n},\n{\n\"rule\": {\n\"node_name\": \"node2\",\n\"type\": \"eq\",\n\"value\": 123\n}\n}\n]\n}\n` + "`" + `` + "`" + `` + "`" + `\n## 参数示例3 : 更新条件ID为3的条件，将一直触发改为节点node1等于123\n` + "`" + `` + "`" + `` + "`" + `json\n{\n\"id\": 3,\n\"rule\": {\n\"node_name\": \"node1\",\n\"type\": \"eq\",\n\"value\": 123\n}\n}\n` + "`" + `` + "`" + `` + "`" + `\n*注意：Condition是嵌套类型，Condition包含and，or，rule，所以and里面可以嵌套and。。。无限嵌套*",
+                "description": "# 参数说明\n## 请求参数\n| 参数名称 | 类型 | 必填 | 描述 |\n| --- | --- | --- | --- |\n| id | int | 是 | 条件ID |\n| and | list中嵌套本参数 | 否 | 规则列表，逻辑与 |\n| or | list中嵌套本参数 | 否 | 规则列表，逻辑或 |\n| rule | Rule | 否 | 规则 |\n## Rule类型 定义\n| 字段 | 类型 | 是否必填 | 描述 |\n| --- | --- | --- | --- |\n| node_name | string | 是 | 节点名称 |\n| type | string | 是 | 规则类型，支持eq ne gt lt all-time in not-in |\n| value | any | 是 | 比对值 |\n## 参数示例1 : 更新条件ID为1的条件，将节点MyVariable大于123改为小于123\n` + "`" + `` + "`" + `` + "`" + `json\n{\n\"id\": 1,\n\"rule\": {\n\"node_name\": \"MyVariable\",\n\"type\": \"lt\",\n\"value\": 123\n}\n}\n` + "`" + `` + "`" + `` + "`" + `\n## 参数示例2 : 更新条件ID为2的条件，将节点node1等于在[\"abc\",\"def\"]，并且节点node2等于123改为节点node1等于在[\"abc\",\"def\"]，并且节点node2等于123\n` + "`" + `` + "`" + `` + "`" + `json\n{\n\"id\": 2,\n\"and\": [\n{\n\"rule\": {\n\"node_name\": \"node1\",\n\"type\": \"in\",\n\"value\": [\n\"abc\",\n\"def\"\n]\n}\n},\n{\n\"rule\": {\n\"node_name\": \"node2\",\n\"type\": \"eq\",\n\"value\": 123\n}\n}\n]\n}\n` + "`" + `` + "`" + `` + "`" + `\n## 参数示例3 : 更新条件ID为3的条件，将一直触发改为节点node1等于123\n` + "`" + `` + "`" + `` + "`" + `json\n{\n\"id\": 3,\n\"rule\": {\n\"node_name\": \"node1\",\n\"type\": \"eq\",\n\"value\": 123\n}\n}\n` + "`" + `` + "`" + `` + "`" + `\n*注意：Condition是嵌套类型，Condition包含and，or，rule，所以and里面可以嵌套and。。。无限嵌套*",
                 "consumes": [
                     "application/json"
                 ],
@@ -398,9 +398,9 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "Webhook"
+                    "Webhook Example"
                 ],
-                "summary": "webhook示例",
+                "summary": "webhook示例  要像这个接口一样去定义参数，带两个字段，一个是values，一个是timestamp。注意，必须是post请求。",
                 "parameters": [
                     {
                         "description": "Webhook example",
@@ -947,9 +947,14 @@ const docTemplate = `{
         "webhookrouters.WebHookExampleRequest": {
             "type": "object",
             "required": [
+                "timestamp",
                 "values"
             ],
             "properties": {
+                "timestamp": {
+                    "description": "时间戳 int64类型",
+                    "type": "integer"
+                },
                 "values": {
                     "description": "节点值 any类型",
                     "type": "object",

@@ -53,6 +53,7 @@ func (wc *WebHookConfig) SendMsg() {
 	utils.PostRequest(wc.Url,
 		utils.PrintDataAsJson(map[string]interface{}{
 			"values":    values,
+			"timestamp": OPCNodeVars.TimeStamp.UnixMilli(),
 		}),
 	)
 	slog.Info(fmt.Sprintf("send msg to webhook url success: %s values: %v", wc.Url,values))

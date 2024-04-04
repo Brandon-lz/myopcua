@@ -323,11 +323,15 @@ definitions:
     type: object
   webhookrouters.WebHookExampleRequest:
     properties:
+      timestamp:
+        description: 时间戳 int64类型
+        type: integer
       values:
         additionalProperties: true
         description: 节点值 any类型
         type: object
     required:
+    - timestamp
     - values
     type: object
   webhookrouters.WebHookExampleResponse:
@@ -386,7 +390,7 @@ paths:
             $ref: '#/definitions/noderouters.AddNodeToReadResponse'
       security:
       - BearerAuth: []
-      summary: AddNodeToRead 路由
+      summary: AddNodeToRead 路由 步骤**1**
       tags:
       - opc-nodes
   /api/v1/opc-node/delete-node/{id}:
@@ -498,7 +502,7 @@ paths:
         "rule": {
         "node_name": "node1",
         "type": "eq",
-        "value": "123"
+        "value": 123
         }
         }
         }
@@ -529,7 +533,7 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/webhookrouters.AddWebhookConfigResponse'
-      summary: 配置一条新的webhook
+      summary: 配置一条新的webhook  步骤**2**
       tags:
       - Webhook
   /api/v1/webhook/{id}:
@@ -566,7 +570,7 @@ paths:
         | or | list中嵌套本参数 | 否 | 规则列表，逻辑或 |
         | rule | Rule | 否 | 规则 |
         ## Rule类型 定义
-        | 字段 | 类型 | 是否必填 | 描述 |
+        | 字段 | 类型 | 必填 | 描述 |
         | --- | --- | --- | --- |
         | node_name | string | 是 | 节点名称 |
         | type | string | 是 | 规则类型，支持eq ne gt lt all-time in not-in |
@@ -665,7 +669,7 @@ paths:
         | rule | Rule | 否 | 规则 |
         ## Rule类型 定义
         | 字段 | 类型 | 是否必填 | 描述 |
-        | --- | --- |
+        | --- | --- | --- | --- |
         | node_name | string | 是 | 节点名称 |
         | type | string | 是 | 规则类型，支持eq ne gt lt all-time in not-in |
         | value | any | 是 | 比对值 |
@@ -797,9 +801,9 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/webhookrouters.WebHookExampleResponse'
-      summary: webhook示例
+      summary: webhook示例  要像这个接口一样去定义参数，带两个字段，一个是values，一个是timestamp。注意，必须是post请求。
       tags:
-      - Webhook
+      - Webhook Example
   /health:
     get:
       consumes:

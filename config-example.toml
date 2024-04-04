@@ -1,0 +1,8 @@
+# 修改为自己的配置，重命名config-example.toml文件名为config.toml，并将其放到可执行文件同级目录，然后启动可执行文件即可。
+
+[opcua]
+endpoint = "opc.tcp://192.168.1.10:4840"             # OPC-UA 服务器地址
+interval = 500      # 读取间隔，单位 milliseconds
+
+[openapi]
+port = 8080       # 打开  http://localhost:8080/docs/index.html#/ 访问 API 文档

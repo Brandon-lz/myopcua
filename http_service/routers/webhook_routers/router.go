@@ -35,9 +35,9 @@ func RegisterRoutes(router *gin.RouterGroup) {
 }
 
 // WebHookExample router ---------------------------------------
-// @Summary webhook示例
+// @Summary webhook示例  要像这个接口一样去定义参数，带两个字段，一个是values，一个是timestamp。注意，必须是post请求。
 // @Description webhook示例
-// @Tags Webhook
+// @Tags Webhook Example
 // @Accept  json
 // @Produce  json
 // @Param body body WebHookExampleRequest true "Webhook example"
@@ -60,7 +60,8 @@ func WebHookExample(c *gin.Context) {
 }
 
 type WebHookExampleRequest struct {
-	Values map[string]interface{} `json:"values" form:"values" binding:"required"` // 节点值 any类型
+	Values    map[string]interface{} `json:"values" form:"values" binding:"required"`       // 节点值 any类型
+	TimeStamp int64                  `json:"timestamp" form:"timestamp" binding:"required"` // 时间戳 int64类型
 }
 
 type WebHookExampleResponse struct {
@@ -70,7 +71,7 @@ type WebHookExampleResponse struct {
 }
 
 // AddWebhookConfig router -------------------------------------
-// @Summary 配置一条新的webhook
+// @Summary 配置一条新的webhook  步骤**2**
 // @Description # 配置一条新的webhook
 // @Description ## 说明
 // @Description 该接口用于配置一条新的webhook，并通过when字段或condition_id字段配置触发条件，当条件满足时会触发webhook，并将所需要的数据传给webhook url接口。
@@ -92,7 +93,7 @@ type WebHookExampleResponse struct {
 // @Description         "rule": {
 // @Description 	 		"node_name": "node1",
 // @Description              "type": "eq",
-// @Description              "value": "123"
+// @Description              "value": 123
 // @Description          }
 // @Description      }
 // @Description }
@@ -444,7 +445,7 @@ func DalGetWebhookConfigByName(name string) *model.WebHook {
 // @Description | or | list中嵌套本参数 | 否 | 规则列表，逻辑或 |
 // @Description | rule | Rule | 否 | 规则 |
 // @Description ## Rule类型 定义
-// @Description | 字段 | 类型 | 是否必填 | 描述 |
+// @Description | 字段 | 类型 | 必填 | 描述 |
 // @Description | --- | --- | --- | --- |
 // @Description | node_name | string | 是 | 节点名称 |
 // @Description | type | string | 是 | 规则类型，支持eq ne gt lt all-time in not-in |
@@ -600,7 +601,7 @@ func DalCreateCondition(req *CreateConditionRequest) *model.WebHookCondition {
 func GetAllConditionsByPage(c *gin.Context) {
 	// 入参校验
 	var req GetAllConditionsByPageRequest
-	
+
 	core.BindParamAndValidate(c, &req)
 
 	// 逻辑处理
@@ -734,7 +735,7 @@ func DalGetConditionById(id int64) *model.WebHookCondition {
 // @Description | rule | Rule | 否 | 规则 |
 // @Description ## Rule类型 定义
 // @Description | 字段 | 类型 | 是否必填 | 描述 |
-// @Description | --- | --- |
+// @Description | --- | --- | --- | --- |
 // @Description | node_name | string | 是 | 节点名称 |
 // @Description | type | string | 是 | 规则类型，支持eq ne gt lt all-time in not-in |
 // @Description | value | any | 是 | 比对值 |
