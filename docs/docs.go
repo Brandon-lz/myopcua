@@ -552,10 +552,6 @@ const docTemplate = `{
                 "value"
             ],
             "properties": {
-                "data_type": {
-                    "type": "string",
-                    "example": "Int"
-                },
                 "node_id": {
                     "type": "string",
                     "example": "ns=2;i=2"
@@ -724,7 +720,7 @@ const docTemplate = `{
                 "message": {
                     "description": "Data    []globaldata.NodeWriteResultOutput ` + "`" + `json:\"data\"` + "`" + `",
                     "type": "string",
-                    "example": "节点值写入成功"
+                    "example": "节点值写入完成"
                 }
             }
         },

@@ -201,7 +201,7 @@ func WriteNodeValue(c *gin.Context) {
 	}
 	core.SuccessHandler(c, WriteNodeValueResponse{
 		Code:    200,
-		Message: "节点值写入成功",
+		Message: "节点值写入完成",
 	})
 
 }
@@ -219,5 +219,5 @@ type WriteNodeValueRequest struct {
 type WriteNodeValueResponse struct {
 	Code int `json:"code" example:"200"`
 	// Data    []globaldata.NodeWriteResultOutput `json:"data"`
-	Message string `json:"message" example:"节点值写入成功"`
+	Message string `json:"message" example:"节点值写入完成"`
 }

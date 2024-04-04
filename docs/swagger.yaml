@@ -19,9 +19,6 @@ definitions:
     type: object
   globaldata.NodeIdWithValueInput:
     properties:
-      data_type:
-        example: Int
-        type: string
       node_id:
         example: ns=2;i=2
         type: string
@@ -145,7 +142,7 @@ definitions:
         type: integer
       message:
         description: Data    []globaldata.NodeWriteResultOutput `json:"data"`
-        example: 节点值写入成功
+        example: 节点值写入完成
         type: string
     type: object
   routers.ApiResponse:
