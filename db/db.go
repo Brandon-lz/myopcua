@@ -11,7 +11,8 @@ var DB *gorm.DB
 
 func InitDB() {
 	var err error
-	DB, err = GetSqliteDB()
+	// DB, err = GetSqliteDB()
+	DB, err = GetPGDB()
 	if err != nil {
 		panic("failed to connect database")
 	}
