@@ -65,7 +65,7 @@ func TestOpc() (err error) {
 			readOpcData(c)
 		}
 	}()
-	return nil
+	select {}
 }
 
 func readOpcData(c *opcua.Client) {

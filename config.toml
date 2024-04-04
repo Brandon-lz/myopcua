@@ -1,6 +1,6 @@
 [opcua]
 endpoint = "opc.tcp://opcserver:4840"
-interval = 100      # in milliseconds
+interval = 500      # in milliseconds
 
 [openapi]
 port = 8080
