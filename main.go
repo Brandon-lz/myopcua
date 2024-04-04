@@ -18,7 +18,7 @@ import (
 // @title OPC-UA Open API
 // @version 1.0
 // @description OPC-UA转http协议
-// @description 两步完成opcua到http协议的转换：
+// @description 两步完成opcua到http协议的转换(查看下面接口中带**步骤号**字样的接口)
 // @contact.email advanced_to@163.com
 // @host localhost:8080
 // @BasePath /
