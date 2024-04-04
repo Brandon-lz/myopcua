@@ -12,7 +12,6 @@ import (
 	"github.com/Brandon-lz/myopcua/config"
 	globaldata "github.com/Brandon-lz/myopcua/global"
 	opcUa "github.com/Brandon-lz/myopcua/opc_ua"
-	opcuaClient "github.com/Brandon-lz/myopcua/opc_ua"
 
 	"github.com/gopcua/opcua"
 )
@@ -107,13 +106,13 @@ func writeOpcData(c *opcua.Client) {
 			// d.DataType
 			nodeIDsWithValue = append(nodeIDsWithValue, map[string]interface{}{d.NodeID: d.Value}) // ??? node type
 		}
-		err := opcuaClient.WriteMultiValueByNodeIds(nodeIDsWithValue, ctx, c)
+		err := opcUa.WriteMultiValueByNodeIds(nodeIDsWithValue, ctx, c)
 		if err != nil {
 			globaldata.NodeWriteResult <- false
 			slog.Error("OPC写入数据失败:" + fmt.Sprintf("%+v", nodeIdWithValue))
 		} else {
 			globaldata.NodeWriteResult <- true
-			slog.Debug("1111111111111111111111OPC写入数据成功:" + fmt.Sprintf("%+v", nodeIdWithValue))
+			slog.Debug("OPC写入数据成功:" + fmt.Sprintf("%+v", nodeIdWithValue))
 		}
 	default:
 		return
