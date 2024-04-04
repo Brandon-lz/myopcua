@@ -4,7 +4,7 @@
     ],
     "swagger": "2.0",
     "info": {
-        "description": "OPC-UA转http协议",
+        "description": "OPC-UA转http协议\n两步完成opcua到http协议的转换：",
         "title": "OPC-UA Open API",
         "contact": {
             "email": "advanced_to@163.com"

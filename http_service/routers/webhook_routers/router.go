@@ -926,9 +926,9 @@ func DalDeleteCondition(id int64) {
 		sqlErr, ok := err.(*pgconn.PgError)
 		if ok {
 			slog.Error(utils.WrapError(err).Error())
-			panic(core.NewKnownError(core.FieldNotUnique, err, sqlErr.Message))
+			panic(core.NewKnownError(core.EntityNotFound, err, sqlErr.Message))
 		}
 		slog.Error(utils.WrapError(err).Error())
-		panic(core.NewKnownError(core.FieldNotUnique, err, sqlErr.Message))
+		panic(err)          // unknown error
 	}
 }

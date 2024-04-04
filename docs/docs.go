@@ -996,7 +996,7 @@ var SwaggerInfo = &swag.Spec{
 	BasePath:         "/",
 	Schemes:          []string{"http"},
 	Title:            "OPC-UA Open API",
-	Description:      "OPC-UA转http协议",
+	Description:      "OPC-UA转http协议\n两步完成opcua到http协议的转换：",
 	InfoInstanceName: "swagger",
 	SwaggerTemplate:  docTemplate,
 	LeftDelim:        "{{",

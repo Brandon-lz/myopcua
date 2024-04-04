@@ -350,7 +350,9 @@ host: localhost:8080
 info:
   contact:
     email: advanced_to@163.com
-  description: OPC-UA转http协议
+  description: |-
+    OPC-UA转http协议
+    两步完成opcua到http协议的转换：
   title: OPC-UA Open API
   version: "1.0"
 paths:
