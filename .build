@@ -1,0 +1,5 @@
+linux : go build -o myopcua_linux main.go
+windows 64bit: GOOS=windows GOARCH=amd64 go build -o myopcua_x64.exe main.go
+windows 32bit: GOOS=windows GOARCH=386 go build -o myopcua_x86.exe main.go
+macos: GOOS=darwin GOARCH=amd64 go build -o myopcua_macos main.go
+macos arm64: GOOS=darwin GOARCH=arm64 go build -o myopcua_macos_arm64 main.go
