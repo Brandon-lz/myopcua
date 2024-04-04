@@ -17,6 +17,19 @@ definitions:
         - $ref: '#/definitions/globaldata.Rule'
         description: 规则
     type: object
+  globaldata.NodeIdWithValueInput:
+    properties:
+      data_type:
+        example: Int
+        type: string
+      node_id:
+        example: ns=2;i=2
+        type: string
+      value: {}
+    required:
+    - node_id
+    - value
+    type: object
   globaldata.Rule:
     properties:
       node_name:
@@ -114,6 +127,25 @@ definitions:
         type: string
       value:
         example: "123"
+        type: string
+    type: object
+  noderouters.WriteNodeValueRequest:
+    properties:
+      data:
+        items:
+          $ref: '#/definitions/globaldata.NodeIdWithValueInput'
+        type: array
+    required:
+    - data
+    type: object
+  noderouters.WriteNodeValueResponse:
+    properties:
+      code:
+        example: 200
+        type: integer
+      message:
+        description: Data    []globaldata.NodeWriteResultOutput `json:"data"`
+        example: 节点值写入成功
         type: string
     type: object
   routers.ApiResponse:
@@ -352,7 +384,7 @@ info:
     email: advanced_to@163.com
   description: |-
     OPC-UA转http协议
-    两步完成opcua到http协议的转换：
+    两步完成opcua到http协议的转换(查看下面接口中带**步骤号**字样的接口)
   title: OPC-UA Open API
   version: "1.0"
 paths:
@@ -439,6 +471,30 @@ paths:
       security:
       - BearerAuth: []
       summary: GetNode 路由
+      tags:
+      - opc-nodes
+  /api/v1/opc-node/write-node-value:
+    put:
+      consumes:
+      - application/json
+      description: WriteNodeValue 路由
+      parameters:
+      - description: 见下方JSON
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/noderouters.WriteNodeValueRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 节点值写入成功
+          schema:
+            $ref: '#/definitions/noderouters.WriteNodeValueResponse'
+      security:
+      - BearerAuth: []
+      summary: WriteNodeValue 路由
       tags:
       - opc-nodes
   /api/v1/ping:

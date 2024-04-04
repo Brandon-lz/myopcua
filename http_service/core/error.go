@@ -11,6 +11,10 @@ const (
 	FailedToDeleteNode = 1006
 	FailedToGetNode    = 1007
 	FailedToAddNode    = 1008
+	FailedToWriteNodeValue = 1009
+	FailedToReadNodeValue = 1010
+	FailedToBrowseNode = 1011
+	FailedToBrowseChildNodes = 1012
 
 	FieldError = 2000
 	FieldInvalid = 2001
@@ -21,6 +25,7 @@ const (
 	FieldNotMatch = 2006
 	FieldNotUnique = 2007
 	EntityNotFound = 2008
+
 )
 
 type KnownError struct {

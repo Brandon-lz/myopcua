@@ -12,6 +12,7 @@ import (
 	"github.com/Brandon-lz/myopcua/config"
 	globaldata "github.com/Brandon-lz/myopcua/global"
 	opcUa "github.com/Brandon-lz/myopcua/opc_ua"
+	opcuaClient "github.com/Brandon-lz/myopcua/opc_ua"
 
 	"github.com/gopcua/opcua"
 )
@@ -62,6 +63,7 @@ func TestOpc() (err error) {
 			if IsExpire() {
 				os.Exit(0)
 			}
+			writeOpcData(c)
 			readOpcData(c)
 			go checkWebhook()
 		}
@@ -70,8 +72,8 @@ func TestOpc() (err error) {
 }
 
 func readOpcData(c *opcua.Client) {
-	globaldata.OpcWriteLock.Lock() // 加锁 这期间不允许修改SystemVars
-	defer globaldata.OpcWriteLock.Unlock()
+	globaldata.OpcReadLock.Lock() // 加锁 这期间不允许修改SystemVars
+	defer globaldata.OpcReadLock.Unlock()
 	ctx := context.Background()
 	ctx, cancel := context.WithTimeout(ctx, time.Second*3)
 	defer cancel()
@@ -88,6 +90,33 @@ func readOpcData(c *opcua.Client) {
 		slog.Debug("OPC读取数据成功:" + fmt.Sprintf("%+v", globaldata.OPCNodeVars.CurrentNodes))
 		globaldata.OPCNodeVars.CurrentValues[int64(i)] = data
 		globaldata.OPCNodeVars.CurrentNodes[int64(i)].Value = data
+	}
+
+}
+
+func writeOpcData(c *opcua.Client) {
+	ctx := context.Background()
+	ctx, cancel := context.WithTimeout(ctx, time.Second*3)
+	defer cancel()
+	// var NodeIdWithValueToWrite = make(chan map[string]interface{})
+
+	select {
+	case nodeIdWithValue := <-globaldata.NodeIdWithValueToWrite:
+		nodeIDsWithValue := []map[string]interface{}{}
+		for _, d := range nodeIdWithValue {
+			// d.DataType
+			nodeIDsWithValue = append(nodeIDsWithValue, map[string]interface{}{d.NodeID: d.Value}) // ??? node type
+		}
+		err := opcuaClient.WriteMultiValueByNodeIds(nodeIDsWithValue, ctx, c)
+		if err != nil {
+			globaldata.NodeWriteResult <- false
+			slog.Error("OPC写入数据失败:" + fmt.Sprintf("%+v", nodeIdWithValue))
+		} else {
+			globaldata.NodeWriteResult <- true
+			slog.Debug("1111111111111111111111OPC写入数据成功:" + fmt.Sprintf("%+v", nodeIdWithValue))
+		}
+	default:
+		return
 	}
 
 }

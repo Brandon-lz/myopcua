@@ -16,6 +16,7 @@ func RegisterRoutes(router *gin.RouterGroup) {
 	nodegroup.POST("/add-node-to-read", AddNodeToRead)
 	nodegroup.GET("/get-node/:id", GetNode)
 	nodegroup.DELETE("/delete-node/:id", DeleteNode)
+	nodegroup.PUT("/write-node-value", WriteNodeValue)
 }
 
 // AddNodeToRead 路由 -------------------------------------------------------
@@ -170,4 +171,53 @@ func ServiceDeleteNode(nodeID int64) {
 		panic(core.NewKnownError(core.FailedToDeleteNode, nodeID, "delete node failed"))
 	}
 	globaldata.OPCNodeVars.Save()
+}
+
+// WriteNodeValue 路由 -------------------------------------------------------
+// @Summary  WriteNodeValue 路由
+// @Description  WriteNodeValue 路由
+// @Tags     opc-nodes
+// @Security BearerAuth
+// @Accept   json
+// @Produce  json
+// @Param     data  body   WriteNodeValueRequest   true  "见下方JSON"
+// @Success  200  {object}  WriteNodeValueResponse  "节点值写入成功"
+// @Router   /api/v1/opc-node/write-node-value [PUT]
+func WriteNodeValue(c *gin.Context) {
+	var req WriteNodeValueRequest
+	core.BindParamAndValidate(c, &req)
+	if len(req.Data) == 0 {
+		panic(core.NewKnownError(core.FailedToWriteNodeValue, "", "data is empty"))
+	}
+
+	globaldata.OpcWriteLock.Lock()
+	defer globaldata.OpcWriteLock.Unlock()
+
+	globaldata.NodeIdWithValueToWrite <- req.Data
+
+	writeRes := <-globaldata.NodeWriteResult
+	if !writeRes {
+		panic(core.NewKnownError(core.FailedToWriteNodeValue, "", "write node value failed"))
+	}
+	core.SuccessHandler(c, WriteNodeValueResponse{
+		Code:    200,
+		Message: "节点值写入成功",
+	})
+
+}
+
+type WriteNodeValueRequest struct {
+	Data []globaldata.NodeIdWithValueInput `json:"data" form:"data" binding:"required"`
+}
+
+// type NodeIdWithValueInput struct {
+// 	NodeID   string  `json:"node_id" form:"node_id" binding:"required" example:"ns=2;i=2"`
+// 	Value    interface{}  `json:"value" form:"value" binding:"required"`
+// 	DataType string `json:"data_type" form:"data_type" example:"Int"`
+// }
+
+type WriteNodeValueResponse struct {
+	Code int `json:"code" example:"200"`
+	// Data    []globaldata.NodeWriteResultOutput `json:"data"`
+	Message string `json:"message" example:"节点值写入成功"`
 }

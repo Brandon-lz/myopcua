@@ -153,6 +153,45 @@ const docTemplate = `{
                 }
             }
         },
+        "/api/v1/opc-node/write-node-value": {
+            "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "WriteNodeValue 路由",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "opc-nodes"
+                ],
+                "summary": "WriteNodeValue 路由",
+                "parameters": [
+                    {
+                        "description": "见下方JSON",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/noderouters.WriteNodeValueRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "节点值写入成功",
+                        "schema": {
+                            "$ref": "#/definitions/noderouters.WriteNodeValueResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/api/v1/ping": {
             "get": {
                 "security": [
@@ -506,6 +545,24 @@ const docTemplate = `{
                 }
             }
         },
+        "globaldata.NodeIdWithValueInput": {
+            "type": "object",
+            "required": [
+                "node_id",
+                "value"
+            ],
+            "properties": {
+                "data_type": {
+                    "type": "string",
+                    "example": "Int"
+                },
+                "node_id": {
+                    "type": "string",
+                    "example": "ns=2;i=2"
+                },
+                "value": {}
+            }
+        },
         "globaldata.Rule": {
             "type": "object",
             "required": [
@@ -640,6 +697,34 @@ const docTemplate = `{
                 "value": {
                     "type": "string",
                     "example": "123"
+                }
+            }
+        },
+        "noderouters.WriteNodeValueRequest": {
+            "type": "object",
+            "required": [
+                "data"
+            ],
+            "properties": {
+                "data": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/globaldata.NodeIdWithValueInput"
+                    }
+                }
+            }
+        },
+        "noderouters.WriteNodeValueResponse": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "integer",
+                    "example": 200
+                },
+                "message": {
+                    "description": "Data    []globaldata.NodeWriteResultOutput ` + "`" + `json:\"data\"` + "`" + `",
+                    "type": "string",
+                    "example": "节点值写入成功"
                 }
             }
         },
@@ -996,7 +1081,7 @@ var SwaggerInfo = &swag.Spec{
 	BasePath:         "/",
 	Schemes:          []string{"http"},
 	Title:            "OPC-UA Open API",
-	Description:      "OPC-UA转http协议\n两步完成opcua到http协议的转换：",
+	Description:      "OPC-UA转http协议\n两步完成opcua到http协议的转换(查看下面接口中带**步骤号**字样的接口)",
 	InfoInstanceName: "swagger",
 	SwaggerTemplate:  docTemplate,
 	LeftDelim:        "{{",

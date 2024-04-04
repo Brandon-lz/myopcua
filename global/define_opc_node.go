@@ -45,8 +45,8 @@ func (s *OPCNodeVarsDFT) len() int {
 }
 
 func (s *OPCNodeVarsDFT) AddNode(node *OpcNode) error {
-	OpcWriteLock.Lock()
-	defer OpcWriteLock.Unlock()
+	OpcReadLock.Lock()
+	defer OpcReadLock.Unlock()
 	_, nameOk := s.NodeNameSets[node.Name]
 	_, idOk := s.NodeIdSets[node.NodeID]
 	if !nameOk && !idOk {
@@ -88,8 +88,8 @@ func (s *OPCNodeVarsDFT) GetValueByName(name string) (interface{}, error) {
 }
 
 func (s *OPCNodeVarsDFT) DeleteNode(id int64) error {
-	OpcWriteLock.Lock()
-	defer OpcWriteLock.Unlock()
+	OpcReadLock.Lock()
+	defer OpcReadLock.Unlock()
 	if id < 0 || id >= int64(s.len()) {
 		return fmt.Errorf("node id out of range")
 	}
