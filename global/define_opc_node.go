@@ -3,6 +3,7 @@ package globaldata
 import (
 	"fmt"
 	"log/slog"
+	"time"
 
 	"github.com/Brandon-lz/myopcua/utils"
 )
@@ -15,6 +16,7 @@ type OpcNode struct {
 }
 
 type OPCNodeVarsDFT struct {
+	TimeStamp     time.Time
 	CurrentNodes  map[int64]*OpcNode    // 0 node1, 1 node2, 2 node3...
 	CurrentValues map[int64]interface{} // 0 value1, 1 value2, 2 value3...
 	NodeNameSets  map[string]struct{}   // set of node names

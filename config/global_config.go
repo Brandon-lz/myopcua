@@ -8,6 +8,7 @@ type GlobalConfig struct {
 
 type Opcua struct {
 	Endpoint string `json:"endpoint"`
+	Interval int `json:"interval"` // in milliseconds, default is 100 milliseconds
 }
 
 type Openapi struct {

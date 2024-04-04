@@ -54,17 +54,18 @@ func TestOpc() (err error) {
 	}
 	defer c.Close(ctx)
 
-	for {
-		time.Sleep(time.Second * 1)
+	ticker := time.NewTicker(time.Millisecond * time.Duration(config.Config.Opcua.Interval))
+	defer ticker.Stop()
 
-		if IsExpire() {
-			os.Exit(0)
+	go func() {
+		for range ticker.C {
+			if IsExpire() {
+				os.Exit(0)
+			}
+			readOpcData(c)
 		}
-
-		readOpcData(c)
-
-	}
-
+	}()
+	return nil
 }
 
 func readOpcData(c *opcua.Client) {
@@ -79,6 +80,7 @@ func readOpcData(c *opcua.Client) {
 	}
 
 	slog.Debug("OPC读取数据成功:" + fmt.Sprintf("%+v", datas))
+	globaldata.OPCNodeVars.TimeStamp = time.Now()
 	// 写入数据到全局变量
 	for i, data := range datas {
 		slog.Debug("OPC读取数据成功:" + fmt.Sprintf("%+v", globaldata.OPCNodeVars.CurrentValues))
