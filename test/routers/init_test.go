@@ -22,7 +22,8 @@ var db *gorm.DB
 func TestMain(t *testing.T) {
 	assert := assert.New(t)
 	assert.NoError(os.Remove("./systemvars.obj"))
-
+  	
+	sysdb.InitDB()
 	cleanDb(assert)
 	migrateModel()
 
@@ -44,9 +45,7 @@ func TestMain(t *testing.T) {
 
 func cleanDb(assert *assert.Assertions) {
 	var err error
-	db, err = sysdb.GetPGDB()
-	assert.NoError(err)
-	res := db.Exec("DROP SCHEMA public CASCADE;CREATE SCHEMA public;")
+	res := sysdb.DB.Exec("DROP SCHEMA public CASCADE;CREATE SCHEMA public;")
 	assert.NoError(res.Error)
 }
 
