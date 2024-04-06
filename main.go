@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"log/slog"
 
 	"github.com/Brandon-lz/myopcua/config"
@@ -33,7 +34,8 @@ func main() {
 	db.InitDB()
 	query.SetDefault(db.DB) // init gen model, for decouple with db
 	globaldata.InitSystemVars()
-	go opcservices.Start()
-	go httpservice.Start()
+	ctx := context.Background()
+	go opcservices.Start(ctx)
+	go httpservice.Start(ctx)
 	select {}
 }

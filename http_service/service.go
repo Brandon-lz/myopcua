@@ -4,9 +4,9 @@ import (
 	"context"
 	"fmt"
 	"net/http"
-	"os"
-	"os/signal"
-	"syscall"
+	// "os"
+	// "os/signal"
+	// "syscall"
 
 	"github.com/Brandon-lz/myopcua/http_service/routers"
 	webhookrouters "github.com/Brandon-lz/myopcua/http_service/routers/webhook_routers"
@@ -67,12 +67,12 @@ func Start(ctx context.Context) {
 
 	// Wait for interrupt signal to gracefully shutdown the server with
 	// a timeout of 5 seconds.
-	quit := make(chan os.Signal)
+	// quit := make(chan os.Signal)
 	// kill (no param) default send syscanll.SIGTERM
 	// kill -2 is syscall.SIGINT
 	// kill -9 is syscall. SIGKILL but can"t be catch, so don't need add it
-	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
-	<-quit
+	// signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
+	// <-quit
 	slog.Info("Shutdown Server ...")
 
 	if err := srv.Shutdown(ctx); err != nil {
