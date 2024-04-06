@@ -40,9 +40,10 @@ func TestMain(t *testing.T) {
 	time.Sleep(1 * time.Second)
 
 	// Run router tests ---------------------------------
-	t.Run("Test_AddWebhookConfig", testAddWebhookConfig)
-	t.Run("Test_getWebhookConfig", testGetWebhookConfigById)
-	os.Exit(0)
+	// t.Run("Test_AddWebhookConfig", testAddWebhookConfig)
+	// t.Run("Test_getWebhookConfig", testGetWebhookConfigById)
+	testAddWebhookConfig(t)
+	testGetWebhookConfigById(t)
 }
 
 func cleanDb(assert *assert.Assertions) {
