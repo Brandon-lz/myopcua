@@ -28,7 +28,7 @@ func TestMain(t *testing.T) {
 
 	gentool.RunGen("../../db/gen/query")
 
-	config.Init("../../config.toml")
+	config.Init("./config.toml")
 	log.Init(slog.LevelDebug)
 	slog.Info("Starting the opc application...")
 	sysdb.InitDB()
