@@ -2,6 +2,8 @@ package db
 
 import (
 	// "github.com/Brandon-lz/myopcua/db/gen/query"
+	"os"
+
 	"gorm.io/driver/postgres"
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
