@@ -53,6 +53,9 @@ jobs:
 
     - name: Build
       run: go build -v ./...
+    
+    - name: run opcserver
+      run: docker compose -f opc_ua/docker-compose-local.yml up -d
 
     - name: Test
       run: env git_test=1 go test -v ./...
