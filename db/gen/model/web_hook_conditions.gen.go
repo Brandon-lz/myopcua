@@ -19,7 +19,6 @@ type WebHookCondition struct {
 	UpdatedAt *time.Time     `gorm:"column:updated_at" json:"updated_at"`
 	DeletedAt gorm.DeletedAt `gorm:"column:deleted_at" json:"deleted_at"`
 	Condition string         `gorm:"column:condition;not null;comment:条件表达式" json:"condition"` // 条件表达式
-	WebHooks  []WebHook      `gorm:"foreignKey:WebHookConditionRefer;references:ID" json:"web_hooks"`
 }
 
 // TableName WebHookCondition's table name

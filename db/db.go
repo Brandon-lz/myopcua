@@ -12,11 +12,7 @@ var DB *gorm.DB
 
 func InitDB() {
 	var err error
-	if os.Getenv("git_test")!=""{
-		DB, err = GetSqliteDB()
-	} else {
-		DB, err = GetPGDB()
-	}
+	DB, err = GetPGDB()
 	if err != nil {
 		panic("failed to connect database")
 	}
@@ -35,6 +31,7 @@ func InitDB() {
 	sqlDB.SetMaxOpenConns(100)
 }
 
+// 由于gen在不同环境下生成的model可能不同，暂时不使用sqlite
 func GetSqliteDB() (*gorm.DB, error) {
 	return gorm.Open(sqlite.Open("sqlite.db"), &gorm.Config{
 		DisableForeignKeyConstraintWhenMigrating: true,
@@ -42,7 +39,12 @@ func GetSqliteDB() (*gorm.DB, error) {
 }
 
 func GetPGDB() (*gorm.DB, error) {
-	dsn := "host=vector-pg user=postgres password=postgres dbname=postgres port=5432 sslmode=disable TimeZone=Asia/Shanghai"
+	var dsn string
+	if os.Getenv("git_test") != "" {
+		dsn = "host=localhost user=postgres password=postgres dbname=postgres port=5432 sslmode=disable TimeZone=Asia/Shanghai"
+	} else {
+		dsn = "host=vector-pg user=postgres password=postgres dbname=postgres port=5432 sslmode=disable TimeZone=Asia/Shanghai"
+	}
 	return gorm.Open(postgres.Open(dsn), &gorm.Config{
 		DisableForeignKeyConstraintWhenMigrating: true,
 	})
