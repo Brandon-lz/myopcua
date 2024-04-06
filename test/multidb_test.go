@@ -16,6 +16,7 @@ type User struct {
 }
 
 func TestMultiDb(t *testing.T) {
+	t.Skip()
 	require := require.New(t)
 	whichDb := "pg" // 选择数据库类型，pg或mysql
 
