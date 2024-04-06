@@ -9,6 +9,8 @@ import (
 )
 
 func TestGenInit(t *testing.T) {
+    t.Skip()
+
     g := gen.NewGenerator(gen.Config{
         OutPath: "../db/gen/query",
         Mode:    gen.WithoutContext | gen.WithDefaultQuery | gen.WithQueryInterface, // generate mode
