@@ -57,5 +57,8 @@ jobs:
     - name: run opcserver
       run: docker compose -f opc_ua/docker-compose-local.yml up -d
 
+    - name: run server
+      run: env git_test=1 go run main.go
+
     - name: Test
       run: env git_test=1 go test -v ./...

@@ -1,7 +1,7 @@
 package test
 
 import (
-	"context"
+	// "context"
 	"log/slog"
 	"os"
 	"testing"
@@ -12,9 +12,9 @@ import (
 	gentool "github.com/Brandon-lz/myopcua/db/gen"
 	"github.com/Brandon-lz/myopcua/db/gen/query"
 	globaldata "github.com/Brandon-lz/myopcua/global"
-	httpservice "github.com/Brandon-lz/myopcua/http_service"
+	// httpservice "github.com/Brandon-lz/myopcua/http_service"
 	"github.com/Brandon-lz/myopcua/log"
-	opcservice "github.com/Brandon-lz/myopcua/opc_service"
+	// opcservice "github.com/Brandon-lz/myopcua/opc_service"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -35,10 +35,10 @@ func TestMain(t *testing.T) {
 	sysdb.InitDB()
 	query.SetDefault(sysdb.DB) // init gen model, for decouple with db
 	globaldata.InitSystemVars()
-	ctx,cancel	 := context.WithCancel(context.Background())
+	// ctx,cancel	 := context.WithCancel(context.Background())
 
-	go opcservice.Start(ctx)
-	go httpservice.Start(ctx)
+	// go opcservice.Start(ctx)
+	// go httpservice.Start(ctx)
 
 	time.Sleep(1 * time.Second)
 
@@ -46,7 +46,7 @@ func TestMain(t *testing.T) {
 	t.Run("Test_AddWebhookConfig", testAddWebhookConfig)
 	t.Run("Test_getWebhookConfig", testGetWebhookConfigById)
 
-	cancel()
+	// cancel()
 
 
 }

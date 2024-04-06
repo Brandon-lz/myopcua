@@ -80,7 +80,6 @@ func Start(ctx context.Context) {
 	}
 	// catching ctx.Done(). timeout of 5 seconds.
 	<-ctx.Done()
-	slog.Info("timeout of 5 seconds.")
 	slog.Info("Server exiting")
 }
 
