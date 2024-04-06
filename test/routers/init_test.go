@@ -8,6 +8,7 @@ import (
 
 	"github.com/Brandon-lz/myopcua/config"
 	sysdb "github.com/Brandon-lz/myopcua/db"
+	gentool "github.com/Brandon-lz/myopcua/db/gen"
 	"github.com/Brandon-lz/myopcua/db/gen/query"
 	globaldata "github.com/Brandon-lz/myopcua/global"
 	httpservice "github.com/Brandon-lz/myopcua/http_service"
@@ -24,6 +25,8 @@ func TestMain(t *testing.T) {
 	sysdb.InitDB()
 	cleanDb(assert)
 	migrateModel()
+
+	gentool.RunGen("../../db/gen/query")
 
 	config.Init("../../config.toml")
 	log.Init(slog.LevelDebug)

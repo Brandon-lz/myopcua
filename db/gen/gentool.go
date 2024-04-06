@@ -1,4 +1,4 @@
-package main
+package gentool
 
 import (
     "github.com/Brandon-lz/myopcua/db"
@@ -8,9 +8,10 @@ import (
 
 // go test -v -run TestGenInit ./test/gen_test.go 
 
-func main() {
+func RunGen(genPath string) {
     g := gen.NewGenerator(gen.Config{
-        OutPath: "./query",
+        // OutPath: "./query",
+        OutPath: genPath,
         Mode:    gen.WithoutContext | gen.WithDefaultQuery | gen.WithQueryInterface, // generate mode
         FieldNullable: true,  // generate nullable fields
     })
