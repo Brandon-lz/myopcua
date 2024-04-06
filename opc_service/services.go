@@ -104,7 +104,9 @@ func writeOpcData(c *opcua.Client) {
 		nodeIDsWithValue := []map[string]interface{}{}
 		for _, d := range nodeIdWithValue {
 			// d.DataType
-			nodeIDsWithValue = append(nodeIDsWithValue, map[string]interface{}{d.NodeID: d.Value}) // ??? node type
+			// check previously
+			n,_ := globaldata.OPCNodeVars.GetNodeByName(d.NodeName)
+			nodeIDsWithValue = append(nodeIDsWithValue, map[string]interface{}{n.NodeID: d.Value}) // ??? node type
 		}
 		err := opcUa.WriteMultiValueByNodeIds(nodeIDsWithValue, ctx, c)
 		if err != nil {

@@ -19,12 +19,14 @@ definitions:
     type: object
   globaldata.NodeIdWithValueInput:
     properties:
-      node_id:
-        example: ns=2;i=2
+      node_name:
+        description: 节点名称
+        example: MyVariable
         type: string
-      value: {}
+      value:
+        description: 要写入的值
     required:
-    - node_id
+    - node_name
     - value
     type: object
   globaldata.Rule:
@@ -484,18 +486,18 @@ paths:
         ## data类型 定义
         | 字段 | 类型 | 是否必填 | 描述 |
         | --- | --- | --- | --- |
-        | NodeId | string | 是 | 节点ID |
+        | NodeName | string | 是 | 节点名称 |
         | Value | any | 是 | 写入值 |
         ## 参数示例
         ```json
         {
         "data": [
         {
-        "NodeId": "ns=2;s=MyVariable",
+        "NodeName": "MyVariable",
         "Value": 123
         },
         {
-        "NodeId": "ns=2;s=MyVariable2",
+        "NodeName": "MyVariable2",
         "Value": "abc"
         }
         ]

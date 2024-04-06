@@ -5,8 +5,8 @@ var NodeWriteResult = make(chan bool)
 
 
 type NodeIdWithValueInput struct {
-	NodeID   string  `json:"node_id" form:"node_id" binding:"required" example:"ns=2;i=2"`
-	Value    interface{}  `json:"value" form:"value" binding:"required"`
+	NodeName string  `json:"node_name" form:"node_name" binding:"required" example:"MyVariable"`  // 节点名称
+	Value    interface{}  `json:"value" form:"value" binding:"required"`   // 要写入的值
 	// DataType string `json:"data_type" form:"data_type" example:"Int"`
 }
 

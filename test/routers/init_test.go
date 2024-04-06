@@ -14,10 +14,8 @@ import (
 	"github.com/Brandon-lz/myopcua/log"
 	opcservice "github.com/Brandon-lz/myopcua/opc_service"
 	"github.com/stretchr/testify/assert"
-	"gorm.io/gorm"
 )
 
-var db *gorm.DB
 
 func TestMain(t *testing.T) {
 	assert := assert.New(t)
@@ -44,7 +42,6 @@ func TestMain(t *testing.T) {
 }
 
 func cleanDb(assert *assert.Assertions) {
-	var err error
 	res := sysdb.DB.Exec("DROP SCHEMA public CASCADE;CREATE SCHEMA public;")
 	assert.NoError(res.Error)
 }

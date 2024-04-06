@@ -185,18 +185,18 @@ func ServiceDeleteNode(nodeID int64) {
 // @Description  ## data类型 定义
 // @Description  | 字段 | 类型 | 是否必填 | 描述 |
 // @Description  | --- | --- | --- | --- |
-// @Description  | NodeId | string | 是 | 节点ID |
+// @Description  | NodeName | string | 是 | 节点名称 |
 // @Description  | Value | any | 是 | 写入值 |
 // @Description  ## 参数示例
 // @Description  ```json
 // @Description  {
 // @Description  "data": [
 // @Description  {
-// @Description  "NodeId": "ns=2;s=MyVariable",
+// @Description  "NodeName": "MyVariable",
 // @Description  "Value": 123
 // @Description  },
 // @Description  {
-// @Description  "NodeId": "ns=2;s=MyVariable2",
+// @Description  "NodeName": "MyVariable2",
 // @Description  "Value": "abc"
 // @Description  }
 // @Description  ]
@@ -227,6 +227,15 @@ func WriteNodeValue(c *gin.Context) {
 	if len(req.Data) == 0 {
 		panic(core.NewKnownError(core.FailedToWriteNodeValue, "", "data is empty"))
 	}
+
+	// check if node exist
+	for _, data := range req.Data {
+		_, err := globaldata.OPCNodeVars.GetNodeByName(data.NodeName)
+		if err != nil {
+			panic(core.NewKnownError(core.FailedToWriteNodeValue, data.NodeName, "node not found"))
+		}
+	}
+
 
 	globaldata.OpcWriteLock.Lock()
 	defer globaldata.OpcWriteLock.Unlock()

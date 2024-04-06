@@ -1,5 +1,5 @@
 [opcua]
-endpoint = "opc.tcp://opcserver:4840"
+endpoint = "opc.tcp://localhost:4840"
 interval = 500      # 读取间隔，单位 milliseconds
 
 [openapi]
