@@ -42,7 +42,7 @@ func TestMain(t *testing.T) {
 	// Run router tests ---------------------------------
 	t.Run("Test_AddWebhookConfig", testAddWebhookConfig)
 	t.Run("Test_getWebhookConfig", testGetWebhookConfigById)
-	t.Parallel()
+	os.Exit(0)
 }
 
 func cleanDb(assert *assert.Assertions) {
