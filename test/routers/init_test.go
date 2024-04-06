@@ -1,6 +1,7 @@
 package test
 
 import (
+	"context"
 	"log/slog"
 	"os"
 	"testing"
@@ -34,16 +35,20 @@ func TestMain(t *testing.T) {
 	sysdb.InitDB()
 	query.SetDefault(sysdb.DB) // init gen model, for decouple with db
 	globaldata.InitSystemVars()
-	go opcservice.Start()
-	go httpservice.Start()
+	ctx,cancel	 := context.WithCancel(context.Background())
+
+	go opcservice.Start(ctx)
+	go httpservice.Start(ctx)
 
 	time.Sleep(1 * time.Second)
 
 	// Run router tests ---------------------------------
-	// t.Run("Test_AddWebhookConfig", testAddWebhookConfig)
-	// t.Run("Test_getWebhookConfig", testGetWebhookConfigById)
-	testAddWebhookConfig(t)
-	testGetWebhookConfigById(t)
+	t.Run("Test_AddWebhookConfig", testAddWebhookConfig)
+	t.Run("Test_getWebhookConfig", testGetWebhookConfigById)
+
+	cancel()
+
+
 }
 
 func cleanDb(assert *assert.Assertions) {

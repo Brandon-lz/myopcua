@@ -1,8 +1,16 @@
 package httpservice
 
 import (
+	"context"
+	"fmt"
+	"net/http"
+	"os"
+	"os/signal"
+	"syscall"
+
 	"github.com/Brandon-lz/myopcua/http_service/routers"
 	webhookrouters "github.com/Brandon-lz/myopcua/http_service/routers/webhook_routers"
+	"golang.org/x/exp/slog"
 
 	"github.com/gin-gonic/gin"
 
@@ -24,7 +32,7 @@ func InitRouter() *gin.Engine {
 	return router
 }
 
-func Start() {
+func Start(ctx context.Context) {
 	router := InitRouter()
 	router.GET("/", func(c *gin.Context) {
 		c.JSON(200, gin.H{
@@ -43,7 +51,37 @@ func Start() {
 	routers.RegisterRoutes(v1)
 	webhookrouters.GetAllWebhookConfigFromDB()
 
-	router.Run("0.0.0.0:8080")
+	// router.Run("0.0.0.0:8080")
+
+	srv := &http.Server{
+		Addr:    ":8080",
+		Handler: router,
+	}
+	// Graceful stop
+	go func() {
+		// service connections
+		if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+			slog.Error("listen: %s\n", err)
+		}
+	}()
+
+	// Wait for interrupt signal to gracefully shutdown the server with
+	// a timeout of 5 seconds.
+	quit := make(chan os.Signal)
+	// kill (no param) default send syscanll.SIGTERM
+	// kill -2 is syscall.SIGINT
+	// kill -9 is syscall. SIGKILL but can"t be catch, so don't need add it
+	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
+	<-quit
+	slog.Info("Shutdown Server ...")
+
+	if err := srv.Shutdown(ctx); err != nil {
+		slog.Error(fmt.Sprintf("Server Shutdown: %v", err))
+	}
+	// catching ctx.Done(). timeout of 5 seconds.
+	<-ctx.Done()
+	slog.Info("timeout of 5 seconds.")
+	slog.Info("Server exiting")
 }
 
 // healthCheck 路由

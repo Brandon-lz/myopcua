@@ -18,12 +18,12 @@ import (
 
 // 定义全局的conn管道
 
-func Start() {
+func Start(ctx context.Context) {
 
 	slog.Info("启动OPC服务...")
 
 	for {
-		err := TestOpc()
+		err := TestOpc(ctx)
 		if err != nil {
 			slog.Error("OPCUA发生故障或目标设备失去连接，尝试重启服务，请勿关闭服务")
 			slog.Error("故障信息:")
@@ -36,7 +36,7 @@ func Start() {
 	}
 }
 
-func TestOpc() (err error) {
+func TestOpc(ctx context.Context) (err error) {
 	defer func() {
 		// except:
 		perr := recover()
@@ -47,7 +47,7 @@ func TestOpc() (err error) {
 		}
 	}()
 
-	ctx := context.Background()
+	// ctx := context.Background()
 	c, err := opcUa.ConnectToDevice(ctx, config.Config.Opcua.Endpoint, false)
 	if err != nil {
 		panic(err)
@@ -67,7 +67,11 @@ func TestOpc() (err error) {
 			go checkWebhook()
 		}
 	}()
-	select {}
+	select {
+		case <-ctx.Done():
+			slog.Info("opcua服务退出")
+			return
+	}
 }
 
 func readOpcData(c *opcua.Client) {
