@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"log/slog"
+	"os"
 
 	"github.com/Brandon-lz/myopcua/config"
 	"github.com/Brandon-lz/myopcua/db"
@@ -28,7 +29,11 @@ import (
 // @in header
 // @name Authorization
 func main() {
-	config.Init("./config.toml")
+	if os.Getenv("git_test") != "" {
+		config.Init("./config-git-test.toml")
+	} else {
+		config.Init("./config.toml")
+	}
 	log.Init(slog.LevelDebug)
 	slog.Info("Starting the opc application...")
 	db.InitDB()
