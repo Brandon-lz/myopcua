@@ -1,8 +1,6 @@
 package db
 
 import (
-	"os"
-
 	"gorm.io/driver/postgres"
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
@@ -40,11 +38,7 @@ func GetSqliteDB() (*gorm.DB, error) {
 
 func GetPGDB() (*gorm.DB, error) {
 	var dsn string
-	if os.Getenv("git_test") != "" {
-		dsn = "host=localhost user=postgres password=postgres dbname=postgres port=5432 sslmode=disable TimeZone=Asia/Shanghai"
-	} else {
-		dsn = "host=vector-pg user=postgres password=postgres dbname=postgres port=5432 sslmode=disable TimeZone=Asia/Shanghai"
-	}
+	dsn = "host=vector-pg user=postgres password=postgres dbname=postgres port=5432 sslmode=disable TimeZone=Asia/Shanghai"
 	return gorm.Open(postgres.Open(dsn), &gorm.Config{
 		DisableForeignKeyConstraintWhenMigrating: true,
 	})

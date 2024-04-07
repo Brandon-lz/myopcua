@@ -20,9 +20,9 @@ import (
 )
 
 func TestMain(t *testing.T) {
-	t.Skip()
 	assert := assert.New(t)
-	assert.NoError(os.Remove("./systemvars.obj"))
+	os.Remove("./systemvars.obj")
+	os.Remove("./sqlite.db")
 
 	sysdb.InitDB()
 	cleanDb(assert)
@@ -44,8 +44,8 @@ func TestMain(t *testing.T) {
 	time.Sleep(1 * time.Second)
 
 	// Run router tests ---------------------------------
-	t.Run("Test_AddWebhookConfig", TestAddWebhookConfig)
-	t.Run("Test_getWebhookConfig", TestGetWebhookConfigById)
+	t.Run("Test_AddWebhookConfig", testAddWebhookConfig)
+	t.Run("Test_getWebhookConfig", testGetWebhookConfigById)
 
 	// cancel()
 

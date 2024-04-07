@@ -9,7 +9,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestAddWebhookConfig(t *testing.T) {
+func testAddWebhookConfig(t *testing.T) {
 	require := require.New(t)
 	url := "http://localhost:8080/api/v1/webhook"
 
@@ -54,7 +54,7 @@ func TestAddWebhookConfig(t *testing.T) {
 	t.Log("resoponseData:" + string(resData))
 }
 
-func TestGetWebhookConfigById(t *testing.T) {
+func testGetWebhookConfigById(t *testing.T) {
 	require := require.New(t)
 	res, err := utils.GetRequest("http://localhost:8080/api/v1/webhook/1")
 	require.NoError(err)

@@ -1,6 +1,0 @@
-[opcua]
-endpoint = "opc.tcp://localhost:4840"
-interval = 500      # 读取间隔，单位 milliseconds
-
-[openapi]
-port = 8080       # 打开  http://localhost:8080/docs/index.html#/ 访问 API 文档
