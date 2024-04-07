@@ -59,7 +59,7 @@ jobs:
 
     - name: run server
       # run: docker compose -f docker-compose-testenv.yml up -d
-      run: env git_test=1 go run main.go
+      run: nohup env git_test=1 go run main.go &
 
     - name: Test
       run: env git_test=1 go test -v ./...
