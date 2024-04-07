@@ -1,9 +1,9 @@
 version: '3.8'
 
-networks:
-  opcnetwork:
-    name: mynetwork     # 已经存在的network
-    external: true
+# networks:
+#   opcnetwork:
+#     name: mynetwork     # 已经存在的network
+#     external: true
 
 
 services:
@@ -11,13 +11,13 @@ services:
     build: 
       context: .
       dockerfile: Dockerfile
-    env_file:
-        # Ensure that the variables in .env match the same variables in devcontainer.json
-        - .devcontainer/.env
+    # env_file:
+    #     # Ensure that the variables in .env match the same variables in devcontainer.json
+    #     - .devcontainer/.env
     ports:
       - "8080:8080"
-    networks:
-      - opcnetwork
+    # networks:
+    #   - opcnetwork
     healthcheck:
       test: ["CMD","/healthcheck" ]
       interval: 5s

@@ -58,7 +58,7 @@ jobs:
       run: docker compose -f opc_ua/docker-compose-local.yml up -d
 
     - name: run server
-      run: env git_test=1 go run main.go
+      run: docker compose -f docker-compose-testenv.yml up -d
 
     - name: Test
       run: env git_test=1 go test -v ./...

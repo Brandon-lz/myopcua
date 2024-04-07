@@ -9,11 +9,11 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func testAddWebhookConfig(t *testing.T) {
-    require := require.New(t)
-    url := "http://localhost:8080/api/v1/webhook"
+func TestAddWebhookConfig(t *testing.T) {
+	require := require.New(t)
+	url := "http://localhost:8080/api/v1/webhook"
 
-    body := `
+	body := `
     {
         "active": true,
         "name": "webhook1",
@@ -43,20 +43,20 @@ func testAddWebhookConfig(t *testing.T) {
 		"need_node_list": ["MyVariable"]
     }
     `
-    res, err := utils.PostRequest(url, body)
-    require.NoError(err)
+	res, err := utils.PostRequest(url, body)
+	require.NoError(err)
 
-    require.Equal(http.StatusOK, res.StatusCode) // 断言状态码
+	require.Equal(http.StatusOK, res.StatusCode) // 断言状态码
 
-    resData, err := io.ReadAll(res.Body)
-    require.NoError(err)
+	resData, err := io.ReadAll(res.Body)
+	require.NoError(err)
 
-    t.Log("resoponseData:" + string(resData))
+	t.Log("resoponseData:" + string(resData))
 }
 
-func testGetWebhookConfigById(t *testing.T) {
-    require := require.New(t)
-    res, err := utils.GetRequest("http://localhost:8080/api/v1/webhook/1")
-    require.NoError(err)
-    require.Equal(http.StatusOK, res.StatusCode) // 断言状态码
+func TestGetWebhookConfigById(t *testing.T) {
+	require := require.New(t)
+	res, err := utils.GetRequest("http://localhost:8080/api/v1/webhook/1")
+	require.NoError(err)
+	require.Equal(http.StatusOK, res.StatusCode) // 断言状态码
 }
