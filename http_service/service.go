@@ -29,6 +29,7 @@ func InitRouter() *gin.Engine {
 	// - Preflight requests cached for 12 hours
 	router.Use(ginCors())
 	router.Use(gin.CustomRecovery(ErrorHandler))
+	router.Use(StructuredLogger())
 	return router
 }
 
