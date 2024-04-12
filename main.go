@@ -3,6 +3,9 @@ package main
 import (
 	"context"
 	"log/slog"
+	"os"
+	"os/signal"
+	"syscall"
 
 	"github.com/Brandon-lz/myopcua/config"
 	"github.com/Brandon-lz/myopcua/db"
@@ -39,5 +42,15 @@ func main() {
 	defer cancle()
 	go opcservices.Start(ctx)
 	go httpservice.Start(ctx)
-	select {}
+
+	quit := make(chan os.Signal,1)
+	// Wait for interrupt signal to gracefully shutdown the server with
+	// a timeout of 5 seconds.
+	// kill (no param) default send syscanll.SIGTERM
+	// kill -2 is syscall.SIGINT
+	// kill -9 is syscall. SIGKILL but can"t be catch, so don't need add it
+	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
+	<-quit
+	cancle()
+	slog.Info("Server stopped")
 }
