@@ -35,6 +35,8 @@ func main() {
 	query.SetDefault(db.DB) // init gen model, for decouple with db
 	globaldata.InitSystemVars()
 	ctx := context.Background()
+	ctx,cancle := context.WithCancel(ctx)
+	defer cancle()
 	go opcservices.Start(ctx)
 	go httpservice.Start(ctx)
 	select {}
