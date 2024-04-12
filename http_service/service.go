@@ -73,13 +73,13 @@ func Start(ctx context.Context) {
 	// kill -9 is syscall. SIGKILL but can"t be catch, so don't need add it
 	// signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
 	// <-quit
+	<-ctx.Done()
 	slog.Info("Shutdown Server ...")
 
 	if err := srv.Shutdown(ctx); err != nil {
 		slog.Error(fmt.Sprintf("Server Shutdown: %v", err))
 	}
 	// catching ctx.Done(). timeout of 5 seconds.
-	<-ctx.Done()
 	slog.Info("Server exiting")
 }
 
