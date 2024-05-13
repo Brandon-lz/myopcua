@@ -153,6 +153,34 @@ const docTemplate = `{
                 }
             }
         },
+        "/api/v1/opc-node/get-nodes": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "GetNodes 路由",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "opc-nodes"
+                ],
+                "summary": "GetNodes 路由",
+                "responses": {
+                    "200": {
+                        "description": "节点列表",
+                        "schema": {
+                            "$ref": "#/definitions/noderouters.GetNodesResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/api/v1/opc-node/write-node-value": {
             "put": {
                 "security": [
@@ -658,6 +686,25 @@ const docTemplate = `{
                 "message": {
                     "type": "string",
                     "example": "节点信息"
+                }
+            }
+        },
+        "noderouters.GetNodesResponse": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "integer",
+                    "example": 200
+                },
+                "data": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/noderouters.OpcNodeOutput"
+                    }
+                },
+                "message": {
+                    "type": "string",
+                    "example": "节点列表"
                 }
             }
         },

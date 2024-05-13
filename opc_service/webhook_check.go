@@ -9,6 +9,7 @@ import (
 )
 
 func checkWebhook() {
+	defer utils.RecoverAndLog()
 	slog.Debug("checkWebhook")
 	if globaldata.WebHooks.ConditionList == nil || len(globaldata.WebHooks.ConditionList) == 0 {
 		return

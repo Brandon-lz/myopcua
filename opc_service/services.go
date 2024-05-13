@@ -12,6 +12,7 @@ import (
 	"github.com/Brandon-lz/myopcua/config"
 	globaldata "github.com/Brandon-lz/myopcua/global"
 	opcUa "github.com/Brandon-lz/myopcua/opc_ua"
+	"github.com/Brandon-lz/myopcua/utils"
 
 	"github.com/gopcua/opcua"
 )
@@ -19,6 +20,7 @@ import (
 // 定义全局的conn管道
 
 func Start(ctx context.Context) {
+	defer utils.RecoverAndLog()
 
 	slog.Info("启动OPC服务...")
 
@@ -58,6 +60,7 @@ func TestOpc(ctx context.Context) (err error) {
 	defer ticker.Stop()
 
 	go func() {
+		defer utils.RecoverAndLog()
 		for range ticker.C {
 			if IsExpire() {
 				os.Exit(0)

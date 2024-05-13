@@ -2,8 +2,6 @@ package noderouters
 
 import (
 	"fmt"
-	"net/http"
-	"strconv"
 
 	globaldata "github.com/Brandon-lz/myopcua/global"
 	"github.com/Brandon-lz/myopcua/http_service/core"
@@ -15,6 +13,7 @@ func RegisterRoutes(router *gin.RouterGroup) {
 	nodegroup := router.Group("/opc-node")
 	nodegroup.POST("/add-node-to-read", AddNodeToRead)
 	nodegroup.GET("/get-node/:id", GetNode)
+	nodegroup.GET("/get-nodes", GetNodes)
 	nodegroup.DELETE("/delete-node/:id", DeleteNode)
 	nodegroup.PUT("/write-node-value", WriteNodeValue)
 }
@@ -94,12 +93,12 @@ func serviceAddNodeToRead(req *AddNodeToReadRequest) globaldata.OpcNode {
 func GetNode(c *gin.Context) {
 	id := c.Param("id")
 	// string to int64
-	nodeID, err := strconv.ParseInt(id, 10, 64)
-	if err != nil {
-		panic(core.NewKnownError(http.StatusBadRequest, id, "Invalid node ID"))
-	}
+	// nodeID, err := strconv.ParseInt(id, 10, 64)
+	// if err != nil {
+		// panic(core.NewKnownError(http.StatusBadRequest, id, "Invalid node ID"))
+	// }
 
-	node, value := serviceGetNode(nodeID)
+	node, value := serviceGetNode(id)
 
 	out := core.SerializeDataAndValidate(OpcNodeWithDataOutput{OpcNodeOutput{node.Name, node.NodeID, node.DataType}, value}, &OpcNodeWithDataOutput{}, false)
 	core.SuccessHandler(c, GetNodeResponse{
@@ -120,8 +119,8 @@ type OpcNodeWithDataOutput struct {
 	Value string `json:"value" example:"123"`
 }
 
-func serviceGetNode(nodeID int64) (*globaldata.OpcNode, string) {
-	node, err := globaldata.OPCNodeVars.GetNode(nodeID)
+func serviceGetNode(nodeID string) (*globaldata.OpcNode, string) {
+	node, err := globaldata.OPCNodeVars.GetNodeByNodeId(nodeID)
 	if err != nil {
 		panic(core.NewKnownError(core.FailedToGetNode, nodeID, fmt.Sprintf("get node failed: %s", err.Error())))
 	}
@@ -133,6 +132,44 @@ func serviceGetNode(nodeID int64) (*globaldata.OpcNode, string) {
 		value = "null"
 	}
 	return node, value
+}
+
+// GetNodes 路由 ------------------------------------
+// @Summary  GetNodes 路由
+// @Description  GetNodes 路由
+// @Tags     opc-nodes
+// @Security BearerAuth
+// @Accept   json
+// @Produce  json
+// @Success  200  {object}  GetNodesResponse  "节点列表"
+// @Router   /api/v1/opc-node/get-nodes [get]
+func GetNodes(c *gin.Context) {
+	nodes := serviceGetNodes()
+	out := core.SerializeDataAndValidate(nodes, &[]OpcNodeOutput{}, true)
+	if out == nil {
+		out = []OpcNodeOutput{}
+	}
+	core.SuccessHandler(c, GetNodesResponse{
+		Code:    200,
+		Data:    out,
+		Message: "节点列表",
+	})
+}
+
+type GetNodesResponse struct {
+	Code    int           `json:"code" example:"200"`
+	Data    []OpcNodeOutput `json:"data" `
+	Message string        `json:"message" example:"节点列表"`
+}
+
+func serviceGetNodes() []OpcNodeOutput {
+	var out []OpcNodeOutput
+
+	for _,node := range globaldata.OPCNodeVars.CurrentNodes{
+			out = append(out, OpcNodeOutput{node.Name, node.NodeID, node.DataType})
+	}
+	
+	return out
 }
 
 // DeleteNode 路由 -------------------------------------------------------
@@ -147,12 +184,13 @@ func serviceGetNode(nodeID int64) (*globaldata.OpcNode, string) {
 // @Router   /api/v1/opc-node/delete-node/{id} [delete]
 func DeleteNode(c *gin.Context) {
 	id := c.Param("id")
+
 	// string to int64
-	nodeID, err := strconv.ParseInt(id, 10, 64)
-	if err != nil {
-		panic(core.NewKnownError(http.StatusBadRequest, id, "Invalid node ID"))
-	}
-	ServiceDeleteNode(nodeID)
+	// nodeID, err := strconv.ParseInt(id, 10, 64)
+	// if err != nil {
+	// 	panic(core.NewKnownError(http.StatusBadRequest, id, "Invalid node ID"))
+	// }
+	ServiceDeleteNode(id)
 	core.SuccessHandler(c, DeleteNodeResponse{
 		Code:    200,
 		Data:    "",
@@ -166,8 +204,8 @@ type DeleteNodeResponse struct {
 	Message string `json:"message" example:"节点删除成功"`
 }
 
-func ServiceDeleteNode(nodeID int64) {
-	if err := globaldata.OPCNodeVars.DeleteNode(nodeID); err != nil {
+func ServiceDeleteNode(nodeID string) {
+	if err := globaldata.OPCNodeVars.DeleteNodeByNodeId(nodeID); err != nil {
 		panic(core.NewKnownError(core.FailedToDeleteNode, nodeID, "delete node failed"))
 	}
 	globaldata.OPCNodeVars.Save()

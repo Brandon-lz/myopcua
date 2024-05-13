@@ -4,12 +4,14 @@ import (
 	"context"
 	"fmt"
 	"net/http"
+
 	// "os"
 	// "os/signal"
 	// "syscall"
 
 	"github.com/Brandon-lz/myopcua/http_service/routers"
 	webhookrouters "github.com/Brandon-lz/myopcua/http_service/routers/webhook_routers"
+	"github.com/Brandon-lz/myopcua/utils"
 	"golang.org/x/exp/slog"
 
 	"github.com/gin-gonic/gin"
@@ -34,6 +36,7 @@ func InitRouter() *gin.Engine {
 }
 
 func Start(ctx context.Context) {
+	defer utils.RecoverAndLog()
 	router := InitRouter()
 	router.GET("/", func(c *gin.Context) {
 		c.JSON(200, gin.H{

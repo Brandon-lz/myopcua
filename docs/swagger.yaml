@@ -101,6 +101,19 @@ definitions:
         example: 节点信息
         type: string
     type: object
+  noderouters.GetNodesResponse:
+    properties:
+      code:
+        example: 200
+        type: integer
+      data:
+        items:
+          $ref: '#/definitions/noderouters.OpcNodeOutput'
+        type: array
+      message:
+        example: 节点列表
+        type: string
+    type: object
   noderouters.OpcNodeOutput:
     properties:
       data_type:
@@ -470,6 +483,23 @@ paths:
       security:
       - BearerAuth: []
       summary: GetNode 路由
+      tags:
+      - opc-nodes
+  /api/v1/opc-node/get-nodes:
+    get:
+      consumes:
+      - application/json
+      description: GetNodes 路由
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 节点列表
+          schema:
+            $ref: '#/definitions/noderouters.GetNodesResponse'
+      security:
+      - BearerAuth: []
+      summary: GetNodes 路由
       tags:
       - opc-nodes
   /api/v1/opc-node/write-node-value:

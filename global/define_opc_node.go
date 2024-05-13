@@ -77,6 +77,19 @@ func (s *OPCNodeVarsDFT) GetNodeByName(name string) (*OpcNode, error) {
 	return s.CurrentNodes[index], nil
 }
 
+func (s *OPCNodeVarsDFT) GetNodeByNodeId(nodeId string) (*OpcNode, error) {
+	_, ok := s.NodeIdSets[nodeId]
+	if !ok {
+		return nil, fmt.Errorf("node name not found")
+	}
+	for i, ni := range s.NodeIdList {
+		if ni == nodeId {
+			return s.CurrentNodes[int64(i)], nil
+		}
+	}
+	return nil, fmt.Errorf("node name not found")
+}
+
 func (s *OPCNodeVarsDFT) GetValueByName(name string) (interface{}, error) {
 	index, ok := s.NodeNameIndex[name]
 	if !ok {
@@ -99,13 +112,17 @@ func (s *OPCNodeVarsDFT) DeleteNode(id int64) error {
 	delete(s.NodeIdSets, node.NodeID)
 	delete(s.NodeNameIndex, node.Name)
 	s.NodeIdList = append(s.NodeIdList[:id], s.NodeIdList[id+1:]...)
-	for i := id; i < int64(s.len()); i++ {
-		s.CurrentNodes[i] = s.CurrentNodes[i+1]
-	}
-	delete(s.CurrentNodes, int64(s.len()-1))
-	for i := id; i < int64(s.len()); i++ {
-		s.CurrentValues[i] = s.CurrentValues[i+1]
-	}
-	delete(s.CurrentValues, int64(s.len()-1))
+	delete(s.CurrentNodes, id)
+	delete(s.CurrentValues, id)
 	return nil
+}
+
+
+func (s *OPCNodeVarsDFT) DeleteNodeByNodeId(nodeId string) error {
+	for i,id := range s.NodeIdList {
+		if id == nodeId {
+			return s.DeleteNode(int64(i))
+		}
+	}
+	return fmt.Errorf("node id not found")
 }
