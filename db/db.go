@@ -1,6 +1,7 @@
 package db
 
 import (
+	"github.com/Brandon-lz/myopcua/config"
 	"gorm.io/driver/postgres"
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
@@ -10,8 +11,17 @@ var DB *gorm.DB
 
 func InitDB() {
 	var err error
+	switch config.Config.DB.Type {
+	case "sqlite":
+		DB, err = GetSqliteDB()
+	case "postgres":
+		DB, err = GetPGDB()
+	default:
+		panic("unsupported database type")
+	}
+
 	// DB, err = GetPGDB()
-	DB, err = GetSqliteDB()
+	// DB, err = GetSqliteDB()
 
 	if err != nil {
 		panic("failed to connect database")
@@ -39,8 +49,7 @@ func GetSqliteDB() (*gorm.DB, error) {
 }
 
 func GetPGDB() (*gorm.DB, error) {
-	var dsn string
-	dsn = "host=vector-pg user=postgres password=postgres dbname=postgres port=5432 sslmode=disable TimeZone=Asia/Shanghai"
+	dsn := "host=" + config.Config.DB.POSTGRES_HOST + " user=" + config.Config.DB.POSTGRES_USER + " password=" + config.Config.DB.POSTGRES_PASSWORD + " dbname=" + config.Config.DB.POSTGRES_DB + " port=5432 sslmode=disable TimeZone=Asia/Shanghai"
 	return gorm.Open(postgres.Open(dsn), &gorm.Config{
 		DisableForeignKeyConstraintWhenMigrating: true,
 	})
