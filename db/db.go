@@ -17,7 +17,7 @@ func InitDB() {
 	case "postgres":
 		DB, err = GetPGDB()
 	default:
-		panic("unsupported database type")
+		panic("unsupported database type"+config.Config.DB.Type)
 	}
 
 	// DB, err = GetPGDB()

@@ -34,7 +34,10 @@ func main() {
 	docs.SwaggerInfo.BasePath = "/"
 	docs.SwaggerInfo.Host = config.Config.Openapi.DeployHost
 	log.Init(slog.LevelDebug)
-	slog.Info("Starting the opc application...")
+	if os.Getenv("run_env") == "" {
+		slog.Warn("run_env not set, defualt to run in dev, please set run_env=prod in prod env")
+	}
+	slog.Info("Starting the opc application..."+os.Getenv("run_env"))
 	db.InitDB()
 	query.SetDefault(db.DB) // init gen model, for decouple with db
 	globaldata.InitSystemVars()

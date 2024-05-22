@@ -4,8 +4,8 @@ import (
 	"context"
 	"fmt"
 	"net/http"
+	"os"
 
-	// "os"
 	// "os/signal"
 	// "syscall"
 
@@ -38,6 +38,9 @@ func InitRouter() *gin.Engine {
 
 func Start(ctx context.Context) {
 	defer utils.RecoverAndLog()
+	if os.Getenv("run_env") == "prod" {
+		gin.SetMode(gin.ReleaseMode)
+	}
 	router := InitRouter()
 	router.GET("/", func(c *gin.Context) {
 		c.JSON(200, gin.H{
