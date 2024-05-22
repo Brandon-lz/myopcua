@@ -1123,8 +1123,8 @@ const docTemplate = `{
 // SwaggerInfo holds exported Swagger Info so clients can modify it
 var SwaggerInfo = &swag.Spec{
 	Version:          "1.0",
-	Host:             "localhost:8080",
-	BasePath:         "/",
+	Host:             "",
+	BasePath:         "",
 	Schemes:          []string{"http"},
 	Title:            "OPC-UA Open API",
 	Description:      "OPC-UA转http协议\n两步完成opcua到http协议的转换(查看下面接口中带**步骤号**字样的接口)",

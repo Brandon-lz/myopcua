@@ -12,5 +12,6 @@ type Opcua struct {
 }
 
 type Openapi struct {
+	DeployHost string `json:"deploy_host"`
 	Port int `json:"port"`
 }

@@ -9,6 +9,7 @@ import (
 	// "os/signal"
 	// "syscall"
 
+	"github.com/Brandon-lz/myopcua/config"
 	"github.com/Brandon-lz/myopcua/http_service/routers"
 	webhookrouters "github.com/Brandon-lz/myopcua/http_service/routers/webhook_routers"
 	"github.com/Brandon-lz/myopcua/utils"
@@ -46,7 +47,7 @@ func Start(ctx context.Context) {
 
 	router.GET("/health", healthCheck)
 
-	url := ginSwagger.URL("http://localhost:8080/docs/doc.json") // The URL pointing to API definition
+	url := ginSwagger.URL("http://"+config.Config.Openapi.DeployHost+"/docs/doc.json") // The URL pointing to API definition
 
 	// swagger:  http://localhost:8080/docs/index.html
 	router.GET("/docs/*any", ginSwagger.WrapHandler(swaggerFiles.Handler, url))

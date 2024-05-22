@@ -1,4 +1,3 @@
-basePath: /
 definitions:
   globaldata.Condition:
     properties:
@@ -390,7 +389,6 @@ definitions:
         example: webhook example success
         type: string
     type: object
-host: localhost:8080
 info:
   contact:
     email: advanced_to@163.com

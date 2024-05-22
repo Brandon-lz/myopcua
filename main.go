@@ -10,6 +10,7 @@ import (
 	"github.com/Brandon-lz/myopcua/config"
 	"github.com/Brandon-lz/myopcua/db"
 	"github.com/Brandon-lz/myopcua/db/gen/query"
+	"github.com/Brandon-lz/myopcua/docs"
 	globaldata "github.com/Brandon-lz/myopcua/global"
 
 	// "github.com/Brandon-lz/myopcua/health"
@@ -24,14 +25,14 @@ import (
 // @description OPC-UA转http协议
 // @description 两步完成opcua到http协议的转换(查看下面接口中带**步骤号**字样的接口)
 // @contact.email advanced_to@163.com
-// @host localhost:8080
-// @BasePath /
 // @schemes http
 // @securityDefinitions.apikey BearerAuth
 // @in header
 // @name Authorization
 func main() {
 	config.Init("./config.toml")
+	docs.SwaggerInfo.BasePath = "/"
+	docs.SwaggerInfo.Host = config.Config.Openapi.DeployHost
 	log.Init(slog.LevelDebug)
 	slog.Info("Starting the opc application...")
 	db.InitDB()
