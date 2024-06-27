@@ -33,7 +33,7 @@ func main() {
 	config.Init("./config.toml")
 	docs.SwaggerInfo.BasePath = "/"
 	docs.SwaggerInfo.Host = config.Config.Openapi.DeployHost
-	log.Init(slog.LevelDebug)
+	log.Init("info")
 	if os.Getenv("run_env") == "" {
 		slog.Warn("run_env not set, defualt to run in dev, please set run_env=prod in prod env")
 	}

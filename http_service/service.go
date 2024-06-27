@@ -30,9 +30,9 @@ func InitRouter() *gin.Engine {
 	// - Origin header
 	// - Credentials share
 	// - Preflight requests cached for 12 hours
+	router.Use(StructuredLogger())
 	router.Use(ginCors())
 	router.Use(gin.CustomRecovery(ErrorHandler))
-	router.Use(StructuredLogger())
 	return router
 }
 

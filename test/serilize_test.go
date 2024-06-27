@@ -2,7 +2,6 @@ package test
 
 import (
 	// "errors"
-	"log/slog"
 	"testing"
 
 	"github.com/Brandon-lz/myopcua/http_service/core"
@@ -19,7 +18,7 @@ type AddWebhookConfigRequest struct {
 
 func TestSerialize(t *testing.T) {
 	require := require.New(t)
-	log.Init(slog.LevelDebug)
+	log.Init("DEBUG")
 
 	body := `
 	{

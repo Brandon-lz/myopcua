@@ -31,7 +31,7 @@ func TestMain(t *testing.T) {
 	gentool.RunGen("../../db/gen/query")
 
 	config.Init("./config.toml")
-	log.Init(slog.LevelDebug)
+	log.Init("DEBUG")
 	slog.Info("Starting the opc application...")
 	sysdb.InitDB()
 	query.SetDefault(sysdb.DB) // init gen model, for decouple with db
