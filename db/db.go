@@ -24,7 +24,7 @@ func InitDB() {
 	// DB, err = GetSqliteDB()
 
 	if err != nil {
-		panic("failed to connect database")
+		panic("failed to connect database:"+err.Error())
 	}
 
 	initModels()

@@ -12,6 +12,7 @@ import (
 	"github.com/Brandon-lz/myopcua/db/gen/query"
 	"github.com/Brandon-lz/myopcua/docs"
 	globaldata "github.com/Brandon-lz/myopcua/global"
+	"github.com/Brandon-lz/myopcua/utils"
 
 	// "github.com/Brandon-lz/myopcua/health"
 	"github.com/Brandon-lz/myopcua/log"
@@ -30,10 +31,17 @@ import (
 // @in header
 // @name Authorization
 func main() {
+	defer utils.RecoverAndLog()
+	run()
+}
+
+
+func run(){
 	config.Init("./config.toml")
 	docs.SwaggerInfo.BasePath = "/"
 	docs.SwaggerInfo.Host = config.Config.Openapi.DeployHost
 	log.Init("info")
+	os.Setenv("run_env","dev")
 	if os.Getenv("run_env") == "" {
 		slog.Warn("run_env not set, defualt to run in dev, please set run_env=prod in prod env")
 	}
