@@ -26,3 +26,4 @@ go.work
 *.obj
 
 *.db
+*.log

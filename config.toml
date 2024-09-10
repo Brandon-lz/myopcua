@@ -4,6 +4,8 @@ release = "dev"
 [opcua]
 endpoint = "opc.tcp://opcserver:4840"
 interval = 500      # 读取间隔，单位 milliseconds
+node_id = "i=2;s=|var|MyVariable"  # 节点 ID
+
 
 [openapi]
 deploy_host = "localhost:8080"       # 部署到目标位置   http://localhost:8080/docs/index.html#/ 访问 API 文档
