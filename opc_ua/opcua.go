@@ -6,17 +6,20 @@ import (
 	"fmt"
 	"io"
 	"log"
+
 	// "strconv"
-	"time"
 	rtdebug "runtime/debug"
+	"time"
 
 	"github.com/gopcua/opcua"
 	"github.com/gopcua/opcua/debug"
 	"github.com/gopcua/opcua/ua"
 	// "github.com/gopcua/opcua/uasc"
+    "github.com/gopcua/opcua/id"
+
 )
 
-func ConnectToDevice(ctx context.Context,endpoint string, enableDebug bool) (*opcua.Client, error) {
+func ConnectToDevice(ctx context.Context, endpoint string, enableDebug bool) (*opcua.Client, error) {
 	debug.Enable = enableDebug
 	// ctx := context.Background()
 	c, err := opcua.NewClient(endpoint, opcua.SecurityMode(ua.MessageSecurityModeNone))
@@ -33,9 +36,8 @@ func ConnectToDevice(ctx context.Context,endpoint string, enableDebug bool) (*op
 	// defer c.Close(ctx)
 }
 
-
-func GetRootNode(c *opcua.Client) (*opcua.Node,error) {
-	nodeId,err:=ua.ParseNodeID("i=84")
+func GetRootNode(c *opcua.Client) (*opcua.Node, error) {
+	nodeId, err := ua.ParseNodeID("i=84")
 	if err != nil {
 		return nil, err
 	}
@@ -50,15 +52,13 @@ func GetNodeByNodeId(nodeID string, c *opcua.Client) (*opcua.Node, error) {
 	return c.Node(nodeId), nil
 }
 
-
-func GetNodeChildren(node *opcua.Node,ctx context.Context) ([]*opcua.Node, error) {
-	children,err := node.Children(ctx,0,ua.NodeClassFromString("Unspecified"))
+func GetNodeChildren(node *opcua.Node, ctx context.Context) ([]*opcua.Node, error) {
+	children, err := node.Children(ctx, 0, ua.NodeClassFromString("Unspecified"))
 	if err != nil {
 		return nil, err
 	}
 	return children, nil
 }
-
 
 func GetNodeDisplayName(node *opcua.Node, ctx context.Context) (string, error) {
 	name, err := node.DisplayName(ctx)
@@ -135,34 +135,30 @@ func ReadValueByNodeId(nodeID string, ctx context.Context, c *opcua.Client) (int
 	return resp.Results[0].Value.Value(), nil
 }
 
-
-
-
-func ReadMultiValueByNodeIds(nodeIDs []string,nodesReadValueIds []*ua.ReadValueID, ctx context.Context, c *opcua.Client) ([]interface{}, error) {
+func ReadMultiValueByNodeIds(nodeIDs []string, nodesReadValueIds []*ua.ReadValueID, ctx context.Context, c *opcua.Client) ([]interface{}, error) {
 	var nodesToRead []*ua.ReadValueID
-	if len(nodeIDs)==0{
-		return []interface{}{},nil
+	if len(nodeIDs) == 0 {
+		return []interface{}{}, nil
 	}
-	if len(nodeIDs)>0{
-		nodesToRead=[]*ua.ReadValueID{}
-		for _,nd := range nodeIDs {
+	if len(nodeIDs) > 0 {
+		nodesToRead = []*ua.ReadValueID{}
+		for _, nd := range nodeIDs {
 			id, err := ua.ParseNodeID(nd)
 			if err != nil {
 				log.Printf("Read failed: %s", err)
 				return nil, err
 			}
-			nodesToRead = append(nodesToRead,&ua.ReadValueID{NodeID: id})
+			nodesToRead = append(nodesToRead, &ua.ReadValueID{NodeID: id})
 		}
-	} else if len(nodesReadValueIds)>0 {
+	} else if len(nodesReadValueIds) > 0 {
 		nodesToRead = nodesReadValueIds
-	} else{
-		return nil,errors.New("请传参nodeIDs或nodesToRead")
+	} else {
+		return nil, errors.New("请传参nodeIDs或nodesToRead")
 	}
-	
-		
+
 	req := &ua.ReadRequest{
-		MaxAge: 2000,
-		NodesToRead:nodesToRead,
+		MaxAge:             2000,
+		NodesToRead:        nodesToRead,
 		TimestampsToReturn: ua.TimestampsToReturnBoth,
 	}
 
@@ -209,12 +205,11 @@ func ReadMultiValueByNodeIds(nodeIDs []string,nodesReadValueIds []*ua.ReadValueI
 
 	// log.Printf("%#v", resp.Results[0].Value.Value())
 	results := []interface{}{}
-	for _,r := range resp.Results {
+	for _, r := range resp.Results {
 		results = append(results, r.Value.Value())
 	}
 	return results, nil
 }
-
 
 func WriteMultiValueByNodeIds(nodeIDsWithValue []map[string]interface{}, ctx context.Context, c *opcua.Client) (err error) {
 	defer func() {
@@ -228,9 +223,9 @@ func WriteMultiValueByNodeIds(nodeIDsWithValue []map[string]interface{}, ctx con
 		}
 	}()
 
-	nodesToWrite:=[]*ua.WriteValue{}
-	for _,nv := range nodeIDsWithValue{
-		for nd,v := range nv {
+	nodesToWrite := []*ua.WriteValue{}
+	for _, nv := range nodeIDsWithValue {
+		for nd, v := range nv {
 
 			id, err := ua.ParseNodeID(nd)
 			if err != nil {
@@ -244,8 +239,8 @@ func WriteMultiValueByNodeIds(nodeIDsWithValue []map[string]interface{}, ctx con
 				log.Printf("Write failed: %s", err)
 				return err
 			}
-			
-			nodesToWrite = append(nodesToWrite,&ua.WriteValue{
+
+			nodesToWrite = append(nodesToWrite, &ua.WriteValue{
 				NodeID:      id,
 				AttributeID: ua.AttributeIDValue,
 				Value: &ua.DataValue{
@@ -256,7 +251,6 @@ func WriteMultiValueByNodeIds(nodeIDsWithValue []map[string]interface{}, ctx con
 		}
 
 	}
-	
 
 	// id, err := ua.ParseNodeID(*nodeID)
 	// if err != nil {
@@ -274,8 +268,164 @@ func WriteMultiValueByNodeIds(nodeIDsWithValue []map[string]interface{}, ctx con
 
 	resp, err := c.Write(ctx, req)
 	if err != nil {
-		log.Fatalf("Write failed: %s", err)
+		log.Printf("Write failed: %s\n", err)
 	}
 	log.Printf("%v", resp.Results[0])
 	return nil
+}
+
+func SubscribeEvent(ctx context.Context, c *opcua.Client, nodeID string){
+	Subscribe(context.Background(), c, nodeID, 100*time.Millisecond, true)
+}
+
+func SubscribeDataChange(ctx context.Context, c *opcua.Client, nodeID string){
+	Subscribe(context.Background(), c, nodeID, 100*time.Millisecond, false)
+}
+
+
+func Subscribe(ctx context.Context, c *opcua.Client, nodeID string, interval time.Duration, event bool){
+	
+    notifyCh := make(chan *opcua.PublishNotificationData)
+
+    sub, err := c.Subscribe(ctx, &opcua.SubscriptionParameters{
+        Interval: interval,
+    }, notifyCh)
+    if err != nil {
+        log.Println(err)
+		panic(err)
+    }
+    defer sub.Cancel(ctx)
+    log.Printf("Created subscription with id %v", sub.SubscriptionID)
+
+    id, err := ua.ParseNodeID(nodeID)
+    if err != nil {
+        log.Println(err)
+		panic(err)
+    }
+
+    var miCreateRequest *ua.MonitoredItemCreateRequest
+    var eventFieldNames []string
+    if event {
+        miCreateRequest, eventFieldNames = eventRequest(id)
+    } else {
+        miCreateRequest = valueRequest(id)
+    }
+    res, err := sub.Monitor(ctx, ua.TimestampsToReturnBoth, miCreateRequest)
+    if err != nil || res.Results[0].StatusCode != ua.StatusOK {
+		panic(err)
+    }
+
+    // read from subscription's notification channel until ctx is cancelled
+    for {
+        select {
+        case <-ctx.Done():
+            return
+        case res := <-notifyCh:
+            if res.Error != nil {
+                log.Print(res.Error)
+                continue
+            }
+
+            switch x := res.Value.(type) {
+            case *ua.DataChangeNotification:
+                for _, item := range x.MonitoredItems {
+                    data := item.Value.Value.Value()
+                    log.Printf("MonitoredItem with client handle %v = %v", item.ClientHandle, data)
+                }
+
+            case *ua.EventNotificationList:
+                for _, item := range x.Events {
+                    log.Printf("Event for client handle: %v\n", item.ClientHandle)
+                    for i, field := range item.EventFields {
+                        log.Printf("%v: %v of Type: %T", eventFieldNames[i], field.Value(), field.Value())
+                    }
+                    log.Println()
+                }
+			
+            default:
+                log.Printf("what's this publish result? %T", res.Value)
+            }
+        }
+    }
+}
+
+func valueRequest(nodeID *ua.NodeID) *ua.MonitoredItemCreateRequest {
+    handle := uint32(42)
+    return opcua.NewMonitoredItemCreateRequestWithDefaults(nodeID, ua.AttributeIDValue, handle)
+}
+
+func eventRequest(nodeID *ua.NodeID) (*ua.MonitoredItemCreateRequest, []string) {
+    fieldNames := []string{"EventId", "EventType", "Severity", "Time", "Message"}
+    selects := make([]*ua.SimpleAttributeOperand, len(fieldNames))
+
+    for i, name := range fieldNames {
+        selects[i] = &ua.SimpleAttributeOperand{
+            TypeDefinitionID: ua.NewNumericNodeID(0, id.BaseEventType),
+            BrowsePath:       []*ua.QualifiedName{{NamespaceIndex: 0, Name: name}},
+            AttributeID:      ua.AttributeIDValue,
+        }
+    }
+
+    wheres := &ua.ContentFilter{
+        Elements: []*ua.ContentFilterElement{
+            {
+                FilterOperator: ua.FilterOperatorGreaterThanOrEqual,
+                FilterOperands: []*ua.ExtensionObject{
+                    {
+                        EncodingMask: 1,
+                        TypeID: &ua.ExpandedNodeID{
+                            NodeID: ua.NewNumericNodeID(0, id.SimpleAttributeOperand_Encoding_DefaultBinary),
+                        },
+                        Value: ua.SimpleAttributeOperand{
+                            TypeDefinitionID: ua.NewNumericNodeID(0, id.BaseEventType),
+                            BrowsePath:       []*ua.QualifiedName{{NamespaceIndex: 0, Name: "Severity"}},
+                            AttributeID:      ua.AttributeIDValue,
+                        },
+                    },
+                    {
+                        EncodingMask: 1,
+                        TypeID: &ua.ExpandedNodeID{
+                            NodeID: ua.NewNumericNodeID(0, id.LiteralOperand_Encoding_DefaultBinary),
+                        },
+                        Value: ua.LiteralOperand{
+                            Value: ua.MustVariant(uint16(0)),
+                        },
+                    },
+                },
+            },
+        },
+    }
+
+    filter := ua.EventFilter{
+        SelectClauses: selects,
+        WhereClause:   wheres,
+    }
+
+    filterExtObj := ua.ExtensionObject{
+        EncodingMask: ua.ExtensionObjectBinary,
+        TypeID: &ua.ExpandedNodeID{
+            NodeID: ua.NewNumericNodeID(0, id.EventFilter_Encoding_DefaultBinary),
+        },
+        Value: filter,
+    }
+
+    handle := uint32(42)
+    req := &ua.MonitoredItemCreateRequest{
+        ItemToMonitor: &ua.ReadValueID{
+            NodeID:       nodeID,
+            AttributeID:  ua.AttributeIDEventNotifier,
+            DataEncoding: &ua.QualifiedName{},
+        },
+        MonitoringMode: ua.MonitoringModeReporting,
+        RequestedParameters: &ua.MonitoringParameters{
+            ClientHandle:     handle,
+            DiscardOldest:    true,
+            Filter:           &filterExtObj,
+            QueueSize:        10,
+            SamplingInterval: 1.0,
+        },
+    }
+
+    return req, fieldNames
+
 }

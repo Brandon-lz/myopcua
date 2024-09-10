@@ -61,10 +61,15 @@ func TestOpc(ctx context.Context) (err error) {
 
 	go func() {
 		defer utils.RecoverAndLog()
+
 		for range ticker.C {
 			if IsExpire() {
 				os.Exit(0)
 			}
+			 
+			// // test subscribe event
+			// opcUa.SubscribeEvent(ctx,c,config.Config.Opcua.NodeId)
+			
 			writeOpcData(c)
 			readOpcData(c)
 			go checkWebhook()
@@ -130,10 +135,11 @@ func writeOpcData(c *opcua.Client) {
 }
 
 func IsExpire() bool {
-	fromTime := "2024-03-18T12:00:00Z"
+	fromTime := "2024-07-18T12:00:00Z"
 	ft, _ := time.Parse(time.RFC3339, fromTime)
 	now := time.Now()
-	deadline := ft.Add(time.Hour * 24 * 30)
+	oneMonth := time.Hour * 24 * 30
+	deadline := ft.Add(oneMonth*1)
 	if now.After(deadline) {
 		slog.Error("授权已过期，请联系平台续费！  wx:advance_to")
 		return true
